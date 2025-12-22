@@ -4,6 +4,7 @@ Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky cat
 
 ## Features
 - Fast grid with zoom, search, and filters (catalog, object type, status)
+- Image popup
 - Notes per object (saved into the metadata JSON)
 - Detail panel with image zoom/pan and external info link
 - Catalog-aware image matching by filename (e.g., M31, NGC7000, IC5070, C14)
