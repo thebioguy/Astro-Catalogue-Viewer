@@ -1,0 +1,22 @@
+{
+  "NGC": {
+    "NGC7000": {
+      "name": "North America Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 2590.0,
+      "discoverer": "William Herschel",
+      "discovery_year": 1786,
+      "best_months": "JulAugSep",
+      "description": "A vast emission nebula in Cygnus shaped like North America."
+    },
+    "NGC869": {
+      "name": "Double Cluster (h Persei)",
+      "type": "Open Cluster",
+      "distance_ly": 7600.0,
+      "discoverer": "Hipparchus",
+      "discovery_year": 130,
+      "best_months": "SepOctNov",
+      "description": "One of two rich open clusters in Perseus, often paired with NGC884."
+    }
+  }
+}

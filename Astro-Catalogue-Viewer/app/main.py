@@ -1,0 +1,1306 @@
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+import http.server
+import json
+import threading
+from urllib.parse import urlparse
+import datetime
+
+from PySide6 import QtCore, QtGui, QtWidgets
+
+from catalog import CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note
+from catalog import PROJECT_ROOT
+from image_cache import ThumbnailCache
+
+
+APP_NAME = "Astro Catalogue Viewer"
+ORG_NAME = "AstroCatalogueViewer"
+
+
+class ThumbnailSignals(QtCore.QObject):
+    loaded = QtCore.Signal(str, QtGui.QImage)
+
+
+class CatalogLoadSignals(QtCore.QObject):
+    loaded = QtCore.Signal(list)
+
+
+class MapFetchSignals(QtCore.QObject):
+    loaded = QtCore.Signal(bytes)
+    failed = QtCore.Signal()
+
+
+class ThumbnailTask(QtCore.QRunnable):
+    def __init__(self, item_key: str, image_path: Path, cache: ThumbnailCache) -> None:
+        super().__init__()
+        self.item_key = item_key
+        self.image_path = image_path
+        self.cache = cache
+        self.signals = ThumbnailSignals()
+
+    def run(self) -> None:
+        image = self.cache.create_thumbnail(self.image_path)
+        if image is None:
+            return
+        self.signals.loaded.emit(self.item_key, image)
+
+
+class CatalogLoadTask(QtCore.QRunnable):
+    def __init__(self, config: Dict) -> None:
+        super().__init__()
+        self.config = config
+        self.signals = CatalogLoadSignals()
+
+    def run(self) -> None:
+        items = load_catalog_items(self.config)
+        self.signals.loaded.emit(items)
+
+
+class MapTileFetchTask(QtCore.QRunnable):
+    def __init__(
+        self,
+        latitude: float,
+        longitude: float,
+        zoom: int,
+        size: QtCore.QSize,
+        tile_servers: List[str],
+    ) -> None:
+        super().__init__()
+        self.latitude = latitude
+        self.longitude = longitude
+        self.zoom = zoom
+        self.size = size
+        self.tile_servers = tile_servers
+        self.signals = MapFetchSignals()
+
+    def run(self) -> None:
+        import math
+        import urllib.request
+
+        tile_size = 256
+        width = self.size.width()
+        height = self.size.height()
+
+        lat = max(-85.0511, min(85.0511, self.latitude))
+        world = tile_size * (2**self.zoom)
+        x = (self.longitude + 180.0) / 360.0 * world
+        rad = math.radians(lat)
+        y = (1.0 - math.log(math.tan(rad) + 1.0 / math.cos(rad)) / math.pi) / 2.0 * world
+
+        x0 = x - width / 2
+        y0 = y - height / 2
+        x_start = int(math.floor(x0 / tile_size))
+        x_end = int(math.floor((x0 + width - 1) / tile_size))
+        y_start = int(math.floor(y0 / tile_size))
+        y_end = int(math.floor((y0 + height - 1) / tile_size))
+
+        image = QtGui.QImage(width, height, QtGui.QImage.Format.Format_ARGB32)
+        image.fill(QtGui.QColor("#141414"))
+        painter = QtGui.QPainter(image)
+
+        tiles_fetched = 0
+        max_tile = 2**self.zoom
+        for ty in range(y_start, y_end + 1):
+            if ty < 0 or ty >= max_tile:
+                continue
+            for tx in range(x_start, x_end + 1):
+                tx_wrapped = tx % max_tile
+                tile_data = None
+                for base in self.tile_servers:
+                    url = base.format(z=self.zoom, x=tx_wrapped, y=ty)
+                    try:
+                        request = urllib.request.Request(
+                            url,
+                            headers={"User-Agent": "AstroCatalogueViewer/1.0"},
+                        )
+                        with urllib.request.urlopen(request, timeout=6) as response:
+                            tile_data = response.read()
+                        if tile_data:
+                            break
+                    except Exception:
+                        continue
+                if not tile_data:
+                    continue
+                tile_img = QtGui.QImage.fromData(tile_data)
+                if tile_img.isNull():
+                    continue
+                target_x = int(tx * tile_size - x0)
+                target_y = int(ty * tile_size - y0)
+                painter.drawImage(target_x, target_y, tile_img)
+                tiles_fetched += 1
+
+        painter.end()
+
+        if tiles_fetched == 0:
+            self.signals.failed.emit()
+            return
+
+        buffer = QtCore.QBuffer()
+        buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)
+        image.save(buffer, "PNG")
+        data = bytes(buffer.data())
+        self.signals.loaded.emit(data)
+
+
+class CatalogModel(QtCore.QAbstractListModel):
+    def __init__(self, items: List[CatalogItem], cache: ThumbnailCache, parent: Optional[QtCore.QObject] = None) -> None:
+        super().__init__(parent)
+        self._items = items
+        self._cache = cache
+        self._loading = set()
+        self._pixmaps: Dict[str, QtGui.QPixmap] = {}
+        self._row_lookup = {item.unique_key: row for row, item in enumerate(items)}
+        self._thread_pool = QtCore.QThreadPool.globalInstance()
+        self._placeholder = self._create_placeholder()
+
+    def rowCount(self, parent: QtCore.QModelIndex = QtCore.QModelIndex()) -> int:
+        if parent.isValid():
+            return 0
+        return len(self._items)
+
+    def data(self, index: QtCore.QModelIndex, role: int = QtCore.Qt.ItemDataRole.DisplayRole):
+        if not index.isValid():
+            return None
+        item = self._items[index.row()]
+        if role == QtCore.Qt.ItemDataRole.DisplayRole:
+            return item.display_name
+        if role == QtCore.Qt.ItemDataRole.ToolTipRole:
+            return f"{item.catalog} | {item.object_type}"
+        if role == QtCore.Qt.ItemDataRole.DecorationRole:
+            if item.image_path is None:
+                return self._placeholder
+            cached = self._cache.get_thumbnail(item.image_path)
+            if cached:
+                return cached
+            pixmap = self._pixmaps.get(item.unique_key)
+            if pixmap:
+                return pixmap
+            self._queue_thumbnail(item)
+            return self._placeholder
+        if role == QtCore.Qt.ItemDataRole.UserRole:
+            return item
+        return None
+
+    def _queue_thumbnail(self, item: CatalogItem) -> None:
+        if item.image_path is None:
+            return
+        if item.unique_key in self._loading:
+            return
+        self._loading.add(item.unique_key)
+        task = ThumbnailTask(item.unique_key, item.image_path, self._cache)
+        task.signals.loaded.connect(self._on_thumbnail_loaded)
+        self._thread_pool.start(task)
+
+    def _on_thumbnail_loaded(self, item_key: str, image: QtGui.QImage) -> None:
+        row = self._row_lookup.get(item_key)
+        if row is None:
+            return
+        item = self._items[row]
+        if item.image_path is None:
+            return
+        pixmap = self._cache.store_thumbnail_image(item.image_path, image)
+        self._pixmaps[item_key] = pixmap
+        self._loading.discard(item_key)
+        index = self.index(row)
+        self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DecorationRole])
+
+    def set_items(self, items: List[CatalogItem]) -> None:
+        self.beginResetModel()
+        self._items = items
+        self._pixmaps.clear()
+        self._loading.clear()
+        self._row_lookup = {item.unique_key: row for row, item in enumerate(items)}
+        self.endResetModel()
+
+    def update_cache(self, cache: ThumbnailCache) -> None:
+        self._cache = cache
+        self._pixmaps.clear()
+        self._loading.clear()
+        if self._items:
+            self.dataChanged.emit(self.index(0), self.index(len(self._items) - 1))
+
+    def update_item_notes(self, item_key: str, notes: str) -> None:
+        row = self._row_lookup.get(item_key)
+        if row is None:
+            return
+        item = self._items[row]
+        updated = CatalogItem(
+            object_id=item.object_id,
+            catalog=item.catalog,
+            name=item.name,
+            object_type=item.object_type,
+            distance_ly=item.distance_ly,
+            discoverer=item.discoverer,
+            discovery_year=item.discovery_year,
+            best_months=item.best_months,
+            description=item.description,
+            notes=notes,
+            image_path=item.image_path,
+        )
+        self._items[row] = updated
+        index = self.index(row)
+        self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DisplayRole])
+
+    def _create_placeholder(self) -> QtGui.QPixmap:
+        size = self._cache.thumb_size
+        pixmap = QtGui.QPixmap(size, size)
+        pixmap.fill(QtGui.QColor("#1c1c1c"))
+        painter = QtGui.QPainter(pixmap)
+        painter.setPen(QtGui.QColor("#2d2d2d"))
+        painter.drawRect(0, 0, size - 1, size - 1)
+        painter.end()
+        return pixmap
+
+
+class CatalogItemDelegate(QtWidgets.QStyledItemDelegate):
+    def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionViewItem, index: QtCore.QModelIndex) -> None:
+        painter.save()
+        rect = option.rect
+        icon = index.data(QtCore.Qt.ItemDataRole.DecorationRole)
+        text = index.data(QtCore.Qt.ItemDataRole.DisplayRole) or ""
+        metrics = option.fontMetrics
+        text_height = metrics.height() + 6
+        icon_rect = QtCore.QRect(rect.left() + 1, rect.top() + 1, rect.width() - 2, rect.height() - 2)
+        text_rect = QtCore.QRect(rect.left() + 4, rect.bottom() - text_height - 2, rect.width() - 8, text_height)
+
+        if isinstance(icon, QtGui.QPixmap):
+            painter.drawPixmap(icon_rect, icon)
+        else:
+            painter.fillRect(icon_rect, QtGui.QColor("#1c1c1c"))
+            pen = QtGui.QPen(QtGui.QColor("#3a3a3a"))
+            painter.setPen(pen)
+            painter.drawRect(icon_rect)
+
+        painter.fillRect(text_rect, QtGui.QColor(0, 0, 0, 160))
+        painter.setPen(QtGui.QColor("#f2f2f2"))
+        elided = metrics.elidedText(text, QtCore.Qt.TextElideMode.ElideRight, text_rect.width())
+        painter.drawText(text_rect, QtCore.Qt.AlignmentFlag.AlignCenter, elided)
+
+        painter.restore()
+
+    def sizeHint(self, option: QtWidgets.QStyleOptionViewItem, index: QtCore.QModelIndex) -> QtCore.QSize:
+        size = index.data(QtCore.Qt.ItemDataRole.SizeHintRole)
+        if isinstance(size, QtCore.QSize):
+            return size
+        return super().sizeHint(option, index)
+
+
+class CatalogFilterProxy(QtCore.QSortFilterProxyModel):
+    def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
+        super().__init__(parent)
+        self.search_text = ""
+        self.type_filter = ""
+        self.catalog_filter = ""
+        self.status_filter = ""
+        self.setFilterCaseSensitivity(QtCore.Qt.CaseSensitivity.CaseInsensitive)
+
+    def set_search_text(self, text: str) -> None:
+        self.search_text = text.strip()
+        self.invalidate()
+
+    def set_type_filter(self, value: str) -> None:
+        self.type_filter = value
+        self.invalidate()
+
+    def set_catalog_filter(self, value: str) -> None:
+        self.catalog_filter = value
+        self.invalidate()
+
+    def set_status_filter(self, value: str) -> None:
+        self.status_filter = value
+        self.invalidate()
+
+    def filterAcceptsRow(self, source_row: int, source_parent: QtCore.QModelIndex) -> bool:
+        model = self.sourceModel()
+        index = model.index(source_row, 0, source_parent)
+        item: CatalogItem = model.data(index, QtCore.Qt.ItemDataRole.UserRole)
+        if item is None:
+            return False
+        if self.catalog_filter and item.catalog != self.catalog_filter:
+            return False
+        if self.type_filter and item.object_type != self.type_filter:
+            return False
+        if self.status_filter:
+            if self.status_filter == "Captured" and item.image_path is None:
+                return False
+            if self.status_filter == "Missing" and item.image_path is not None:
+                return False
+            if self.status_filter == "Suggested" and not self._is_suggested(item):
+                return False
+        if self.search_text:
+            search = self.search_text.lower()
+            if search not in item.object_id.lower() and search not in item.name.lower():
+                return False
+        return True
+
+    def _is_suggested(self, item: CatalogItem) -> bool:
+        if item.image_path is not None:
+            return False
+        if not item.best_months:
+            return False
+        month = datetime.datetime.now().strftime("%b")
+        for idx in range(0, len(item.best_months), 3):
+            if item.best_months[idx: idx + 3] == month:
+                return True
+        return False
+
+
+class ImageView(QtWidgets.QGraphicsView):
+    def __init__(self) -> None:
+        super().__init__()
+        self.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.SmoothPixmapTransform)
+        self.setDragMode(QtWidgets.QGraphicsView.DragMode.ScrollHandDrag)
+        self.setViewportUpdateMode(QtWidgets.QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
+        self.setScene(QtWidgets.QGraphicsScene(self))
+        self._pixmap_item: Optional[QtWidgets.QGraphicsPixmapItem] = None
+        self._zoom = 0
+        self._pixmap: Optional[QtGui.QPixmap] = None
+
+    def set_pixmap(self, pixmap: Optional[QtGui.QPixmap]) -> None:
+        self.scene().clear()
+        self._zoom = 0
+        self._pixmap = pixmap if pixmap and not pixmap.isNull() else None
+        if self._pixmap:
+            self._pixmap_item = self.scene().addPixmap(self._pixmap)
+            self.setSceneRect(pixmap.rect())
+            self.fitInView(self.sceneRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+        else:
+            self._pixmap_item = None
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        super().resizeEvent(event)
+        if self._pixmap_item and self._pixmap:
+            self.fitInView(self.sceneRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+
+    def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
+        if self._pixmap_item is None:
+            return
+        angle = event.angleDelta().y()
+        if angle > 0:
+            factor = 1.15
+            self._zoom += 1
+        else:
+            factor = 0.87
+            self._zoom -= 1
+        if self._zoom < -5:
+            self._zoom = -5
+            return
+        if self._zoom > 20:
+            self._zoom = 20
+            return
+        self.scale(factor, factor)
+
+
+class DetailPanel(QtWidgets.QWidget):
+    def __init__(self) -> None:
+        super().__init__()
+        self.image_view = ImageView()
+        self.title = QtWidgets.QLabel("Select an object")
+        self.title.setObjectName("detailTitle")
+        self.metadata = QtWidgets.QLabel("")
+        self.metadata.setWordWrap(True)
+        self.description = QtWidgets.QTextEdit()
+        self.description.setReadOnly(True)
+        self.description.setObjectName("descriptionBox")
+        self.notes = QtWidgets.QTextEdit()
+        self.notes.setObjectName("notesBox")
+        self.notes.setPlaceholderText("Notes...")
+        self.notes.setMinimumHeight(80)
+        self.notes.setMaximumHeight(140)
+        self.external_link = QtWidgets.QLabel("")
+        self.external_link.setOpenExternalLinks(True)
+        self.external_link.setObjectName("externalLink")
+        self._current_item: Optional[CatalogItem] = None
+        self._notes_block = False
+
+        top_widget = QtWidgets.QWidget()
+        top_layout = QtWidgets.QVBoxLayout(top_widget)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+        top_layout.addWidget(self.title)
+        top_layout.addWidget(self.image_view, stretch=2)
+        top_layout.addWidget(self.metadata)
+        top_layout.addWidget(self.external_link)
+
+        splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
+        splitter.addWidget(top_widget)
+        splitter.addWidget(self.description)
+        splitter.addWidget(self.notes)
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 2)
+        splitter.setStretchFactor(2, 1)
+        self.splitter = splitter
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(splitter)
+
+    def update_item(self, item: Optional[CatalogItem]) -> None:
+        self._current_item = item
+        self._notes_block = True
+        if item is None:
+            self.title.setText("Select an object")
+            self.metadata.setText("")
+            self.description.setPlainText("")
+            self.notes.setPlainText("")
+            self.image_view.set_pixmap(None)
+            self._notes_block = False
+            return
+        self.title.setText(item.display_name)
+        metadata_lines = [
+            f"Catalog: {item.catalog}",
+            f"Type: {item.object_type or 'Unknown'}",
+        ]
+        if item.distance_ly:
+            metadata_lines.append(f"Distance: {item.distance_ly:,.0f} ly")
+        if item.discoverer:
+            label = f"Discoverer: {item.discoverer}"
+            if item.discovery_year:
+                label += f" ({item.discovery_year})"
+            metadata_lines.append(label)
+        if item.best_months:
+            metadata_lines.append(f"Best visibility: {item.best_months}")
+        self.metadata.setText("\n".join(metadata_lines))
+        self.description.setPlainText(item.description or "")
+        self.notes.setPlainText(item.notes or "")
+        if item.external_link:
+            self.external_link.setText(f'<a href="{item.external_link}">More info</a>')
+            self.external_link.show()
+        else:
+            self.external_link.hide()
+        if item.image_path and item.image_path.exists():
+            pixmap = QtGui.QPixmap(str(item.image_path))
+            self.image_view.set_pixmap(pixmap)
+        else:
+            self.image_view.set_pixmap(None)
+        self._notes_block = False
+
+    def connect_notes_changed(self, callback) -> None:
+        self.notes.textChanged.connect(callback)
+
+    def current_notes(self) -> str:
+        return self.notes.toPlainText()
+
+    def current_item(self) -> Optional[CatalogItem]:
+        return self._current_item
+
+    def notes_blocked(self) -> bool:
+        return self._notes_block
+
+
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, config_path: Path) -> None:
+        super().__init__()
+        self.setWindowTitle(APP_NAME)
+        self.resize(1400, 900)
+
+        self.config_path = config_path
+        self.config = load_config(self.config_path)
+        if not self.config_path.exists():
+            save_config(self.config_path, self.config)
+
+        cache_dir = self._cache_dir()
+        thumb_size = self.config.get("thumb_size", 240)
+        self.thumbnail_cache = ThumbnailCache(cache_dir, thumb_size)
+
+        self.items: List[CatalogItem] = []
+        self.model = CatalogModel(self.items, self.thumbnail_cache, self)
+        self.proxy = CatalogFilterProxy(self)
+        self.proxy.setSourceModel(self.model)
+        self._auto_fit_enabled = True
+        self._thread_pool = QtCore.QThreadPool.globalInstance()
+        self._loading = False
+        self._pending_reload = False
+        self._pending_config: Optional[Dict] = None
+        self._preview_active = False
+        self._auto_fit_timer = QtCore.QTimer(self)
+        self._auto_fit_timer.setSingleShot(True)
+        self._auto_fit_timer.setInterval(150)
+        self._auto_fit_timer.timeout.connect(self._auto_fit_thumbnails)
+        self._zoom_timer = QtCore.QTimer(self)
+        self._zoom_timer.setSingleShot(True)
+        self._zoom_timer.setInterval(120)
+        self._zoom_timer.timeout.connect(self._apply_zoom)
+        self._pending_zoom = self.thumbnail_cache.thumb_size
+        self._notes_timer = QtCore.QTimer(self)
+        self._notes_timer.setSingleShot(True)
+        self._notes_timer.setInterval(600)
+        self._notes_timer.timeout.connect(self._flush_notes)
+        self._pending_notes: Dict[str, str] = {}
+
+        self._build_ui()
+        self._apply_dark_theme()
+        self._update_filters()
+        self._start_catalog_load()
+
+    def _cache_dir(self) -> Path:
+        location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.CacheLocation)
+        return Path(location)
+
+    def _build_ui(self) -> None:
+        central = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout(central)
+        layout.setContentsMargins(12, 12, 12, 12)
+
+        toolbar = QtWidgets.QHBoxLayout()
+        toolbar.setContentsMargins(0, 0, 0, 0)
+        toolbar.setSpacing(10)
+        self.search = QtWidgets.QLineEdit()
+        self.search.setPlaceholderText("Search by object ID or name")
+        self.search.textChanged.connect(self._on_search_changed)
+        self.search.setMaximumWidth(520)
+
+        self.catalog_filter = QtWidgets.QComboBox()
+        self.catalog_filter.currentTextChanged.connect(self._on_catalog_changed)
+        self.catalog_filter.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.catalog_filter.setMinimumContentsLength(12)
+
+        self.type_filter = QtWidgets.QComboBox()
+        self.type_filter.currentTextChanged.connect(self._on_type_changed)
+        self.type_filter.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.type_filter.setMinimumContentsLength(18)
+
+        self.status_filter = QtWidgets.QComboBox()
+        self.status_filter.currentTextChanged.connect(self._on_status_changed)
+        self.status_filter.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.status_filter.setMinimumContentsLength(12)
+
+        self.zoom_slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
+        self.zoom_slider.setRange(80, 360)
+        self.zoom_slider.setValue(self.thumbnail_cache.thumb_size)
+        self.zoom_slider.valueChanged.connect(self._on_zoom_changed)
+
+        self.refresh_button = QtWidgets.QPushButton("Refresh")
+        self.refresh_button.clicked.connect(self._refresh_catalog)
+        self.settings_button = QtWidgets.QPushButton("Settings")
+        self.settings_button.clicked.connect(self._open_settings)
+
+        toolbar.addWidget(self.search)
+        toolbar.addStretch(1)
+        toolbar.addWidget(QtWidgets.QLabel("Catalog"))
+        toolbar.addWidget(self.catalog_filter)
+        toolbar.addSpacing(6)
+        toolbar.addWidget(QtWidgets.QLabel("Object Type"))
+        toolbar.addWidget(self.type_filter)
+        toolbar.addSpacing(6)
+        toolbar.addWidget(QtWidgets.QLabel("Status"))
+        toolbar.addWidget(self.status_filter)
+        toolbar.addSpacing(6)
+        toolbar.addWidget(QtWidgets.QLabel("Zoom"))
+        toolbar.addWidget(self.zoom_slider)
+        toolbar.addWidget(self.refresh_button)
+        toolbar.addWidget(self.settings_button)
+
+        self.status_label = QtWidgets.QLabel("")
+        self.status_label.setObjectName("statusLabel")
+
+        layout.addLayout(toolbar)
+        layout.addWidget(self.status_label)
+
+        self.grid = QtWidgets.QListView()
+        self.grid.setViewMode(QtWidgets.QListView.ViewMode.IconMode)
+        self.grid.setResizeMode(QtWidgets.QListView.ResizeMode.Adjust)
+        self.grid.setUniformItemSizes(True)
+        self.grid.setSpacing(0)
+        self._update_grid_metrics(self.thumbnail_cache.thumb_size)
+        self.grid.setItemDelegate(CatalogItemDelegate(self.grid))
+        self.grid.setStyleSheet(
+            "QListView::item { margin: 0px; padding: 0px; border: 1px solid #3a3a3a; }"
+        )
+        self.grid.setModel(self.proxy)
+        self.grid.selectionModel().selectionChanged.connect(self._on_selection_changed)
+        self.grid.viewport().installEventFilter(self)
+
+        self.detail = DetailPanel()
+        self.detail.connect_notes_changed(self._on_notes_changed)
+
+        splitter = QtWidgets.QSplitter()
+        splitter.addWidget(self.grid)
+        splitter.addWidget(self.detail)
+        splitter.setStretchFactor(0, 3)
+        splitter.setStretchFactor(1, 2)
+        splitter.splitterMoved.connect(self._schedule_auto_fit)
+        self.splitter = splitter
+
+        layout.addWidget(splitter, stretch=1)
+
+        footer = QtWidgets.QHBoxLayout()
+        support = QtWidgets.QLabel(
+            'Support development: <a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a>'
+        )
+        support.setOpenExternalLinks(True)
+        support.setObjectName("supportLink")
+        footer.addWidget(support)
+        footer.addStretch(1)
+        layout.addLayout(footer)
+        self.setCentralWidget(central)
+
+    def _apply_dark_theme(self) -> None:
+        self.setStyleSheet(
+            """
+            QWidget { background: #141414; color: #e5e5e5; font-family: 'Avenir Next', 'Helvetica Neue', Arial; }
+            QLineEdit, QComboBox, QTextEdit { background: #1d1d1d; border: 1px solid #333; padding: 6px; }
+            QListView { background: #101010; border: 1px solid #2a2a2a; }
+            QLabel#detailTitle { font-size: 20px; font-weight: 600; }
+            QLabel#welcomeTitle { font-size: 20px; font-weight: 600; }
+            QTextBrowser#welcomeBody { background: #101010; border: 1px solid #2a2a2a; }
+            QLabel#statusLabel { color: #d9a441; padding: 4px 0; }
+            QLabel#coordLabel { color: #bcbcbc; padding: 4px 0; }
+            QLabel#supportLink { color: #bcbcbc; }
+            QLabel#supportLink a { color: #d9a441; text-decoration: none; }
+            QLabel#externalLink a { color: #8ab4f8; text-decoration: none; }
+            QTextEdit#descriptionBox { background: #0f0f0f; }
+            QTextEdit#notesBox { background: #101417; }
+            QPushButton { background: #2c2c2c; border: 1px solid #3b3b3b; padding: 6px 12px; }
+            QPushButton:hover { background: #3a3a3a; }
+            QSlider::groove:horizontal { height: 6px; background: #2a2a2a; }
+            QSlider::handle:horizontal { width: 14px; background: #d9a441; margin: -4px 0; border-radius: 7px; }
+            """
+        )
+
+    def _update_filters(self) -> None:
+        catalogs = {item.catalog for item in self.items}
+        configured = {c.get("name") for c in self.config.get("catalogs", []) if c.get("name")}
+        catalogs = sorted(catalogs | configured)
+        self.catalog_filter.blockSignals(True)
+        self.catalog_filter.clear()
+        self.catalog_filter.addItem("All")
+        self.catalog_filter.addItems(catalogs)
+        self.catalog_filter.blockSignals(False)
+        self.catalog_filter.view().setMinimumWidth(160)
+
+        types = collect_object_types(self.items)
+        self.type_filter.blockSignals(True)
+        self.type_filter.clear()
+        self.type_filter.addItem("All")
+        self.type_filter.addItems(types)
+        self.type_filter.blockSignals(False)
+        self.type_filter.view().setMinimumWidth(220)
+
+        self.status_filter.blockSignals(True)
+        self.status_filter.clear()
+        self.status_filter.addItem("All")
+        self.status_filter.addItems(["Captured", "Missing", "Suggested"])
+        self.status_filter.blockSignals(False)
+        self.status_filter.view().setMinimumWidth(160)
+
+    def _refresh_catalog(self) -> None:
+        self.config = load_config(self.config_path)
+        if self._zoom_timer.isActive():
+            self._zoom_timer.stop()
+        self._start_catalog_load()
+
+    def _on_selection_changed(self) -> None:
+        indexes = self.grid.selectionModel().selectedIndexes()
+        if not indexes:
+            self.detail.update_item(None)
+            return
+        source_index = self.proxy.mapToSource(indexes[0])
+        item = self.model.data(source_index, QtCore.Qt.ItemDataRole.UserRole)
+        self.detail.update_item(item)
+        if item:
+            self._notes_timer.start()
+
+    def _on_catalog_changed(self, value: str) -> None:
+        if value == "All":
+            self.proxy.set_catalog_filter("")
+        else:
+            self.proxy.set_catalog_filter(value)
+        self._schedule_auto_fit()
+
+    def _on_type_changed(self, value: str) -> None:
+        if value == "All":
+            self.proxy.set_type_filter("")
+        else:
+            self.proxy.set_type_filter(value)
+        self._schedule_auto_fit()
+
+    def _on_status_changed(self, value: str) -> None:
+        if value == "All":
+            self.proxy.set_status_filter("")
+        else:
+            self.proxy.set_status_filter(value)
+        self._schedule_auto_fit()
+
+    def _on_search_changed(self, text: str) -> None:
+        self.proxy.set_search_text(text)
+        self._schedule_auto_fit()
+
+    def _on_zoom_changed(self, value: int) -> None:
+        self._auto_fit_enabled = False
+        self._pending_zoom = value
+        self._zoom_timer.start()
+
+    def _apply_zoom(self) -> None:
+        value = self._pending_zoom
+        self._update_grid_metrics(value)
+        self.config["thumb_size"] = value
+        self.thumbnail_cache = ThumbnailCache(self._cache_dir(), value)
+        self.model.update_cache(self.thumbnail_cache)
+        self._schedule_view_refresh()
+
+    def _schedule_auto_fit(self) -> None:
+        if self._auto_fit_enabled:
+            self._auto_fit_timer.start()
+        else:
+            self._schedule_view_refresh()
+
+    def _auto_fit_thumbnails(self) -> None:
+        if not self._auto_fit_enabled:
+            return
+        item_count = self.proxy.rowCount()
+        if item_count <= 0:
+            return
+        width = self.grid.viewport().width()
+        height = self.grid.viewport().height()
+        if width <= 0 or height <= 0:
+            return
+        spacing = self.grid.spacing()
+        min_size, max_size = 60, 320
+
+        def fits(size: int) -> bool:
+            columns = max(1, (width + spacing) // (size + spacing))
+            rows = (item_count + columns - 1) // columns
+            total_height = rows * (size + spacing) - spacing
+            return total_height <= height
+
+        lo, hi = min_size, max_size
+        best = min_size
+        while lo <= hi:
+            mid = (lo + hi) // 2
+            if fits(mid):
+                best = mid
+                lo = mid + 1
+            else:
+                hi = mid - 1
+        self.grid.setIconSize(QtCore.QSize(best, best))
+        self._update_grid_metrics(best)
+        self.zoom_slider.blockSignals(True)
+        self.zoom_slider.setValue(best)
+        self.zoom_slider.blockSignals(False)
+        self.config["thumb_size"] = best
+        self.thumbnail_cache = ThumbnailCache(self._cache_dir(), best)
+        self.model.update_cache(self.thumbnail_cache)
+        self._schedule_view_refresh()
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        super().resizeEvent(event)
+        self._schedule_auto_fit()
+
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
+        if obj is self.grid.viewport() and event.type() == QtCore.QEvent.Type.Resize:
+            self._schedule_auto_fit()
+        return super().eventFilter(obj, event)
+
+    def _schedule_view_refresh(self) -> None:
+        if self._loading:
+            return
+        QtCore.QTimer.singleShot(0, self._refresh_view)
+
+    def _refresh_view(self) -> None:
+        if self._loading:
+            return
+        self.grid.doItemsLayout()
+        self.grid.viewport().update()
+
+    def _open_settings(self) -> None:
+        base_config = self.config
+        dialog = SettingsDialog(self.config, self)
+        dialog.previewChanged.connect(self._preview_settings_changed)
+        result = dialog.exec()
+        if result != QtWidgets.QDialog.DialogCode.Accepted:
+            if self._preview_active:
+                self._preview_active = False
+                self._start_catalog_load(base_config)
+            return
+        self.config = dialog.updated_config
+        save_config(self.config_path, self.config)
+        self.thumbnail_cache = ThumbnailCache(self._cache_dir(), self.config.get("thumb_size", 240))
+        self._auto_fit_enabled = True
+        self._start_catalog_load()
+        self._preview_active = False
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        save_config(self.config_path, self.config)
+        super().closeEvent(event)
+
+    def _start_catalog_load(self, config_override: Optional[Dict] = None) -> None:
+        config = config_override or self.config
+        if self._loading:
+            self._pending_reload = True
+            self._pending_config = config
+            return
+        if self._zoom_timer.isActive():
+            self._zoom_timer.stop()
+        self._loading = True
+        self._loading_config = config
+        self._set_ui_enabled(False)
+        self.status_label.setText("Loading catalog…")
+        task = CatalogLoadTask(config)
+        task.signals.loaded.connect(self._on_catalog_loaded)
+        self._thread_pool.start(task)
+
+    def _on_catalog_loaded(self, items: List[CatalogItem]) -> None:
+        self.items = items
+        self.model.set_items(self.items)
+        self._update_filters()
+        self._auto_fit_enabled = True
+        self._schedule_auto_fit()
+        self._schedule_view_refresh()
+        self.status_label.setText("")
+        self._loading = False
+        self._set_ui_enabled(True)
+        if self._pending_reload:
+            pending = self._pending_config
+            self._pending_reload = False
+            self._pending_config = None
+            self._start_catalog_load(pending)
+
+    def _update_grid_metrics(self, size: int) -> None:
+        self.grid.setIconSize(QtCore.QSize(size, size))
+        self.grid.setGridSize(QtCore.QSize(size + 2, size + 2))
+
+    def _set_ui_enabled(self, enabled: bool) -> None:
+        self.search.setEnabled(enabled)
+        self.catalog_filter.setEnabled(enabled)
+        self.type_filter.setEnabled(enabled)
+        self.status_filter.setEnabled(enabled)
+        self.zoom_slider.setEnabled(enabled)
+        self.grid.setEnabled(enabled)
+        self.refresh_button.setEnabled(enabled)
+        self.settings_button.setEnabled(enabled)
+
+    def _preview_settings_changed(self, config: Dict) -> None:
+        self._preview_active = True
+        self._start_catalog_load(config)
+
+    def _on_notes_changed(self) -> None:
+        if self.detail.notes_blocked():
+            return
+        item = self.detail.current_item()
+        if item is None:
+            return
+        key = item.unique_key
+        self._pending_notes[key] = self.detail.current_notes()
+        self._notes_timer.start()
+
+    def _flush_notes(self) -> None:
+        if not self._pending_notes:
+            return
+        current = self.detail.current_item()
+        if current is None:
+            return
+        key = current.unique_key
+        notes = self._pending_notes.get(key)
+        if notes is None:
+            return
+        metadata_path = resolve_metadata_path(self.config, current.catalog)
+        if metadata_path is None:
+            return
+        save_note(metadata_path, current.catalog, current.object_id, notes)
+        self.model.update_item_notes(key, notes)
+
+
+class SettingsDialog(QtWidgets.QDialog):
+    previewChanged = QtCore.Signal(dict)
+
+    def __init__(self, config: Dict, parent: Optional[QtWidgets.QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Settings")
+        self.setMinimumWidth(520)
+        self._config = config
+        self.updated_config: Dict = {}
+        self._map_dialog: Optional[MapPickerDialog] = None
+
+        observer = config.get("observer", {})
+        self.latitude = QtWidgets.QDoubleSpinBox()
+        self.latitude.setRange(-90.0, 90.0)
+        self.latitude.setDecimals(5)
+        self.latitude.setValue(observer.get("latitude", 0.0))
+
+        self.longitude = QtWidgets.QDoubleSpinBox()
+        self.longitude.setRange(-180.0, 180.0)
+        self.longitude.setDecimals(5)
+        self.longitude.setValue(observer.get("longitude", 0.0))
+
+        self.elevation = QtWidgets.QDoubleSpinBox()
+        self.elevation.setRange(-500.0, 9000.0)
+        self.elevation.setDecimals(1)
+        self.elevation.setSuffix(" m")
+        self.elevation.setValue(observer.get("elevation_m", 0.0))
+
+        form = QtWidgets.QFormLayout()
+        form.addRow("Latitude", self.latitude)
+        form.addRow("Longitude", self.longitude)
+        form.addRow("Elevation", self.elevation)
+
+        map_button = QtWidgets.QPushButton("Pick on Map")
+        map_button.clicked.connect(self._open_map_picker)
+        form.addRow("", map_button)
+
+        self.master_folder = QtWidgets.QLineEdit()
+        self.master_folder.setText(config.get("master_image_dir", ""))
+        browse_master = QtWidgets.QPushButton("Browse…")
+        browse_master.clicked.connect(self._browse_master_folder)
+        master_row = QtWidgets.QHBoxLayout()
+        master_row.addWidget(self.master_folder)
+        master_row.addWidget(browse_master)
+        form.addRow("Master Image Folder", master_row)
+
+        self.catalog_fields: Dict[str, QtWidgets.QLineEdit] = {}
+        catalogs = config.get("catalogs", [])
+        catalog_group = QtWidgets.QGroupBox("Image folder per catalog")
+        catalog_layout = QtWidgets.QFormLayout(catalog_group)
+        for catalog in catalogs:
+            name = catalog.get("name", "Unknown")
+            field = QtWidgets.QLineEdit()
+            image_dirs = catalog.get("image_dirs", [])
+            field.setText(image_dirs[0] if image_dirs else "")
+            browse = QtWidgets.QPushButton("Browse…")
+            browse.clicked.connect(lambda _checked=False, n=name: self._browse_catalog_folder(n))
+            row = QtWidgets.QHBoxLayout()
+            row.addWidget(field)
+            row.addWidget(browse)
+            catalog_layout.addRow(name, row)
+            self.catalog_fields[name] = field
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Save
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addLayout(form)
+        layout.addWidget(catalog_group)
+        layout.addWidget(buttons)
+
+    def accept(self) -> None:
+        updated = dict(self._config)
+        updated["observer"] = {
+            "latitude": self.latitude.value(),
+            "longitude": self.longitude.value(),
+            "elevation_m": self.elevation.value(),
+        }
+        updated["master_image_dir"] = self.master_folder.text().strip()
+
+        catalogs = []
+        for catalog in updated.get("catalogs", []):
+            name = catalog.get("name", "Unknown")
+            field = self.catalog_fields.get(name)
+            if field:
+                paths = [part.strip() for part in field.text().split(",") if part.strip()]
+                catalog["image_dirs"] = paths
+            catalogs.append(catalog)
+        updated["catalogs"] = catalogs
+
+        self.updated_config = updated
+        super().accept()
+
+    def _browse_catalog_folder(self, name: str) -> None:
+        field = self.catalog_fields.get(name)
+        if field is None:
+            return
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, f"Select {name} Image Folder")
+        if not directory:
+            return
+        field.setText(directory)
+        self._emit_preview()
+
+    def _browse_master_folder(self) -> None:
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Master Image Folder")
+        if not directory:
+            return
+        self.master_folder.setText(directory)
+        self._emit_preview()
+
+    def _open_map_picker(self) -> None:
+        if self._map_dialog is not None:
+            self._map_dialog.raise_()
+            self._map_dialog.activateWindow()
+            return
+        dialog = MapPickerDialog(self.latitude.value(), self.longitude.value(), self)
+        dialog.setWindowModality(QtCore.Qt.WindowModality.NonModal)
+        dialog.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint, True)
+        dialog.locationPicked.connect(self._apply_location)
+        dialog.destroyed.connect(self._on_map_closed)
+        self._map_dialog = dialog
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def _apply_location(self, lat: float, lon: float) -> None:
+        self.latitude.setValue(lat)
+        self.longitude.setValue(lon)
+        self._emit_preview()
+
+    def _on_map_closed(self) -> None:
+        self._map_dialog = None
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        if self._map_dialog is not None:
+            self._map_dialog.close()
+        super().closeEvent(event)
+
+    def _emit_preview(self) -> None:
+        self.previewChanged.emit(self._build_preview_config())
+
+    def _build_preview_config(self) -> Dict:
+        updated = dict(self._config)
+        updated["observer"] = {
+            "latitude": self.latitude.value(),
+            "longitude": self.longitude.value(),
+            "elevation_m": self.elevation.value(),
+        }
+        updated["master_image_dir"] = self.master_folder.text().strip()
+        catalogs = []
+        for catalog in updated.get("catalogs", []):
+            name = catalog.get("name", "Unknown")
+            field = self.catalog_fields.get(name)
+            if field:
+                value = field.text().strip()
+                catalog["image_dirs"] = [value] if value else []
+            catalogs.append(catalog)
+        updated["catalogs"] = catalogs
+        return updated
+
+
+class MapPickerDialog(QtWidgets.QDialog):
+    locationPicked = QtCore.Signal(float, float)
+
+    def __init__(self, latitude: float, longitude: float, parent: Optional[QtWidgets.QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Pick Location")
+        self.setMinimumWidth(420)
+        self._latitude = latitude
+        self._longitude = longitude
+        self._server = _MapHttpServer(self)
+        self._server_thread = threading.Thread(target=self._server.serve_forever, daemon=True)
+        self._server_thread.start()
+        self._url = f"http://127.0.0.1:{self._server.port}/"
+
+        self.status = QtWidgets.QLabel("Open the map in your browser and click to choose a location.")
+        self.status.setWordWrap(True)
+        self.status.setObjectName("coordLabel")
+
+        open_map = QtWidgets.QPushButton("Open Map")
+        open_map.clicked.connect(self._open_map)
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Close
+        )
+        buttons.rejected.connect(self.close)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.status)
+        layout.addWidget(open_map)
+        layout.addWidget(buttons)
+
+        QtCore.QTimer.singleShot(200, self._open_map)
+
+    def _open_map(self) -> None:
+        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self._url))
+
+    def _map_html(self) -> str:
+        return f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pick Location</title>
+  <style>
+    html, body, #map {{ height: 100%; margin: 0; background: #111; }}
+    .controls {{
+      position: absolute; top: 10px; left: 10px; z-index: 999;
+      background: rgba(0,0,0,0.6); color: #fff; padding: 8px 10px;
+      font-family: sans-serif; font-size: 14px; border-radius: 6px;
+    }}
+    .controls button {{ margin-right: 8px; }}
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="controls">
+    <button id="geo">Use My Location</button>
+    <span id="status">Click on the map to set location</span>
+  </div>
+  <script>
+    const map = L.map('map').setView([{self._latitude}, {self._longitude}], 3);
+    L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+      maxZoom: 10,
+      attribution: '&copy; OpenStreetMap'
+    }}).addTo(map);
+    const marker = L.marker([{self._latitude}, {self._longitude}]).addTo(map);
+    function sendLocation(lat, lon) {{
+      marker.setLatLng([lat, lon]);
+      fetch('/set_location', {{
+        method: 'POST',
+        headers: {{ 'Content-Type': 'application/json' }},
+        body: JSON.stringify({{ lat, lon }})
+      }}).catch(() => {{}});
+      document.getElementById('status').textContent = `Selected: ${{lat.toFixed(5)}}, ${{lon.toFixed(5)}}`;
+    }}
+    map.on('click', (e) => sendLocation(e.latlng.lat, e.latlng.lng));
+    document.getElementById('geo').addEventListener('click', () => {{
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {{
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          map.setView([lat, lon], 7);
+          sendLocation(lat, lon);
+        }},
+        () => {{ document.getElementById('status').textContent = 'Location permission denied.'; }}
+      );
+    }});
+  </script>
+</body>
+</html>"""
+
+    @QtCore.Slot(float, float)
+    def _post_location(self, lat: float, lon: float) -> None:
+        self._latitude = lat
+        self._longitude = lon
+        self.status.setText(f"Selected: {lat:.5f}, {lon:.5f}")
+        self.locationPicked.emit(lat, lon)
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self._server.shutdown()
+        super().closeEvent(event)
+
+
+class _MapHttpServer:
+    def __init__(self, dialog: MapPickerDialog) -> None:
+        self.dialog = dialog
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                try:
+                    path = urlparse(self.path).path
+                    if path not in ("/", "/index.html"):
+                        self.send_error(404)
+                        return
+                    body = self.server.dialog._map_html()  # type: ignore[attr-defined]
+                    data = body.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data)
+                except Exception:
+                    self.send_error(500)
+
+            def do_POST(self) -> None:
+                try:
+                    path = urlparse(self.path).path
+                    if path != "/set_location":
+                        self.send_error(404)
+                        return
+                    length = int(self.headers.get("Content-Length", "0"))
+                    payload = self.rfile.read(length).decode("utf-8")
+                    data = json.loads(payload)
+                    lat = float(data.get("lat"))
+                    lon = float(data.get("lon"))
+                    QtCore.QMetaObject.invokeMethod(
+                        self.server.dialog,  # type: ignore[attr-defined]
+                        "_post_location",
+                        QtCore.Qt.ConnectionType.QueuedConnection,
+                        QtCore.Q_ARG(float, lat),
+                        QtCore.Q_ARG(float, lon),
+                    )
+                    self.send_response(204)
+                    self.end_headers()
+                except Exception:
+                    self.send_error(400)
+
+            def log_message(self, _format: str, *args: object) -> None:
+                return
+
+        self._server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self._server.daemon_threads = True
+        self._server.dialog = dialog  # type: ignore[attr-defined]
+        self.port = self._server.server_address[1]
+
+    def serve_forever(self) -> None:
+        self._server.serve_forever()
+
+    def shutdown(self) -> None:
+        self._server.shutdown()
+        self._server.server_close()
+
+
+class WelcomeDialog(QtWidgets.QDialog):
+    def __init__(self, parent: Optional[QtWidgets.QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Welcome")
+        self.setMinimumWidth(560)
+
+        title = QtWidgets.QLabel("Welcome to Astro Catalogue Viewer")
+        title.setObjectName("welcomeTitle")
+
+        body = QtWidgets.QTextBrowser()
+        body.setOpenExternalLinks(True)
+        body.setObjectName("welcomeBody")
+        body.setHtml(
+            """
+            <p>This app helps you browse deep-sky catalogs with your own imagery.</p>
+            <p><b>Quick start</b></p>
+            <ul>
+              <li>Open <b>Settings</b> to choose image folders for each catalog.</li>
+              <li>Use the filters and search to find objects fast.</li>
+              <li>Click an object to view metadata and add notes.</li>
+            </ul>
+            <p><b>Image naming</b></p>
+            <p>Filenames should include the standard object ID, such as <b>M31</b>, <b>NGC2088</b>, <b>IC5070</b>, or <b>C14</b>.</p>
+            <p><b>Support development</b></p>
+            <p>This project takes time and money to develop. If you find it useful, please consider supporting:</p>
+            <p><a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a></p>
+            """
+        )
+
+        self.skip_checkbox = QtWidgets.QCheckBox("Don't show again")
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+        )
+        buttons.accepted.connect(self.accept)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(title)
+        layout.addWidget(body)
+        layout.addWidget(self.skip_checkbox)
+        layout.addWidget(buttons)
+
+    def skip_requested(self) -> bool:
+        return self.skip_checkbox.isChecked()
+
+
+def main() -> None:
+    app = QtWidgets.QApplication(sys.argv)
+    app.setApplicationName(APP_NAME)
+    app.setOrganizationName(ORG_NAME)
+
+    location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.AppConfigLocation)
+    if location:
+        config_dir = Path(location)
+    else:
+        config_dir = PROJECT_ROOT
+    config_path = config_dir / "config.json"
+
+    window = MainWindow(config_path)
+    if window.config.get("show_welcome", True):
+        welcome = WelcomeDialog(window)
+        welcome.exec()
+        if welcome.skip_requested():
+            window.config["show_welcome"] = False
+            save_config(config_path, window.config)
+    window.show()
+
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

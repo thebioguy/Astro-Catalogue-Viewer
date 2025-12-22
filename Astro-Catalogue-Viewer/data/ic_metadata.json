@@ -1,0 +1,22 @@
+{
+  "IC": {
+    "IC5070": {
+      "name": "Pelican Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 1800.0,
+      "discoverer": "Max Wolf",
+      "discovery_year": 1891,
+      "best_months": "JulAugSep",
+      "description": "A bright emission nebula adjacent to the North America Nebula in Cygnus."
+    },
+    "IC434": {
+      "name": "Horsehead Nebula Region",
+      "type": "Dark Nebula",
+      "distance_ly": 1375.0,
+      "discoverer": "Williamina Fleming",
+      "discovery_year": 1888,
+      "best_months": "DecJanFeb",
+      "description": "The glow of IC434 backlights the dark Horsehead Nebula in Orion."
+    }
+  }
+}

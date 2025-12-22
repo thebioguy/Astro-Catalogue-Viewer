@@ -1,0 +1,22 @@
+{
+  "Caldwell": {
+    "C14": {
+      "name": "Double Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 7600.0,
+      "discoverer": "Hipparchus",
+      "discovery_year": 130,
+      "best_months": "SepOctNov",
+      "description": "The famous Double Cluster in Perseus, also cataloged as NGC869/884."
+    },
+    "C49": {
+      "name": "Rosette Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 5200.0,
+      "discoverer": "John Flamsteed",
+      "discovery_year": 1690,
+      "best_months": "DecJanFeb",
+      "description": "A large circular emission nebula in Monoceros, surrounding the open cluster NGC2244."
+    }
+  }
+}

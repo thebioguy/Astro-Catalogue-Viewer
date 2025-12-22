@@ -1,0 +1,995 @@
+{
+  "Messier": {
+    "M1": {
+      "name": "Crab Nebula",
+      "type": "Supernova Remnant",
+      "distance_ly": 6500.0,
+      "discoverer": "John Bevis",
+      "discovery_year": 1731,
+      "best_months": "JanFebMar",
+      "description": "The Crab Nebula is the expanding debris cloud from the supernova recorded in 1054 CE. It contains the famous Crab Pulsar at its core, which powers much of the nebula’s glow. Visually it appears as a softly textured oval patch; long exposures reveal tangled filaments rich in ionized gas and synchrotron emission."
+    },
+    "M2": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 37000.0,
+      "discoverer": "Jean-Dominique Maraldi",
+      "discovery_year": 1746,
+      "best_months": "SepOctNov",
+      "description": "Messier 2 is a bright, compact globular cluster in Aquarius. It contains a dense swarm of very old stars and shows a noticeably condensed core in telescopes. Deep images show extended halos and subtle star-stream structure around the cluster."
+    },
+    "M3": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 33900.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "AprMayJun",
+      "description": "Messier 3 is one of the sky’s premier globular clusters, packed with hundreds of thousands of ancient stars. It resolves beautifully in moderate apertures and hosts many variable stars. Astrophotos often show a rich gradient from a bright core to a grainy halo of resolved members."
+    },
+    "M4": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 7200.0,
+      "discoverer": "Philippe de Chéseaux",
+      "discovery_year": 1745,
+      "best_months": "MayJunJul",
+      "description": "Messier 4 is among the nearest globular clusters to Earth and sits close to Antares in Scorpius. It is relatively loose compared with many globulars, so it resolves easily into individual stars. Many observers notice a central ‘bar’ of stars running through the cluster."
+    },
+    "M5": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 24500.0,
+      "discoverer": "Gottfried Kirch",
+      "discovery_year": 1702,
+      "best_months": "MayJunJul",
+      "description": "Messier 5 is a bright globular cluster in Serpens and is strongly concentrated toward its core. It is rich in variable stars and is a classic target for visual observers. Long exposures reveal a dense nucleus surrounded by a wide halo of resolved stars."
+    },
+    "M6": {
+      "name": "Butterfly Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 1600.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "JunJulAug",
+      "description": "Messier 6 is a bright open cluster in Scorpius whose star pattern resembles a butterfly with spread wings. It contains hot blue stars plus a prominent orange giant that stands out in small telescopes. The surrounding Milky Way star field makes it a great wide-field photographic target."
+    },
+    "M7": {
+      "name": "Ptolemy's Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 980.0,
+      "discoverer": "Claudius Ptolemy",
+      "discovery_year": 130,
+      "best_months": "JunJulAug",
+      "description": "Messier 7 is a large, bright open cluster visible to the naked eye under dark skies. It lies near the Scorpius tail and is embedded in a rich Milky Way backdrop. Photographs show dozens of stars scattered across a wide area, making it ideal for short focal lengths."
+    },
+    "M8": {
+      "name": "Lagoon Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 4100.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "JunJulAug",
+      "description": "The Lagoon Nebula is a glowing star-forming region in Sagittarius with dark dust lanes cutting through bright hydrogen emission. It includes the open cluster NGC 6530 and many compact knots of active star birth. Long exposures show strong H‑alpha structure, dust pillars, and a complex mix of bright and dark regions."
+    },
+    "M9": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 25800.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "Messier 9 is a globular cluster near the Galactic Center, which means it is seen through heavy star fields and dust. It appears compact and somewhat subdued visually compared to many globulars. Imaging can bring out its dense core and the surrounding halo of resolved members."
+    },
+    "M10": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 14300.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "Messier 10 is a bright globular cluster in Ophiuchus with a strongly concentrated center. It resolves well in telescopes and often shows a granular texture toward the core. Deep images reveal a broad halo of faint stars surrounding the brighter nucleus."
+    },
+    "M11": {
+      "name": "Wild Duck Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 6200.0,
+      "discoverer": "Gottfried Kirch",
+      "discovery_year": 1681,
+      "best_months": "JulAugSep",
+      "description": "Messier 11 is one of the richest and most compact open clusters in the sky, packed with stars against the Scutum star cloud. It has a bright, wedge-like appearance that inspired its nickname. Astrophotos show an extremely dense field of cluster members with subtle color variation and background Milky Way structure."
+    },
+    "M12": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 16000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "Messier 12 is a globular cluster in Ophiuchus with a relatively loose structure compared to many globulars. It resolves into many stars in moderate apertures, especially under steady seeing. Imaging often highlights its gently graded core and broad halo."
+    },
+    "M13": {
+      "name": "Great Hercules Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 25100.0,
+      "discoverer": "Edmond Halley",
+      "discovery_year": 1714,
+      "best_months": "JunJulAug",
+      "description": "Messier 13 is the showpiece globular cluster in Hercules, containing hundreds of thousands of ancient stars. It resolves spectacularly in amateur telescopes and is a favorite for outreach. Long exposures reveal a blazing core, countless resolved members, and faint outer halos extending well beyond the bright center."
+    },
+    "M14": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 30300.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "Messier 14 is a globular cluster in Ophiuchus that appears compact and slightly diffuse. It lies in a busy star field and can be challenging from light-polluted sites. Deep images show a rich, dense core and a wide surrounding halo of stars."
+    },
+    "M15": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 33600.0,
+      "discoverer": "Jean-Dominique Maraldi",
+      "discovery_year": 1746,
+      "best_months": "SepOctNov",
+      "description": "Messier 15 is a highly concentrated globular cluster in Pegasus and is famous for its very dense core. It contains many variable stars and a notable planetary nebula (Pease 1) within the cluster. Imaging emphasizes the intense central brightness and the packed star distribution outward into the halo."
+    },
+    "M16": {
+      "name": "Eagle Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 7000.0,
+      "discoverer": "Jean-Philippe de Chéseaux",
+      "discovery_year": 1745,
+      "best_months": "JunJulAug",
+      "description": "The Eagle Nebula is a star-forming region in Serpens known for the ‘Pillars of Creation’ within its dusty interior. It includes the open cluster NGC 6611, whose hot young stars illuminate surrounding gas. Narrowband imaging brings out layered hydrogen, oxygen, and sulfur structures plus dark dust columns."
+    },
+    "M17": {
+      "name": "Omega Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 5500.0,
+      "discoverer": "Philippe de Chéseaux",
+      "discovery_year": 1745,
+      "best_months": "JunJulAug",
+      "description": "The Omega Nebula is a bright emission nebula in Sagittarius often nicknamed the Swan or Horseshoe Nebula. It is an active star-forming region with sharp ridges and billowing gas. Wide-field images show a luminous core surrounded by faint outer arcs and extensive nebulosity."
+    },
+    "M18": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 4900.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "Messier 18 is a modest open cluster in Sagittarius located near the Lagoon and Trifid region. It is best seen in binoculars or a low-power telescope field as a small group of stars. Photographs show it embedded in rich Milky Way star fields with subtle background dust and nebulosity nearby."
+    },
+    "M19": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 28100.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "Messier 19 is a globular cluster in Ophiuchus and appears slightly elongated, likely influenced by its location near the Galactic bulge. It is relatively compact and can look dimmer due to extinction. Imaging reveals a condensed center and an extended halo that stands out with longer integration."
+    },
+    "M20": {
+      "name": "Trifid Nebula",
+      "type": "Emission/Reflection Nebula",
+      "distance_ly": 5200.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "The Trifid Nebula is a complex nebula in Sagittarius famous for dark dust lanes that split its bright core into three main lobes. It combines emission, reflection, and dark nebula components in one field. Imaging shows blue reflection regions, red hydrogen glow, and intricate dust structure."
+    },
+    "M21": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 4250.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JunJulAug",
+      "description": "Messier 21 is a small open cluster in Sagittarius near the Trifid Nebula. It contains young, hot stars and is often captured in the same wide-field frames as M20. Photographs show a compact grouping of bright members against a dense Milky Way backdrop."
+    },
+    "M22": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 10400.0,
+      "discoverer": "Abraham Ihle",
+      "discovery_year": 1665,
+      "best_months": "JulAugSep",
+      "description": "Messier 22 is a bright globular cluster in Sagittarius and is among the nearest and largest globulars visible from mid-northern latitudes. It resolves readily into stars and has a relatively loose structure. Imaging reveals a sprawling halo of members with subtle star color differences."
+    },
+    "M23": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 2150.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "JanFebMar",
+      "description": "Messier 23 is a bright open cluster in Puppis with dozens of members visible in binoculars and small telescopes. It sits in a rich Milky Way region and offers a pleasing wide-field view. Photographs emphasize the scattered star patterns and the surrounding star cloud."
+    },
+    "M24": {
+      "name": "Sagittarius Star Cloud",
+      "type": "Milky Way Star Cloud",
+      "distance_ly": 10000.0,
+      "discoverer": "N/A",
+      "discovery_year": null,
+      "best_months": "JulAugSep",
+      "description": "Messier 24 is not a single object but a luminous window into the Milky Way in Sagittarius where interstellar dust is thinner. It appears as a bright star cloud rich with dark lanes and embedded clusters. Wide-field astrophotography captures dense star fields, dust structure, and nearby nebulae."
+    },
+    "M25": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 2000.0,
+      "discoverer": "Philippe de Chéseaux",
+      "discovery_year": 1745,
+      "best_months": "JulAugSep",
+      "description": "Messier 25 is a loose open cluster in Sagittarius, best appreciated at low power because it spans a relatively large area. It includes several brighter stars and sits in a busy Milky Way region. Images show a gentle scatter of members set against dense background star fields."
+    },
+    "M26": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 5000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "AugSepOct",
+      "description": "Messier 26 is a small open cluster in Scutum that can be subtle visually from light-polluted areas. It is embedded in the Scutum star cloud and sits near rich background fields. Imaging helps separate cluster members from the surrounding Milky Way stars and brings out its compact core."
+    },
+    "M27": {
+      "name": "Dumbbell Nebula",
+      "type": "Planetary Nebula",
+      "distance_ly": 1360.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JulAugSep",
+      "description": "The Dumbbell Nebula is a bright planetary nebula in Vulpecula and one of the finest of its kind for amateur telescopes. It shows a characteristic hourglass or ‘dumbbell’ shape, with faint outer halos visible in long exposures. Narrowband images reveal strong oxygen and hydrogen structures plus delicate outer shells."
+    },
+    "M28": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 18200.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JulAugSep",
+      "description": "Messier 28 is a globular cluster in Sagittarius near the Galactic Center region. It appears compact and is seen through crowded star fields. Imaging reveals a dense core and a surrounding halo of resolved stars with sufficient exposure time."
+    },
+    "M29": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 4000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "SepOctNov",
+      "description": "Messier 29 is a small open cluster in Cygnus set against a dense Milky Way backdrop. It is easy to miss visually because the surrounding star field is so rich. Photographs can isolate the compact cluster pattern and show subtle dust structure in the region."
+    },
+    "M30": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 27700.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "SepOctNov",
+      "description": "Messier 30 is a globular cluster in Capricornus with a bright, condensed core and a compact appearance. It is a classic late-summer to autumn target from mid-northern latitudes. Deep images emphasize its concentrated center and the gradual falloff into a faint outer halo."
+    },
+    "M31": {
+      "name": "Andromeda Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 253700.0,
+      "discoverer": "Al-Sufi",
+      "discovery_year": 964,
+      "best_months": "OctNovDec",
+      "description": "The nearest major galaxy to the Milky Way and visible to the naked eye. It is classified as galaxy. It is located approximately 253,700 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Al-Sufi in 964.",
+      "notes": "Processed with Siril and SASPro"
+    },
+    "M32": {
+      "name": "Dwarf Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 253700.0,
+      "discoverer": "Guillaume Le Gentil",
+      "discovery_year": 1749,
+      "best_months": "OctNovDec",
+      "description": "A small bright satellite galaxy of Andromeda. It is classified as galaxy. It is located approximately 253,700 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Guillaume Le Gentil in 1749."
+    },
+    "M33": {
+      "name": "Triangulum Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 2730000.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "NovDecJan",
+      "description": "A face-on spiral rich in star-forming regions. It is classified as galaxy. It is located approximately 2,730,000 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Giovanni Battista Hodierna in 1654."
+    },
+    "M34": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 1500.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "OctNovDec",
+      "description": "A bright compact cluster in Perseus. It is classified as open cluster. It is located approximately 1,500 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Giovanni Battista Hodierna in 1654."
+    },
+    "M35": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 2800.0,
+      "discoverer": "Philippe Loys de Chseaux",
+      "discovery_year": 1745,
+      "best_months": "DecJanFeb",
+      "description": "A rich open cluster of bright blue stars. It is classified as open cluster. It is located approximately 2,800 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Philippe Loys de Chseaux in 1745."
+    },
+    "M36": {
+      "name": "Pinwheel Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 4180.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "JanFebMar",
+      "description": "A young cluster in Auriga with curved stellar arms. It is classified as open cluster. It is located approximately 4,180 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Giovanni Battista Hodierna in 1654."
+    },
+    "M37": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 4500.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "JanFebMar",
+      "description": "The richest and brightest of AurigaÕs open clusters. It is classified as open cluster. It is located approximately 4,500 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Charles Messier in 1764."
+    },
+    "M38": {
+      "name": "Starfish Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 4200.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "JanFebMar",
+      "description": "An open cluster with a starfish-like shape. It is classified as open cluster. It is located approximately 4,200 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Giovanni Battista Hodierna in 1654."
+    },
+    "M39": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 820.0,
+      "discoverer": "Guillaume Le Gentil",
+      "discovery_year": 1749,
+      "best_months": "JulAugSep",
+      "description": "A loose grouping of bright stars in Cygnus. It is classified as open cluster. It is located approximately 820 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Guillaume Le Gentil in 1749."
+    },
+    "M40": {
+      "name": "Double Star",
+      "type": "Double Star",
+      "distance_ly": 510.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1764,
+      "best_months": "MarAprMay",
+      "description": "A simple optical double star; unusual for the Messier list. It is classified as double star. It is located approximately 510 light-years away. It is best observed during Mar, Apr, May. It was discovered by Charles Messier in 1764."
+    },
+    "M41": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 2300.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "JanFebMar",
+      "description": "A bright open cluster near Sirius. It is classified as open cluster. It is located approximately 2,300 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Giovanni Battista Hodierna in 1654."
+    },
+    "M42": {
+      "name": "Orion Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 1344.0,
+      "discoverer": "Nicolas-Claude de Peiresc",
+      "discovery_year": 1610,
+      "best_months": "DecJanFeb",
+      "description": "The brightest star-forming nebula visible from Earth. It is classified as emission nebula. It is located approximately 1,344 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Nicolas-Claude de Peiresc in 1610."
+    },
+    "M43": {
+      "name": "De MairanÕs Nebula",
+      "type": "Emission Nebula",
+      "distance_ly": 1600.0,
+      "discoverer": "Jean-Jacques d'Ortous de Mairan",
+      "discovery_year": 1731,
+      "best_months": "DecJanFeb",
+      "description": "A bright detached portion of the Orion Nebula. It is classified as emission nebula. It is located approximately 1,600 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Jean-Jacques d'Ortous de Mairan in 1731."
+    },
+    "M44": {
+      "name": "Beehive Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 577.0,
+      "discoverer": "Galileo Galilei",
+      "discovery_year": 1609,
+      "best_months": "MarAprMay",
+      "description": "A large naked-eye cluster resembling a swarm of bees. It is classified as open cluster. It is located approximately 577 light-years away. It is best observed during Mar, Apr, May. It was discovered by Galileo Galilei in 1609."
+    },
+    "M45": {
+      "name": "Pleiades",
+      "type": "Open Cluster",
+      "distance_ly": 444.0,
+      "discoverer": "Galileo Galilei",
+      "discovery_year": 1610,
+      "best_months": "DecJanFeb",
+      "description": "The Seven Sisters; a young nearby star cluster with reflection nebulosity. It is classified as open cluster. It is located approximately 444 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Galileo Galilei in 1610."
+    },
+    "M46": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 5400.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1771,
+      "best_months": "JanFebMar",
+      "description": "A cluster containing planetary nebula NGC 2438 in the same line of sight. It is classified as open cluster. It is located approximately 5,400 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Charles Messier in 1771."
+    },
+    "M47": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 1600.0,
+      "discoverer": "Giovanni Battista Hodierna",
+      "discovery_year": 1654,
+      "best_months": "FebMarApr",
+      "description": "A bright sparse cluster near M46. It is classified as open cluster. It is located approximately 1,600 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Giovanni Battista Hodierna in 1654."
+    },
+    "M48": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 1500.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1771,
+      "best_months": "FebMarApr",
+      "description": "A broad loose cluster of moderately bright stars. It is classified as open cluster. It is located approximately 1,500 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Charles Messier in 1771."
+    },
+    "M49": {
+      "name": "Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 56600000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1777,
+      "best_months": "AprMayJun",
+      "description": "One of the brightest Virgo Cluster galaxies. It is classified as galaxy. It is located approximately 56,600,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1777."
+    },
+    "M50": {
+      "name": "Heart-Shaped Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 3000.0,
+      "discoverer": "Giovanni Domenico Cassini",
+      "discovery_year": 1711,
+      "best_months": "FebMarApr",
+      "description": "A heart-shaped open cluster in Monoceros. It is classified as open cluster. It is located approximately 3,000 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Giovanni Domenico Cassini in 1711."
+    },
+    "M51": {
+      "name": "Whirlpool Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 23500000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1773,
+      "best_months": "AprMayJun",
+      "description": "A classic face-on spiral interacting with NGC 5195. It is classified as galaxy. It is located approximately 23,500,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1773."
+    },
+    "M52": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 4600.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1774,
+      "best_months": "SepOctNov",
+      "description": "A compact cluster in Cassiopeia. It is classified as open cluster. It is located approximately 4,600 light-years away. It is best observed during Sep, Oct, Nov. It was discovered by Charles Messier in 1774."
+    },
+    "M53": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 58000.0,
+      "discoverer": "Johann Elert Bode",
+      "discovery_year": 1775,
+      "best_months": "AprMayJun",
+      "description": "A distant metal-poor globular cluster. It is classified as globular cluster. It is located approximately 58,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Elert Bode in 1775."
+    },
+    "M54": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 87000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1778,
+      "best_months": "MayJunJul",
+      "description": "Originally thought Milky Way, now known to belong to the Sagittarius Dwarf Galaxy. It is classified as globular cluster. It is located approximately 87,000 light-years away. It is best observed during May, Jun, Jul. It was discovered by Charles Messier in 1778."
+    },
+    "M55": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 17400.0,
+      "discoverer": "Nicolas Louis de Lacaille",
+      "discovery_year": 1752,
+      "best_months": "JulAugSep",
+      "description": "A loose globular cluster with low central concentration. It is classified as globular cluster. It is located approximately 17,400 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Nicolas Louis de Lacaille in 1752."
+    },
+    "M56": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 32600.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1779,
+      "best_months": "JulAugSep",
+      "description": "A faint cluster located between Lyra and Cygnus. It is classified as globular cluster. It is located approximately 32,600 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Charles Messier in 1779."
+    },
+    "M57": {
+      "name": "Ring Nebula",
+      "type": "Planetary Nebula",
+      "distance_ly": 2300.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1779,
+      "best_months": "JulAugSep",
+      "description": "The famous smoke-ring style planetary nebula in Lyra. It is classified as planetary nebula. It is located approximately 2,300 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Charles Messier in 1779."
+    },
+    "M58": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 62000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1779,
+      "best_months": "AprMayJun",
+      "description": "One of the first galaxies confirmed to have spiral structure. It is classified as galaxy. It is located approximately 62,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1779."
+    },
+    "M59": {
+      "name": "Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 60000000.0,
+      "discoverer": "Johann Gottfried Koehler",
+      "discovery_year": 1779,
+      "best_months": "AprMayJun",
+      "description": "A bright elliptical in the Virgo Cluster. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Gottfried Koehler in 1779."
+    },
+    "M60": {
+      "name": "Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 55000000.0,
+      "discoverer": "Johann Gottfried Koehler",
+      "discovery_year": 1779,
+      "best_months": "AprMayJun",
+      "description": "A giant elliptical with an embedded supermassive black hole. It is classified as galaxy. It is located approximately 55,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Gottfried Koehler in 1779."
+    },
+    "M61": {
+      "name": "Barred Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 52000000.0,
+      "discoverer": "Barnaba Oriani",
+      "discovery_year": 1779,
+      "best_months": "AprMayJun",
+      "description": "A star-forming barred spiral with multiple recorded supernovae. It is classified as galaxy. It is located approximately 52,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Barnaba Oriani in 1779."
+    },
+    "M62": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 22500.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1772,
+      "best_months": "MayJunJul",
+      "description": "Highly irregular due to tidal forces near the galactic center. It is classified as globular cluster. It is located approximately 22,500 light-years away. It is best observed during May, Jun, Jul. It was discovered by Charles Messier in 1772."
+    },
+    "M63": {
+      "name": "Sunflower Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 29300000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1779,
+      "best_months": "AprMayJun",
+      "description": "A flocculent spiral with bright patchy arms. It is classified as galaxy. It is located approximately 29,300,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1779."
+    },
+    "M64": {
+      "name": "Black Eye Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 17300000.0,
+      "discoverer": "Edward Pigott",
+      "discovery_year": 1779,
+      "best_months": "AprMayJun",
+      "description": "Famous for its dark dust lane across the bright core. It is classified as galaxy. It is located approximately 17,300,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Edward Pigott in 1779."
+    },
+    "M65": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 35000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1780,
+      "best_months": "AprMayJun",
+      "description": "Part of the Leo Triplet of interacting galaxies. It is classified as galaxy. It is located approximately 35,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1780."
+    },
+    "M66": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 36000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1780,
+      "best_months": "AprMayJun",
+      "description": "Another member of the Leo Triplet with distorted arms. It is classified as galaxy. It is located approximately 36,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1780."
+    },
+    "M67": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 2700.0,
+      "discoverer": "Johann Gottfried Koehler",
+      "discovery_year": 1779,
+      "best_months": "AprMayJun",
+      "description": "One of the oldest known open clusters. It is classified as open cluster. It is located approximately 2,700 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Gottfried Koehler in 1779."
+    },
+    "M68": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 33500.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1780,
+      "best_months": "AprMayJun",
+      "description": "A faint remote globular in Hydra. It is classified as globular cluster. It is located approximately 33,500 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1780."
+    },
+    "M69": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 29400.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1780,
+      "best_months": "JunJulAug",
+      "description": "A compact cluster near the galactic center. It is classified as globular cluster. It is located approximately 29,400 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Charles Messier in 1780."
+    },
+    "M70": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 29400.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1780,
+      "best_months": "JunJulAug",
+      "description": "A slightly elongated but otherwise typical globular cluster. It is classified as globular cluster. It is located approximately 29,400 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Charles Messier in 1780."
+    },
+    "M71": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 13600.0,
+      "discoverer": "Philippe Loys de Chseaux",
+      "discovery_year": 1745,
+      "best_months": "AugSepOct",
+      "description": "A loose low-density globular cluster in Sagitta. It is classified as globular cluster. It is located approximately 13,600 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Philippe Loys de Chseaux in 1745."
+    },
+    "M72": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 55600.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AugSepOct",
+      "description": "A faint distant cluster with a small core. It is classified as globular cluster. It is located approximately 55,600 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Pierre Mchain in 1781."
+    },
+    "M73": {
+      "name": "Asterism",
+      "type": "Asterism",
+      "distance_ly": 2500.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AugSepOct",
+      "description": "A line-of-sight grouping of four stars; not a true cluster. It is classified as asterism. It is located approximately 2,500 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Charles Messier in 1781."
+    },
+    "M74": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 32000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1780,
+      "best_months": "NovDecJan",
+      "description": "A faint but perfect face-on spiral galaxy. It is classified as galaxy. It is located approximately 32,000,000 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Pierre Mchain in 1780."
+    },
+    "M75": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 67000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1780,
+      "best_months": "AugSepOct",
+      "description": "A compact dense cluster near the galactic center. It is classified as globular cluster. It is located approximately 67,000 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Pierre Mchain in 1780."
+    },
+    "M76": {
+      "name": "Little Dumbbell",
+      "type": "Planetary Nebula",
+      "distance_ly": 3400.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1780,
+      "best_months": "OctNovDec",
+      "description": "A bipolar planetary nebula resembling M27 in miniature. It is classified as planetary nebula. It is located approximately 3,400 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Pierre Mchain in 1780."
+    },
+    "M77": {
+      "name": "Barred Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 47000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1780,
+      "best_months": "NovDecJan",
+      "description": "One of the brightest active galactic nuclei. It is classified as galaxy. It is located approximately 47,000,000 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Pierre Mchain in 1780."
+    },
+    "M78": {
+      "name": "Reflection Nebula",
+      "type": "Reflection Nebula",
+      "distance_ly": 1600.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1780,
+      "best_months": "DecJanFeb",
+      "description": "A bright dusty reflection nebula in Orion. It is classified as reflection nebula. It is located approximately 1,600 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Pierre Mchain in 1780."
+    },
+    "M79": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 41000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1780,
+      "best_months": "DecJanFeb",
+      "description": "A southern globular likely captured from another galaxy. It is classified as globular cluster. It is located approximately 41,000 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Pierre Mchain in 1780."
+    },
+    "M80": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 32600.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "MayJunJul",
+      "description": "A very compact cluster containing many blue stragglers. It is classified as globular cluster. It is located approximately 32,600 light-years away. It is best observed during May, Jun, Jul. It was discovered by Charles Messier in 1781."
+    },
+    "M81": {
+      "name": "Bode's Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 12000000.0,
+      "discoverer": "Johann Elert Bode",
+      "discovery_year": 1774,
+      "best_months": "MarAprMay",
+      "description": "A bright near-edge-on spiral, one of the best northern galaxies. It is classified as galaxy. It is located approximately 12,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Johann Elert Bode in 1774."
+    },
+    "M82": {
+      "name": "Cigar Galaxy",
+      "type": "Starburst Galaxy",
+      "distance_ly": 12000000.0,
+      "discoverer": "Johann Elert Bode",
+      "discovery_year": 1774,
+      "best_months": "MarAprMay",
+      "description": "A starburst galaxy with dramatic dust lanes and winds. It is classified as starburst galaxy. It is located approximately 12,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Johann Elert Bode in 1774."
+    },
+    "M83": {
+      "name": "Southern Pinwheel",
+      "type": "Galaxy",
+      "distance_ly": 15200000.0,
+      "discoverer": "Nicolas Louis de Lacaille",
+      "discovery_year": 1752,
+      "best_months": "AprMayJun",
+      "description": "A grand-design face-on spiral galaxy. It is classified as galaxy. It is located approximately 15,200,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Nicolas Louis de Lacaille in 1752."
+    },
+    "M84": {
+      "name": "Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 60000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A bright member of the Virgo Cluster. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+    },
+    "M85": {
+      "name": "Lenticular Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 60000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A lenticular galaxy interacting with small companion NGC 4394. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+    },
+    "M86": {
+      "name": "Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 52000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A bright elliptical in the Virgo Cluster. It is classified as galaxy. It is located approximately 52,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+    },
+    "M87": {
+      "name": "Virgo A",
+      "type": "Galaxy",
+      "distance_ly": 53000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "Home of a supermassive black hole photographed by the EHT. It is classified as galaxy. It is located approximately 53,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+    },
+    "M88": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 55000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A tightly wound spiral in the Virgo Cluster. It is classified as galaxy. It is located approximately 55,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+    },
+    "M89": {
+      "name": "Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 60000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A round elliptical possibly surrounded by faint shells. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+    },
+    "M90": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 59000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "An edge-on spiral moving rapidly within the Virgo Cluster. It is classified as galaxy. It is located approximately 59,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+    },
+    "M91": {
+      "name": "Barred Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 52000000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A barred spiral galaxy with tightly wrapped arms. It is classified as galaxy. It is located approximately 52,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+    },
+    "M92": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 26700.0,
+      "discoverer": "Johann Elert Bode",
+      "discovery_year": 1777,
+      "best_months": "JunJulAug",
+      "description": "A bright compact cluster near Hercules. It is classified as globular cluster. It is located approximately 26,700 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Johann Elert Bode in 1777."
+    },
+    "M93": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 3400.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1781,
+      "best_months": "FebMarApr",
+      "description": "A bright open cluster in Puppis. It is classified as open cluster. It is located approximately 3,400 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Charles Messier in 1781."
+    },
+    "M94": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 16000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A spiral galaxy with an unusually bright core. It is classified as galaxy. It is located approximately 16,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+    },
+    "M95": {
+      "name": "Barred Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 33000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "MarAprMay",
+      "description": "A barred spiral with an inner star-forming ring. It is classified as galaxy. It is located approximately 33,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+    },
+    "M96": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 31000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "MarAprMay",
+      "description": "A bright spiral with an asymmetric disk. It is classified as galaxy. It is located approximately 31,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+    },
+    "M97": {
+      "name": "Owl Nebula",
+      "type": "Planetary Nebula",
+      "distance_ly": 2030.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "MarAprMay",
+      "description": "A planetary nebula with two dark cavities resembling owl eyes. It is classified as planetary nebula. It is located approximately 2,030 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+    },
+    "M98": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 44000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A blue-shifted edge-on spiral galaxy. It is classified as galaxy. It is located approximately 44,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+    },
+    "M99": {
+      "name": "Pinwheel Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 50000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A grand-design spiral with asymmetric arms. It is classified as galaxy. It is located approximately 50,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+    },
+    "M100": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 55000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A bright spiral galaxy in the Virgo Cluster. It is classified as galaxy. It is located approximately 55,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+    },
+    "M101": {
+      "name": "Pinwheel Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 21200000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "One of the largest nearby face-on spiral galaxies. It is classified as galaxy. It is located approximately 21,200,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+    },
+    "M102": {
+      "name": "Spindle Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 50000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "MayJunJul",
+      "description": "A lenticular galaxy with a thin elongated shape. It is classified as galaxy. It is located approximately 50,000,000 light-years away. It is best observed during May, Jun, Jul. It was discovered by Pierre Mchain in 1781."
+    },
+    "M103": {
+      "name": "Open Cluster",
+      "type": "Open Cluster",
+      "distance_ly": 9500.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "NovDecJan",
+      "description": "A colorful compact open cluster in Cassiopeia. It is classified as open cluster. It is located approximately 9,500 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Pierre Mchain in 1781."
+    },
+    "M104": {
+      "name": "Sombrero Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 29000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "AprMayJun",
+      "description": "A striking galaxy with a massive dust lane and bright bulge. It is classified as galaxy. It is located approximately 29,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+    },
+    "M105": {
+      "name": "Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 32000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "MarAprMay",
+      "description": "A bright elliptical with a small companion. It is classified as galaxy. It is located approximately 32,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+    },
+    "M106": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 24000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "MarAprMay",
+      "description": "A Seyfert II galaxy with unusual anomalous arms. It is classified as galaxy. It is located approximately 24,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+    },
+    "M107": {
+      "name": "Globular Cluster",
+      "type": "Globular Cluster",
+      "distance_ly": 20300.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1782,
+      "best_months": "JunJulAug",
+      "description": "A faint sparse globular cluster. It is classified as globular cluster. It is located approximately 20,300 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Pierre Mchain in 1782."
+    },
+    "M108": {
+      "name": "Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 28000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1782,
+      "best_months": "MarAprMay",
+      "description": "An edge-on spiral galaxy with chaotic dust lanes. It is classified as galaxy. It is located approximately 28,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1782."
+    },
+    "M109": {
+      "name": "Barred Spiral Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 83000000.0,
+      "discoverer": "Pierre Mchain",
+      "discovery_year": 1781,
+      "best_months": "MarAprMay",
+      "description": "A barred spiral with faint extended arms. It is classified as galaxy. It is located approximately 83,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+    },
+    "M110": {
+      "name": "Dwarf Elliptical Galaxy",
+      "type": "Galaxy",
+      "distance_ly": 2500000.0,
+      "discoverer": "Charles Messier",
+      "discovery_year": 1773,
+      "best_months": "OctNovDec",
+      "description": "A satellite galaxy of M31 with an elongated shape. It is classified as galaxy. It is located approximately 2,500,000 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Charles Messier in 1773."
+    }
+  }
+}
