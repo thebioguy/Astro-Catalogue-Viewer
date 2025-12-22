@@ -142,6 +142,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
 
     for catalog_cfg in config.get("catalogs", []):
         catalog_name = catalog_cfg.get("name", "Unknown")
+        catalog_prefix = _catalog_prefix(catalog_name)
         metadata_path = _resolve_path(catalog_cfg.get("metadata_file", ""))
         image_dirs = [_resolve_path(path) for path in catalog_cfg.get("image_dirs", [])]
         if master_path:
@@ -151,8 +152,10 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
         if not metadata_path.exists():
             continue
 
-        catalog_data = _load_catalog_metadata(metadata_path)
-        catalog_entries = catalog_data.get(catalog_name, {})
+        catalog_entries: Dict[str, Dict] = {}
+        if metadata_path.exists():
+            catalog_data = _load_catalog_metadata(metadata_path)
+            catalog_entries = catalog_data.get(catalog_name, {})
         for object_id, meta in catalog_entries.items():
             image_path = image_index.get(object_id.upper())
             items.append(
@@ -170,6 +173,29 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     external_link=_normalize_text(
                         meta.get("external_link")
                     ) or _default_external_link(object_id, meta.get("name")),
+                    image_path=image_path,
+                )
+            )
+
+        # Add image-only entries that are not in metadata.
+        for object_id, image_path in image_index.items():
+            if catalog_prefix and not object_id.upper().startswith(catalog_prefix):
+                continue
+            if object_id in catalog_entries:
+                continue
+            items.append(
+                CatalogItem(
+                    object_id=object_id,
+                    catalog=catalog_name,
+                    name="",
+                    object_type="",
+                    distance_ly=None,
+                    discoverer=None,
+                    discovery_year=None,
+                    best_months=None,
+                    description=None,
+                    notes=None,
+                    external_link=_default_external_link(object_id, None),
                     image_path=image_path,
                 )
             )
@@ -236,6 +262,19 @@ def _default_external_link(object_id: str, name: Optional[str]) -> str:
     target = name or object_id
     slug = quote(target.replace(" ", "_"))
     return f"https://en.wikipedia.org/wiki/{slug}"
+
+
+def _catalog_prefix(catalog_name: str) -> str:
+    name = (catalog_name or "").strip().lower()
+    if name == "messier":
+        return "M"
+    if name == "ngc":
+        return "NGC"
+    if name == "ic":
+        return "IC"
+    if name == "caldwell":
+        return "C"
+    return ""
 
 
 def _adjust_best_months(best_months: Optional[str], latitude: Optional[float]) -> Optional[str]:
