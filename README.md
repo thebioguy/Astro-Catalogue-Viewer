@@ -52,6 +52,10 @@ Notes you add in the app are saved back into the catalog JSON under the `notes` 
 
 Messier metadata is complete. The NGC, IC, and Caldwell metadata sets are in progress.
 
+### Resetting saved settings
+If the app has a bad image path or filter state saved, delete the config file:
+- macOS: `~/Library/Application Support/AstroCatalogueViewer/config.json`
+
 ## Support
 This project takes time and money to develop. If you find it useful, please consider supporting:
 - https://buymeacoffee.com/PaulSpinelli
