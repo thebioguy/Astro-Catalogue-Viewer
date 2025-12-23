@@ -50,9 +50,13 @@ Metadata is stored in JSON files under `data/`. Example files included:
 
 Notes you add in the app are saved back into the catalog JSON under the `notes` field.
 
+Messier metadata is complete. The NGC, IC, and Caldwell metadata sets are in progress.
+
 ## Support
 This project takes time and money to develop. If you find it useful, please consider supporting:
 - https://buymeacoffee.com/PaulSpinelli
+
+Feedback, suggestions, and bug reports are welcome via the GitHub repo issues.
 
 ## License
 See `LICENSE`.

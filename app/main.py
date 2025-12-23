@@ -493,12 +493,18 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, config_path: Path) -> None:
         super().__init__()
         self.setWindowTitle(APP_NAME)
-        self.resize(1400, 900)
 
         self.config_path = config_path
         self.config = load_config(self.config_path)
         if not self.config_path.exists():
             save_config(self.config_path, self.config)
+        self._saved_state = self.config.get("ui_state", {})
+        if not self._saved_state:
+            self._saved_state = {
+                "filters": {"catalog": "Messier"},
+                "search": "",
+            }
+        self._saved_state_applied = False
 
         cache_dir = self._cache_dir()
         thumb_size = self.config.get("thumb_size", 240)
@@ -531,6 +537,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._build_ui()
         self._apply_dark_theme()
+        self._apply_saved_window_state()
         self._update_filters()
         self._start_catalog_load()
 
@@ -659,29 +666,49 @@ class MainWindow(QtWidgets.QMainWindow):
             """
         )
 
+    def _apply_saved_window_state(self) -> None:
+        state = self._saved_state or {}
+        size = state.get("window_size")
+        if isinstance(size, list) and len(size) == 2:
+            self.resize(int(size[0]), int(size[1]))
+        else:
+            self.resize(1400, 900)
+        splitter_sizes = state.get("splitter_sizes")
+        if isinstance(splitter_sizes, list) and splitter_sizes:
+            self.splitter.setSizes([int(value) for value in splitter_sizes])
+
     def _update_filters(self) -> None:
         catalogs = {item.catalog for item in self.items}
         configured = {c.get("name") for c in self.config.get("catalogs", []) if c.get("name")}
         catalogs = sorted(catalogs | configured)
+        current_catalog = self.catalog_filter.currentText() if self.catalog_filter.count() else ""
         self.catalog_filter.blockSignals(True)
         self.catalog_filter.clear()
         self.catalog_filter.addItem("All")
         self.catalog_filter.addItems(catalogs)
+        if current_catalog:
+            self.catalog_filter.setCurrentText(current_catalog)
         self.catalog_filter.blockSignals(False)
         self.catalog_filter.view().setMinimumWidth(160)
 
         types = collect_object_types(self.items)
+        current_type = self.type_filter.currentText() if self.type_filter.count() else ""
         self.type_filter.blockSignals(True)
         self.type_filter.clear()
         self.type_filter.addItem("All")
         self.type_filter.addItems(types)
+        if current_type:
+            self.type_filter.setCurrentText(current_type)
         self.type_filter.blockSignals(False)
         self.type_filter.view().setMinimumWidth(220)
 
+        current_status = self.status_filter.currentText() if self.status_filter.count() else ""
         self.status_filter.blockSignals(True)
         self.status_filter.clear()
         self.status_filter.addItem("All")
         self.status_filter.addItems(["Captured", "Missing", "Suggested"])
+        if current_status:
+            self.status_filter.setCurrentText(current_status)
         self.status_filter.blockSignals(False)
         self.status_filter.view().setMinimumWidth(160)
 
@@ -822,6 +849,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._preview_active = False
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self._capture_ui_state()
         save_config(self.config_path, self.config)
         super().closeEvent(event)
 
@@ -845,6 +873,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.items = items
         self.model.set_items(self.items)
         self._update_filters()
+        if not self._saved_state_applied:
+            self._apply_saved_filters()
+            self._saved_state_applied = True
         self._auto_fit_enabled = True
         self._schedule_auto_fit()
         self._schedule_view_refresh()
@@ -900,6 +931,55 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         save_note(metadata_path, current.catalog, current.object_id, notes)
         self.model.update_item_notes(key, notes)
+
+    def _apply_saved_filters(self) -> None:
+        state = self._saved_state or {}
+        filters = state.get("filters", {})
+        search = state.get("search", "")
+
+        catalog = filters.get("catalog", "")
+        if not catalog:
+            catalog = "Messier"
+        type_filter = filters.get("type", "")
+        status_filter = filters.get("status", "")
+
+        self.search.blockSignals(True)
+        self.search.setText(search or "")
+        self.search.blockSignals(False)
+        self._on_search_changed(self.search.text())
+
+        self.catalog_filter.blockSignals(True)
+        self.catalog_filter.setCurrentText(catalog if catalog in [self.catalog_filter.itemText(i) for i in range(self.catalog_filter.count())] else "All")
+        self.catalog_filter.blockSignals(False)
+        self._on_catalog_changed(self.catalog_filter.currentText())
+
+        self.type_filter.blockSignals(True)
+        if type_filter and type_filter in [self.type_filter.itemText(i) for i in range(self.type_filter.count())]:
+            self.type_filter.setCurrentText(type_filter)
+        else:
+            self.type_filter.setCurrentText("All")
+        self.type_filter.blockSignals(False)
+        self._on_type_changed(self.type_filter.currentText())
+
+        self.status_filter.blockSignals(True)
+        if status_filter and status_filter in [self.status_filter.itemText(i) for i in range(self.status_filter.count())]:
+            self.status_filter.setCurrentText(status_filter)
+        else:
+            self.status_filter.setCurrentText("All")
+        self.status_filter.blockSignals(False)
+        self._on_status_changed(self.status_filter.currentText())
+
+    def _capture_ui_state(self) -> None:
+        self.config["ui_state"] = {
+            "window_size": [self.width(), self.height()],
+            "splitter_sizes": self.splitter.sizes() if self.splitter else [],
+            "filters": {
+                "catalog": self.catalog_filter.currentText() if self.catalog_filter else "",
+                "type": self.type_filter.currentText() if self.type_filter else "",
+                "status": self.status_filter.currentText() if self.status_filter else "",
+            },
+            "search": self.search.text() if self.search else "",
+        }
 
 
 class SettingsDialog(QtWidgets.QDialog):
@@ -1250,14 +1330,19 @@ class WelcomeDialog(QtWidgets.QDialog):
             <p><b>Quick start</b></p>
             <ul>
               <li>Open <b>Settings</b> to choose image folders for each catalog.</li>
+              <li>Set your observer location so visibility hints match your sky.</li>
               <li>Use the filters and search to find objects fast.</li>
               <li>Click an object to view metadata and add notes.</li>
             </ul>
             <p><b>Image naming</b></p>
             <p>Filenames should include the standard object ID, such as <b>M31</b>, <b>NGC2088</b>, <b>IC5070</b>, or <b>C14</b>.</p>
+            <p><b>Replace the sample images</b></p>
+            <p>The app ships with a small Messier image set so you can try it right away. Replace or clear the images in the repo's <b>images/</b> folder to use your own.</p>
             <p><b>Support development</b></p>
             <p>This project takes time and money to develop. If you find it useful, please consider supporting:</p>
             <p><a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a></p>
+            <p><b>Feedback</b></p>
+            <p>Please share suggestions and bug reports via the GitHub repo issues page.</p>
             """
         )
 

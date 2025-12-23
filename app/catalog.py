@@ -16,9 +16,7 @@ DEFAULT_CONFIG = {
             "name": "Messier",
             "metadata_file": "data/object_metadata.json",
             "image_dirs": [
-                "/Volumes/Audio And Astrophoto/Messier-Catalogue-Viewer/images",
                 "images",
-                "data/images",
             ],
         },
         {
