@@ -256,7 +256,28 @@ def _merge_default_config(loaded: Dict) -> Dict:
         if name not in {c.get("name") for c in catalogs}:
             catalogs.append(catalog)
     merged["catalogs"] = catalogs
+    _normalize_catalog_paths(merged)
     return merged
+
+
+def _normalize_catalog_paths(config: Dict) -> None:
+    default_map = {c.get("name"): c for c in DEFAULT_CONFIG.get("catalogs", [])}
+    for catalog in config.get("catalogs", []):
+        name = catalog.get("name")
+        default_catalog = default_map.get(name, {})
+        image_dirs = [path for path in catalog.get("image_dirs", []) if path]
+        existing = [path for path in image_dirs if _resolve_path(path).exists()]
+        if existing:
+            catalog["image_dirs"] = existing
+        else:
+            default_dirs = default_catalog.get("image_dirs", [])
+            if default_dirs:
+                catalog["image_dirs"] = list(default_dirs)
+            elif image_dirs:
+                catalog["image_dirs"] = image_dirs
+    master_dir = config.get("master_image_dir") or ""
+    if master_dir and not _resolve_path(master_dir).exists():
+        config["master_image_dir"] = ""
 
 
 def _extract_object_ids(stem: str) -> List[str]:
