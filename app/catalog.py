@@ -155,7 +155,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
         catalog_entries: Dict[str, Dict] = {}
         if metadata_path.exists():
             catalog_data = _load_catalog_metadata(metadata_path)
-            catalog_entries = catalog_data.get(catalog_name, {})
+            catalog_entries = _select_catalog_entries(catalog_data, catalog_name)
         for object_id, meta in catalog_entries.items():
             image_path = image_index.get(object_id.upper())
             items.append(
@@ -201,6 +201,23 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
             )
 
     return items
+
+
+def _select_catalog_entries(catalog_data: Dict[str, Dict], catalog_name: str) -> Dict[str, Dict]:
+    if not isinstance(catalog_data, dict):
+        return {}
+    entries = catalog_data.get(catalog_name)
+    if isinstance(entries, dict):
+        return entries
+    lower_name = (catalog_name or "").lower()
+    for key, value in catalog_data.items():
+        if isinstance(key, str) and key.lower() == lower_name and isinstance(value, dict):
+            return value
+    if len(catalog_data) == 1:
+        only_value = next(iter(catalog_data.values()))
+        if isinstance(only_value, dict):
+            return only_value
+    return {}
 
 
 def collect_object_types(items: Iterable[CatalogItem]) -> List[str]:
