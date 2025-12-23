@@ -431,6 +431,8 @@ class DetailPanel(QtWidgets.QWidget):
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
         splitter.setStretchFactor(2, 1)
+        splitter.setChildrenCollapsible(False)
+        splitter.setHandleWidth(6)
         self.splitter = splitter
 
         layout = QtWidgets.QVBoxLayout(self)
@@ -627,6 +629,8 @@ class MainWindow(QtWidgets.QMainWindow):
         splitter.addWidget(self.detail)
         splitter.setStretchFactor(0, 3)
         splitter.setStretchFactor(1, 2)
+        splitter.setChildrenCollapsible(False)
+        splitter.setHandleWidth(6)
         splitter.splitterMoved.connect(self._schedule_auto_fit)
         self.splitter = splitter
 
@@ -649,6 +653,9 @@ class MainWindow(QtWidgets.QMainWindow):
             QWidget { background: #141414; color: #e5e5e5; font-family: 'Avenir Next', 'Helvetica Neue', Arial; }
             QLineEdit, QComboBox, QTextEdit { background: #1d1d1d; border: 1px solid #333; padding: 6px; }
             QListView { background: #101010; border: 1px solid #2a2a2a; }
+            QSplitter::handle { background: #1f1f1f; }
+            QSplitter::handle:horizontal { width: 6px; }
+            QSplitter::handle:vertical { height: 6px; }
             QLabel#detailTitle { font-size: 20px; font-weight: 600; }
             QLabel#welcomeTitle { font-size: 20px; font-weight: 600; }
             QTextBrowser#welcomeBody { background: #101010; border: 1px solid #2a2a2a; }
