@@ -998,7 +998,9 @@ class SettingsDialog(QtWidgets.QDialog):
         self.setMinimumWidth(520)
         self._config = config
         self.updated_config: Dict = {}
-        self._map_dialog: Optional[MapPickerDialog] = None
+        self._map_server: Optional[_MapHttpServer] = None
+        self._map_url: Optional[str] = None
+        self._map_open_timer: Optional[QtCore.QTimer] = None
 
         observer = config.get("observer", {})
         self.latitude = QtWidgets.QDoubleSpinBox()
@@ -1104,93 +1106,37 @@ class SettingsDialog(QtWidgets.QDialog):
         self._emit_preview()
 
     def _open_map_picker(self) -> None:
-        if self._map_dialog is not None:
-            self._map_dialog.raise_()
-            self._map_dialog.activateWindow()
-            return
-        dialog = MapPickerDialog(self.latitude.value(), self.longitude.value(), self)
-        dialog.setWindowModality(QtCore.Qt.WindowModality.NonModal)
-        dialog.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint, True)
-        dialog.locationPicked.connect(self._apply_location)
-        dialog.destroyed.connect(self._on_map_closed)
-        self._map_dialog = dialog
-        dialog.show()
-        dialog.raise_()
-        dialog.activateWindow()
+        if self._map_server is None:
+            self._map_server = _MapHttpServer(self)
+            self._map_server_thread = threading.Thread(
+                target=self._map_server.serve_forever, daemon=True
+            )
+            self._map_server_thread.start()
+            self._map_url = f"http://127.0.0.1:{self._map_server.port}/"
+            self._map_open_timer = QtCore.QTimer(self)
+            self._map_open_timer.setSingleShot(True)
+            self._map_open_timer.setInterval(200)
+            self._map_open_timer.timeout.connect(self._open_map_url)
+            self._map_open_timer.start()
+        else:
+            self._open_map_url()
+
+    def _open_map_url(self) -> None:
+        if self._map_url:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl(self._map_url))
 
     def _apply_location(self, lat: float, lon: float) -> None:
         self.latitude.setValue(lat)
         self.longitude.setValue(lon)
         self._emit_preview()
 
-    def _on_map_closed(self) -> None:
-        self._map_dialog = None
-
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        if self._map_dialog is not None:
-            self._map_dialog.close()
-        super().closeEvent(event)
-
-    def _emit_preview(self) -> None:
-        self.previewChanged.emit(self._build_preview_config())
-
-    def _build_preview_config(self) -> Dict:
-        updated = dict(self._config)
-        updated["observer"] = {
-            "latitude": self.latitude.value(),
-            "longitude": self.longitude.value(),
-            "elevation_m": self.elevation.value(),
-        }
-        updated["master_image_dir"] = self.master_folder.text().strip()
-        catalogs = []
-        for catalog in updated.get("catalogs", []):
-            name = catalog.get("name", "Unknown")
-            field = self.catalog_fields.get(name)
-            if field:
-                value = field.text().strip()
-                catalog["image_dirs"] = [value] if value else []
-            catalogs.append(catalog)
-        updated["catalogs"] = catalogs
-        return updated
-
-
-class MapPickerDialog(QtWidgets.QDialog):
-    locationPicked = QtCore.Signal(float, float)
-
-    def __init__(self, latitude: float, longitude: float, parent: Optional[QtWidgets.QWidget] = None) -> None:
-        super().__init__(parent)
-        self.setWindowTitle("Pick Location")
-        self.setMinimumWidth(420)
-        self._latitude = latitude
-        self._longitude = longitude
-        self._server = _MapHttpServer(self)
-        self._server_thread = threading.Thread(target=self._server.serve_forever, daemon=True)
-        self._server_thread.start()
-        self._url = f"http://127.0.0.1:{self._server.port}/"
-
-        self.status = QtWidgets.QLabel("Open the map in your browser and click to choose a location.")
-        self.status.setWordWrap(True)
-        self.status.setObjectName("coordLabel")
-
-        open_map = QtWidgets.QPushButton("Open Map")
-        open_map.clicked.connect(self._open_map)
-
-        buttons = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.StandardButton.Close
-        )
-        buttons.rejected.connect(self.close)
-
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(self.status)
-        layout.addWidget(open_map)
-        layout.addWidget(buttons)
-
-        QtCore.QTimer.singleShot(200, self._open_map)
-
-    def _open_map(self) -> None:
-        QtGui.QDesktopServices.openUrl(QtCore.QUrl(self._url))
+    @QtCore.Slot(float, float)
+    def _post_location(self, lat: float, lon: float) -> None:
+        self._apply_location(lat, lon)
 
     def _map_html(self) -> str:
+        lat = self.latitude.value()
+        lon = self.longitude.value()
         return f"""<!DOCTYPE html>
 <html>
 <head>
@@ -1216,12 +1162,12 @@ class MapPickerDialog(QtWidgets.QDialog):
     <span id="status">Click on the map to set location</span>
   </div>
   <script>
-    const map = L.map('map').setView([{self._latitude}, {self._longitude}], 3);
+    const map = L.map('map').setView([{lat}, {lon}], 3);
     L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
       maxZoom: 10,
       attribution: '&copy; OpenStreetMap'
     }}).addTo(map);
-    const marker = L.marker([{self._latitude}, {self._longitude}]).addTo(map);
+    const marker = L.marker([{lat}, {lon}]).addTo(map);
     function sendLocation(lat, lon) {{
       marker.setLatLng([lat, lon]);
       fetch('/set_location', {{
@@ -1247,20 +1193,44 @@ class MapPickerDialog(QtWidgets.QDialog):
 </body>
 </html>"""
 
-    @QtCore.Slot(float, float)
-    def _post_location(self, lat: float, lon: float) -> None:
-        self._latitude = lat
-        self._longitude = lon
-        self.status.setText(f"Selected: {lat:.5f}, {lon:.5f}")
-        self.locationPicked.emit(lat, lon)
+    def _shutdown_map_server(self) -> None:
+        if self._map_server is not None:
+            self._map_server.shutdown()
+            self._map_server = None
+        self._map_url = None
+        if self._map_open_timer is not None:
+            self._map_open_timer.stop()
+            self._map_open_timer = None
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        self._server.shutdown()
+        self._shutdown_map_server()
         super().closeEvent(event)
+
+    def _emit_preview(self) -> None:
+        self.previewChanged.emit(self._build_preview_config())
+
+    def _build_preview_config(self) -> Dict:
+        updated = dict(self._config)
+        updated["observer"] = {
+            "latitude": self.latitude.value(),
+            "longitude": self.longitude.value(),
+            "elevation_m": self.elevation.value(),
+        }
+        updated["master_image_dir"] = self.master_folder.text().strip()
+        catalogs = []
+        for catalog in updated.get("catalogs", []):
+            name = catalog.get("name", "Unknown")
+            field = self.catalog_fields.get(name)
+            if field:
+                value = field.text().strip()
+                catalog["image_dirs"] = [value] if value else []
+            catalogs.append(catalog)
+        updated["catalogs"] = catalogs
+        return updated
 
 
 class _MapHttpServer:
-    def __init__(self, dialog: MapPickerDialog) -> None:
+    def __init__(self, dialog: QtCore.QObject) -> None:
         self.dialog = dialog
 
         class Handler(http.server.BaseHTTPRequestHandler):
@@ -1270,7 +1240,11 @@ class _MapHttpServer:
                     if path not in ("/", "/index.html"):
                         self.send_error(404)
                         return
-                    body = self.server.dialog._map_html()  # type: ignore[attr-defined]
+                    dialog = self.server.dialog  # type: ignore[attr-defined]
+                    if dialog is None:
+                        self.send_error(410)
+                        return
+                    body = dialog._map_html()
                     data = body.encode("utf-8")
                     self.send_response(200)
                     self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -1286,13 +1260,17 @@ class _MapHttpServer:
                     if path != "/set_location":
                         self.send_error(404)
                         return
+                    dialog = self.server.dialog  # type: ignore[attr-defined]
+                    if dialog is None:
+                        self.send_error(410)
+                        return
                     length = int(self.headers.get("Content-Length", "0"))
                     payload = self.rfile.read(length).decode("utf-8")
                     data = json.loads(payload)
                     lat = float(data.get("lat"))
                     lon = float(data.get("lon"))
                     QtCore.QMetaObject.invokeMethod(
-                        self.server.dialog,  # type: ignore[attr-defined]
+                        dialog,
                         "_post_location",
                         QtCore.Qt.ConnectionType.QueuedConnection,
                         QtCore.Q_ARG(float, lat),
@@ -1308,7 +1286,7 @@ class _MapHttpServer:
 
         self._server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self._server.daemon_threads = True
-        self._server.dialog = dialog  # type: ignore[attr-defined]
+        self._server.dialog = self.dialog  # type: ignore[attr-defined]
         self.port = self._server.server_address[1]
 
     def serve_forever(self) -> None:
