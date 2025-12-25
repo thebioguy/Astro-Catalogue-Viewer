@@ -26,6 +26,27 @@ python3 -m pip install -r requirements.txt
 python3 app/main.py
 ```
 
+## Windows Build
+Clone this repo on Windows and run one of the build scripts (requires Python 3.10+):
+
+PowerShell:
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+.\scripts\build_windows.ps1
+```
+
+CMD:
+```bat
+python -m venv .venv
+.\.venv\Scripts\activate.bat
+python -m pip install -r requirements.txt
+.\scripts\build_windows.bat
+```
+
+The packaged app will be in `dist/`.
+
 ## Configuration
 Open **Settings** to set:
 - **Master Image Folder** (optional): a single folder containing all your images
