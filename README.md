@@ -12,6 +12,15 @@ Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky cat
 - Optional catalog-specific image folders
 - Offline-safe location picker (browser-based map)
 
+## Screenshots
+![Main Catalogue](assets/screenshots/screenshot-01.png)
+![Catalogue filtered by Captured](assets/screenshots/screenshot-02.png)
+![Location selection map](assets/screenshots/screenshot-03.png)
+![Links to wiki descriptions](assets/screenshots/screenshot-04.png)
+![Catalogue filtered by Missing](assets/screenshots/screenshot-05.png)
+![Catalogue filtered by Suggested](assets/screenshots/screenshot-06.png)
+![Notes and metadata panel](assets/screenshots/screenshot-07.png)
+
 ## Requirements
 - macOS and Windows
 - Python 3.13+ (or any Python 3.10+ that supports PySide6)
