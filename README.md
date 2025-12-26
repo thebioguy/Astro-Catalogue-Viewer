@@ -13,7 +13,7 @@ Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky cat
 - Offline-safe location picker (browser-based map)
 
 ## Requirements
-- macOS
+- macOS and Windows
 - Python 3.13+ (or any Python 3.10+ that supports PySide6)
 - PySide6 (`pip install -r requirements.txt`)
 
