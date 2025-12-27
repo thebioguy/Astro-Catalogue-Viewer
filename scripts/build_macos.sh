@@ -11,6 +11,7 @@ python3 -m PyInstaller \
   --noconfirm \
   --windowed \
   --name "$APP_NAME" \
+  --icon "build_assets/ACV.icns" \
   --add-data "data:data" \
   --add-data "images:images" \
   "app/main.py"
