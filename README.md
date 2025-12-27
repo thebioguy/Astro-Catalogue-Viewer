@@ -2,6 +2,8 @@
 
 Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky catalog images (Messier, NGC, IC, Caldwell, and more). It provides a fast image grid, filters, object metadata, and notes, so you can track your astrophotography progress and plan what to capture next.
 
+This is the first beta release.
+
 Website: https://astro-catalogue-viewer.com/
 
 ## Features
@@ -63,6 +65,8 @@ Open **Settings** to set:
 - **Master Image Folder** (optional): a single folder containing all your images
 - **Per-catalog Image Folder**: use if you store catalogs separately
 - **Observer Location**: used for best-visibility suggestions
+
+The “best visibility” months are computed from RA/Dec + your latitude/longitude using a sidereal-time approximation. It’s a solid planning heuristic (altitude at midnight on the 15th of each month) and will drive the “Suggested” filter accurately.
 
 ### Image Naming
 Filenames must include the standard object ID, for example:
