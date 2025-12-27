@@ -2,6 +2,7 @@
 setlocal
 set PYTHON=python
 set APPNAME=Astro Catalogue Viewer
+set ZIPNAME=AstroCatalogueViewer-Windows.zip
 
 %PYTHON% -m pip install --upgrade pyinstaller || exit /b 1
 
@@ -10,4 +11,8 @@ set APPNAME=Astro Catalogue Viewer
   --add-data "data;data" ^
   --add-data "images;images" ^
   "app\\main.py"
+
+if exist "%ZIPNAME%" del "%ZIPNAME%"
+powershell -NoProfile -Command "Compress-Archive -Path \"dist\\%APPNAME%\\*\" -DestinationPath \"%ZIPNAME%\""
+echo Created %ZIPNAME%
 endlocal

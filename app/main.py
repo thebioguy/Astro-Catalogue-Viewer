@@ -238,6 +238,9 @@ class CatalogModel(QtCore.QAbstractListModel):
             best_months=item.best_months,
             description=item.description,
             notes=notes,
+            external_link=item.external_link,
+            ra_hours=item.ra_hours,
+            dec_deg=item.dec_deg,
             image_path=item.image_path,
         )
         self._items[row] = updated
@@ -366,14 +369,14 @@ class ImageView(QtWidgets.QGraphicsView):
         if self._pixmap:
             self._pixmap_item = self.scene().addPixmap(self._pixmap)
             self.setSceneRect(pixmap.rect())
-            self.fitInView(self.sceneRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+            self.fit_to_window()
         else:
             self._pixmap_item = None
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         super().resizeEvent(event)
         if self._pixmap_item and self._pixmap:
-            self.fitInView(self.sceneRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+            self.fit_to_window()
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
         if self._pixmap_item is None:
@@ -388,10 +391,22 @@ class ImageView(QtWidgets.QGraphicsView):
         if self._zoom < -5:
             self._zoom = -5
             return
-        if self._zoom > 20:
-            self._zoom = 20
+        if self._zoom > 60:
+            self._zoom = 60
             return
         self.scale(factor, factor)
+
+    def fit_to_window(self) -> None:
+        if self._pixmap_item is None:
+            return
+        self.resetTransform()
+        self.fitInView(self.sceneRect(), QtCore.Qt.AspectRatioMode.KeepAspectRatio)
+
+    def zoom_actual(self) -> None:
+        if self._pixmap_item is None:
+            return
+        self.resetTransform()
+        self.centerOn(self._pixmap_item)
 
 
 class DetailPanel(QtWidgets.QWidget):
@@ -413,6 +428,10 @@ class DetailPanel(QtWidgets.QWidget):
         self.external_link = QtWidgets.QLabel("")
         self.external_link.setOpenExternalLinks(True)
         self.external_link.setObjectName("externalLink")
+        self.fit_button = QtWidgets.QPushButton("Fit to Window")
+        self.fit_button.clicked.connect(self.image_view.fit_to_window)
+        self.zoom_button = QtWidgets.QPushButton("100%")
+        self.zoom_button.clicked.connect(self.image_view.zoom_actual)
         self._current_item: Optional[CatalogItem] = None
         self._notes_block = False
 
@@ -420,6 +439,11 @@ class DetailPanel(QtWidgets.QWidget):
         top_layout = QtWidgets.QVBoxLayout(top_widget)
         top_layout.setContentsMargins(0, 0, 0, 0)
         top_layout.addWidget(self.title)
+        zoom_row = QtWidgets.QHBoxLayout()
+        zoom_row.addWidget(self.fit_button)
+        zoom_row.addWidget(self.zoom_button)
+        zoom_row.addStretch(1)
+        top_layout.addLayout(zoom_row)
         top_layout.addWidget(self.image_view, stretch=2)
         top_layout.addWidget(self.metadata)
         top_layout.addWidget(self.external_link)
@@ -462,7 +486,9 @@ class DetailPanel(QtWidgets.QWidget):
                 label += f" ({item.discovery_year})"
             metadata_lines.append(label)
         if item.best_months:
-            metadata_lines.append(f"Best visibility: {item.best_months}")
+            metadata_lines.append(
+                f"Best visibility: {self._format_months(item.best_months)}"
+            )
         self.metadata.setText("\n".join(metadata_lines))
         self.description.setPlainText(item.description or "")
         self.notes.setPlainText(item.notes or "")
@@ -477,6 +503,13 @@ class DetailPanel(QtWidgets.QWidget):
         else:
             self.image_view.set_pixmap(None)
         self._notes_block = False
+
+    @staticmethod
+    def _format_months(value: str) -> str:
+        if not value:
+            return ""
+        months = [value[i:i + 3] for i in range(0, len(value), 3)]
+        return " ".join(months)
 
     def connect_notes_changed(self, callback) -> None:
         self.notes.textChanged.connect(callback)

@@ -32,6 +32,34 @@ TYPE_MAP = {
 }
 
 
+def _parse_ra(value: str | None) -> float | None:
+    if not value:
+        return None
+    parts = re.split(r"[:\s]+", value.strip())
+    try:
+        hours = float(parts[0])
+        minutes = float(parts[1]) if len(parts) > 1 else 0.0
+        seconds = float(parts[2]) if len(parts) > 2 else 0.0
+        return hours + minutes / 60.0 + seconds / 3600.0
+    except ValueError:
+        return None
+
+
+def _parse_dec(value: str | None) -> float | None:
+    if not value:
+        return None
+    sign = -1.0 if value.strip().startswith("-") else 1.0
+    text = value.strip().lstrip("+-")
+    parts = re.split(r"[:\s]+", text)
+    try:
+        deg = float(parts[0])
+        minutes = float(parts[1]) if len(parts) > 1 else 0.0
+        seconds = float(parts[2]) if len(parts) > 2 else 0.0
+        return sign * (deg + minutes / 60.0 + seconds / 3600.0)
+    except ValueError:
+        return None
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     openngc = root / "data" / "openngc" / "NGC.csv"
@@ -65,6 +93,9 @@ def main() -> None:
             if not description:
                 description = (row.get("NED notes") or "").strip()
 
+            ra_hours = _parse_ra(row.get("RA"))
+            dec_deg = _parse_dec(row.get("Dec"))
+
             entry = {
                 "name": common,
                 "type": obj_type,
@@ -73,6 +104,8 @@ def main() -> None:
                 "discovery_year": None,
                 "best_months": None,
                 "description": description,
+                "ra_hours": ra_hours,
+                "dec_deg": dec_deg,
             }
 
             if prefix == "NGC":

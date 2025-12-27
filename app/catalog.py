@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 import json
+import math
 import os
 import sys
 from typing import Dict, Iterable, List, Optional
@@ -57,6 +59,8 @@ class CatalogItem:
     description: Optional[str]
     notes: Optional[str]
     external_link: Optional[str]
+    ra_hours: Optional[float]
+    dec_deg: Optional[float]
     image_path: Optional[Path]
 
     @property
@@ -136,6 +140,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
     extensions = config.get("image_extensions", DEFAULT_CONFIG["image_extensions"])
     observer = config.get("observer", {})
     latitude = observer.get("latitude")
+    longitude = observer.get("longitude") or 0.0
     master_dir = config.get("master_image_dir") or ""
     master_path = _resolve_path(master_dir) if master_dir else None
 
@@ -157,6 +162,11 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
             catalog_entries = _select_catalog_entries(catalog_data, catalog_name)
         for object_id, meta in catalog_entries.items():
             image_path = image_index.get(object_id.upper())
+            ra_hours = _parse_ra(meta.get("ra_hours") or meta.get("ra"))
+            dec_deg = _parse_dec(meta.get("dec_deg") or meta.get("dec"))
+            best_months = _adjust_best_months(meta.get("best_months"), latitude)
+            if not best_months and ra_hours is not None and dec_deg is not None and latitude is not None:
+                best_months = _compute_best_months(ra_hours, dec_deg, latitude, longitude)
             items.append(
                 CatalogItem(
                     object_id=object_id,
@@ -166,12 +176,14 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     distance_ly=meta.get("distance_ly"),
                     discoverer=_normalize_text(meta.get("discoverer")),
                     discovery_year=meta.get("discovery_year"),
-                    best_months=_adjust_best_months(meta.get("best_months"), latitude),
+                    best_months=best_months,
                     description=_normalize_text(meta.get("description")),
                     notes=_normalize_text(meta.get("notes")),
                     external_link=_normalize_text(
                         meta.get("external_link")
                     ) or _default_external_link(object_id, meta.get("name")),
+                    ra_hours=ra_hours,
+                    dec_deg=dec_deg,
                     image_path=image_path,
                 )
             )
@@ -195,6 +207,8 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     description=None,
                     notes=None,
                     external_link=_default_external_link(object_id, None),
+                    ra_hours=None,
+                    dec_deg=None,
                     image_path=image_path,
                 )
             )
@@ -333,3 +347,86 @@ def _adjust_best_months(best_months: Optional[str], latitude: Optional[float]) -
         new_index = (month_map.index(month) + 6) % 12
         shifted.append(month_map[new_index])
     return "".join(shifted)
+
+
+def _parse_ra(value: Optional[str]) -> Optional[float]:
+    if value is None or value == "":
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return None
+    parts = re.split(r"[:\s]+", text)
+    try:
+        hours = float(parts[0])
+        minutes = float(parts[1]) if len(parts) > 1 else 0.0
+        seconds = float(parts[2]) if len(parts) > 2 else 0.0
+        return hours + minutes / 60.0 + seconds / 3600.0
+    except ValueError:
+        return None
+
+
+def _parse_dec(value: Optional[str]) -> Optional[float]:
+    if value is None or value == "":
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip()
+    if not text:
+        return None
+    sign = -1.0 if text.startswith("-") else 1.0
+    text = text.lstrip("+-")
+    parts = re.split(r"[:\s]+", text)
+    try:
+        deg = float(parts[0])
+        minutes = float(parts[1]) if len(parts) > 1 else 0.0
+        seconds = float(parts[2]) if len(parts) > 2 else 0.0
+        return sign * (deg + minutes / 60.0 + seconds / 3600.0)
+    except ValueError:
+        return None
+
+
+def _compute_best_months(ra_hours: float, dec_deg: float, lat_deg: float, lon_deg: float) -> str:
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    best = []
+    for month in range(1, 13):
+        date = datetime(2025, month, 15, 0, 0, tzinfo=timezone.utc)
+        lst = _local_sidereal_time(date, lon_deg)
+        ha = (lst - ra_hours) * 15.0
+        ha = (ha + 180.0) % 360.0 - 180.0
+        alt = _altitude_deg(lat_deg, dec_deg, ha)
+        if alt >= 25.0:
+            best.append(month_names[month - 1])
+    return "".join(best)
+
+
+def _local_sidereal_time(date: datetime, longitude_deg: float) -> float:
+    jd = _julian_date(date)
+    t = (jd - 2451545.0) / 36525.0
+    gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * t * t - t * t * t / 38710000.0
+    gmst = gmst % 360.0
+    lst = (gmst + longitude_deg) % 360.0
+    return lst / 15.0
+
+
+def _julian_date(date: datetime) -> float:
+    year = date.year
+    month = date.month
+    day = date.day + (date.hour + date.minute / 60.0) / 24.0
+    if month <= 2:
+        year -= 1
+        month += 12
+    a = math.floor(year / 100)
+    b = 2 - a + math.floor(a / 4)
+    jd = math.floor(365.25 * (year + 4716)) + math.floor(30.6001 * (month + 1)) + day + b - 1524.5
+    return jd
+
+
+def _altitude_deg(lat_deg: float, dec_deg: float, ha_deg: float) -> float:
+    lat_rad = math.radians(lat_deg)
+    dec_rad = math.radians(dec_deg)
+    ha_rad = math.radians(ha_deg)
+    sin_alt = math.sin(lat_rad) * math.sin(dec_rad) + math.cos(lat_rad) * math.cos(dec_rad) * math.cos(ha_rad)
+    return math.degrees(math.asin(sin_alt))
