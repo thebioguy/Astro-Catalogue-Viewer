@@ -28,7 +28,7 @@ If you like the project, please click Like on the project page to help support f
 ![Notes and metadata panel](assets/screenshots/screenshot-07.png)
 
 ## Requirements
-- macOS and Windows
+- macOS, Windows, and Linux
 - Python 3.13+ (or any Python 3.10+ that supports PySide6)
 - PySide6 (`pip install -r requirements.txt`)
 
@@ -58,6 +58,18 @@ python -m venv .venv
 .\.venv\Scripts\activate.bat
 python -m pip install -r requirements.txt
 .\scripts\build_windows.bat
+```
+
+The packaged app will be in `dist/`.
+
+## Linux Build
+Clone this repo on Linux and run:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+./scripts/build_linux.sh
 ```
 
 The packaged app will be in `dist/`.
