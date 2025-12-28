@@ -170,9 +170,9 @@ class CatalogModel(QtCore.QAbstractListModel):
         if role == QtCore.Qt.ItemDataRole.ToolTipRole:
             return f"{item.catalog} | {item.object_type}"
         if role == QtCore.Qt.ItemDataRole.DecorationRole:
-            if item.image_path is None:
+            if item.thumbnail_path is None:
                 return self._placeholder
-            cached = self._cache.get_thumbnail(item.image_path)
+            cached = self._cache.get_thumbnail(item.thumbnail_path)
             if cached:
                 return cached
             pixmap = self._pixmaps.get(item.unique_key)
@@ -185,12 +185,12 @@ class CatalogModel(QtCore.QAbstractListModel):
         return None
 
     def _queue_thumbnail(self, item: CatalogItem) -> None:
-        if item.image_path is None:
+        if item.thumbnail_path is None:
             return
         if item.unique_key in self._loading:
             return
         self._loading.add(item.unique_key)
-        task = ThumbnailTask(item.unique_key, item.image_path, self._cache)
+        task = ThumbnailTask(item.unique_key, item.thumbnail_path, self._cache)
         task.signals.loaded.connect(self._on_thumbnail_loaded)
         self._thread_pool.start(task)
 
@@ -199,9 +199,9 @@ class CatalogModel(QtCore.QAbstractListModel):
         if row is None:
             return
         item = self._items[row]
-        if item.image_path is None:
+        if item.thumbnail_path is None:
             return
-        pixmap = self._cache.store_thumbnail_image(item.image_path, image)
+        pixmap = self._cache.store_thumbnail_image(item.thumbnail_path, image)
         self._pixmaps[item_key] = pixmap
         self._loading.discard(item_key)
         index = self.index(row)
@@ -241,7 +241,8 @@ class CatalogModel(QtCore.QAbstractListModel):
             external_link=item.external_link,
             ra_hours=item.ra_hours,
             dec_deg=item.dec_deg,
-            image_path=item.image_path,
+            image_paths=item.image_paths,
+            thumbnail_path=item.thumbnail_path,
         )
         self._items[row] = updated
         index = self.index(row)
@@ -327,9 +328,9 @@ class CatalogFilterProxy(QtCore.QSortFilterProxyModel):
         if self.type_filter and item.object_type != self.type_filter:
             return False
         if self.status_filter:
-            if self.status_filter == "Captured" and item.image_path is None:
+            if self.status_filter == "Captured" and not item.image_paths:
                 return False
-            if self.status_filter == "Missing" and item.image_path is not None:
+            if self.status_filter == "Missing" and item.image_paths:
                 return False
             if self.status_filter == "Suggested" and not self._is_suggested(item):
                 return False
@@ -340,7 +341,7 @@ class CatalogFilterProxy(QtCore.QSortFilterProxyModel):
         return True
 
     def _is_suggested(self, item: CatalogItem) -> bool:
-        if item.image_path is not None:
+        if item.image_paths:
             return False
         if not item.best_months:
             return False
@@ -417,6 +418,8 @@ class DetailPanel(QtWidgets.QWidget):
         self.title.setObjectName("detailTitle")
         self.metadata = QtWidgets.QLabel("")
         self.metadata.setWordWrap(True)
+        self.image_info = QtWidgets.QLabel("")
+        self.image_info.setObjectName("imageInfo")
         self.description = QtWidgets.QTextEdit()
         self.description.setReadOnly(True)
         self.description.setObjectName("descriptionBox")
@@ -432,8 +435,13 @@ class DetailPanel(QtWidgets.QWidget):
         self.fit_button.clicked.connect(self.image_view.fit_to_window)
         self.zoom_button = QtWidgets.QPushButton("100%")
         self.zoom_button.clicked.connect(self.image_view.zoom_actual)
+        self.prev_button = QtWidgets.QPushButton("◀")
+        self.next_button = QtWidgets.QPushButton("▶")
+        self.prev_button.clicked.connect(self._show_prev_image)
+        self.next_button.clicked.connect(self._show_next_image)
         self._current_item: Optional[CatalogItem] = None
         self._notes_block = False
+        self._image_index = 0
 
         top_widget = QtWidgets.QWidget()
         top_layout = QtWidgets.QVBoxLayout(top_widget)
@@ -445,7 +453,13 @@ class DetailPanel(QtWidgets.QWidget):
         zoom_row.addStretch(1)
         top_layout.addLayout(zoom_row)
         top_layout.addWidget(self.image_view, stretch=2)
+        nav_row = QtWidgets.QHBoxLayout()
+        nav_row.addWidget(self.prev_button)
+        nav_row.addWidget(self.next_button)
+        nav_row.addStretch(1)
+        top_layout.addLayout(nav_row)
         top_layout.addWidget(self.metadata)
+        top_layout.addWidget(self.image_info)
         top_layout.addWidget(self.external_link)
 
         splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
@@ -470,7 +484,10 @@ class DetailPanel(QtWidgets.QWidget):
             self.metadata.setText("")
             self.description.setPlainText("")
             self.notes.setPlainText("")
+            self.image_info.setText("")
             self.image_view.set_pixmap(None)
+            self.prev_button.setEnabled(False)
+            self.next_button.setEnabled(False)
             self._notes_block = False
             return
         self.title.setText(item.display_name)
@@ -497,11 +514,8 @@ class DetailPanel(QtWidgets.QWidget):
             self.external_link.show()
         else:
             self.external_link.hide()
-        if item.image_path and item.image_path.exists():
-            pixmap = QtGui.QPixmap(str(item.image_path))
-            self.image_view.set_pixmap(pixmap)
-        else:
-            self.image_view.set_pixmap(None)
+        self._image_index = 0
+        self._update_image_view()
         self._notes_block = False
 
     @staticmethod
@@ -522,6 +536,40 @@ class DetailPanel(QtWidgets.QWidget):
 
     def notes_blocked(self) -> bool:
         return self._notes_block
+
+    def _update_image_view(self) -> None:
+        if not self._current_item or not self._current_item.image_paths:
+            self.image_view.set_pixmap(None)
+            self.image_info.setText("No image available")
+            self.prev_button.setEnabled(False)
+            self.next_button.setEnabled(False)
+            return
+        paths = self._current_item.image_paths
+        self._image_index = max(0, min(self._image_index, len(paths) - 1))
+        path = paths[self._image_index]
+        pixmap = QtGui.QPixmap(str(path))
+        self.image_view.set_pixmap(pixmap)
+        size_info = ""
+        if pixmap and not pixmap.isNull():
+            size_info = f"{pixmap.width()}x{pixmap.height()}"
+        self.image_info.setText(
+            f"Image {self._image_index + 1}/{len(paths)} | File: {path.name}"
+            + (f" | {size_info}" if size_info else "")
+        )
+        self.prev_button.setEnabled(len(paths) > 1)
+        self.next_button.setEnabled(len(paths) > 1)
+
+    def _show_prev_image(self) -> None:
+        if not self._current_item or not self._current_item.image_paths:
+            return
+        self._image_index = (self._image_index - 1) % len(self._current_item.image_paths)
+        self._update_image_view()
+
+    def _show_next_image(self) -> None:
+        if not self._current_item or not self._current_item.image_paths:
+            return
+        self._image_index = (self._image_index + 1) % len(self._current_item.image_paths)
+        self._update_image_view()
 
 
 class MainWindow(QtWidgets.QMainWindow):

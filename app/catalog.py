@@ -61,7 +61,8 @@ class CatalogItem:
     external_link: Optional[str]
     ra_hours: Optional[float]
     dec_deg: Optional[float]
-    image_path: Optional[Path]
+    image_paths: List[Path]
+    thumbnail_path: Optional[Path]
 
     @property
     def display_name(self) -> str:
@@ -105,9 +106,9 @@ def save_config(config_path: Path, config: Dict) -> None:
         json.dump(config, handle, indent=2)
 
 
-def _build_image_index(image_dirs: Iterable[Path], extensions: Iterable[str]) -> Dict[str, Path]:
+def _build_image_index(image_dirs: Iterable[Path], extensions: Iterable[str]) -> Dict[str, List[Path]]:
     exts = {ext.lower() for ext in extensions}
-    index: Dict[str, Path] = {}
+    index: Dict[str, List[Path]] = {}
     for image_dir in image_dirs:
         if not image_dir.exists():
             continue
@@ -122,7 +123,7 @@ def _build_image_index(image_dirs: Iterable[Path], extensions: Iterable[str]) ->
                     continue
                 image_path = Path(root) / filename
                 for object_id in matches:
-                    index.setdefault(object_id, image_path)
+                    index.setdefault(object_id, []).append(image_path)
     return index
 
 
@@ -161,7 +162,8 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
             catalog_data = _load_catalog_metadata(metadata_path)
             catalog_entries = _select_catalog_entries(catalog_data, catalog_name)
         for object_id, meta in catalog_entries.items():
-            image_path = image_index.get(object_id.upper())
+            image_paths = image_index.get(object_id.upper(), [])
+            thumbnail_path = image_paths[0] if image_paths else None
             ra_hours = _parse_ra(meta.get("ra_hours") or meta.get("ra"))
             dec_deg = _parse_dec(meta.get("dec_deg") or meta.get("dec"))
             best_months = _adjust_best_months(meta.get("best_months"), latitude)
@@ -184,16 +186,18 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     ) or _default_external_link(object_id, meta.get("name")),
                     ra_hours=ra_hours,
                     dec_deg=dec_deg,
-                    image_path=image_path,
+                    image_paths=image_paths,
+                    thumbnail_path=thumbnail_path,
                 )
             )
 
         # Add image-only entries that are not in metadata.
-        for object_id, image_path in image_index.items():
+        for object_id, image_paths in image_index.items():
             if catalog_prefix and not object_id.upper().startswith(catalog_prefix):
                 continue
             if object_id in catalog_entries:
                 continue
+            thumbnail_path = image_paths[0] if image_paths else None
             items.append(
                 CatalogItem(
                     object_id=object_id,
@@ -209,7 +213,8 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     external_link=_default_external_link(object_id, None),
                     ra_hours=None,
                     dec_deg=None,
-                    image_path=image_path,
+                    image_paths=image_paths,
+                    thumbnail_path=thumbnail_path,
                 )
             )
 
