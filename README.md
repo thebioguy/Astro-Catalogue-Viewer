@@ -41,6 +41,18 @@ python3 -m pip install -r requirements.txt
 python3 app/main.py
 ```
 
+## macOS Build
+Clone this repo on macOS and run:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+./scripts/build_macos.sh
+```
+
+The packaged app will be in `dist/`, and `AstroCatalogueViewer-macOS.zip` is created in the repo root.
+
 ## Windows Build
 Clone this repo on Windows and run one of the build scripts (requires Python 3.10+):
 
