@@ -6,6 +6,8 @@ This is the first beta release.
 
 Website: https://astro-catalogue-viewer.com/
 
+If you like the project, please click Like on the project page to help support future development.
+
 ## Features
 - Fast grid with zoom, search, and filters (catalog, object type, status)
 - Image popup
