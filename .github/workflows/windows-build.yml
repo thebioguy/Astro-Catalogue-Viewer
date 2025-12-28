@@ -1,0 +1,44 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
+
+      - name: Build
+        run: |
+          python -m PyInstaller --clean --noconfirm --windowed --name "Astro Catalogue Viewer" `
+            --icon "build_assets/ACV.ico" `
+            --add-data "data;data" `
+            --add-data "images;images" `
+            --collect-all "PySide6" `
+            app/main.py
+
+      - name: Package
+        run: |
+          Compress-Archive -Path "dist/Astro Catalogue Viewer/*" -DestinationPath "AstroCatalogueViewer-Windows.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AstroCatalogueViewer-Windows
+          path: AstroCatalogueViewer-Windows.zip
