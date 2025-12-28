@@ -109,6 +109,7 @@ def save_config(config_path: Path, config: Dict) -> None:
 def _build_image_index(image_dirs: Iterable[Path], extensions: Iterable[str]) -> Dict[str, List[Path]]:
     exts = {ext.lower() for ext in extensions}
     index: Dict[str, List[Path]] = {}
+    seen: Dict[str, set] = {}
     for image_dir in image_dirs:
         if not image_dir.exists():
             continue
@@ -122,8 +123,15 @@ def _build_image_index(image_dirs: Iterable[Path], extensions: Iterable[str]) ->
                 if not matches:
                     continue
                 image_path = Path(root) / filename
+                resolved = str(image_path.resolve())
                 for object_id in matches:
+                    seen.setdefault(object_id, set())
+                    if resolved in seen[object_id]:
+                        continue
+                    seen[object_id].add(resolved)
                     index.setdefault(object_id, []).append(image_path)
+    for object_id, paths in index.items():
+        index[object_id] = sorted(paths, key=lambda p: p.name.lower())
     return index
 
 
