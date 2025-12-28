@@ -7,6 +7,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 & $Python -m pip install --upgrade pyinstaller
+& $Python -m pip install --upgrade -r requirements.txt
 
 & $Python -m PyInstaller `
   --clean `
@@ -16,6 +17,7 @@ $ErrorActionPreference = "Stop"
   --icon "build_assets/ACV.ico" `
   --add-data "data;data" `
   --add-data "images;images" `
+  --collect-all "PySide6" `
   "app/main.py"
 
 if (Test-Path $ZipName) { Remove-Item $ZipName }

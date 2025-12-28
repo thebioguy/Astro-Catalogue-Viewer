@@ -1,0 +1,44 @@
+name: Build Linux
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
+
+      - name: Build
+        run: |
+          python -m PyInstaller --clean --noconfirm --windowed \
+            --name "Astro Catalogue Viewer" \
+            --add-data "data:data" \
+            --add-data "images:images" \
+            app/main.py
+
+      - name: Package
+        run: |
+          cd dist
+          zip -r ../AstroCatalogueViewer-Linux.zip "Astro Catalogue Viewer"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AstroCatalogueViewer-Linux
+          path: AstroCatalogueViewer-Linux.zip
