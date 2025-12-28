@@ -32,15 +32,6 @@ If you like the project, please click Like on the project page to help support f
 - Python 3.13+ (or any Python 3.10+ that supports PySide6)
 - PySide6 (`pip install -r requirements.txt`)
 
-## Quick Start
-```bash
-cd "/Volumes/Audio And Astrophoto/Astro-Catalogue-Viewer"
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-python3 app/main.py
-```
-
 ## macOS Build
 Clone this repo on macOS and run:
 
