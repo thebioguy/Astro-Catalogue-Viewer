@@ -1,14 +1,12 @@
 # Astro Catalogue Viewer
 
-Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky catalog images (Messier, NGC, IC, Caldwell, and more). It provides a fast image grid, filters, object metadata, and notes, so you can track your astrophotography progress and plan what to capture next.
-
-This is the first beta release.
+Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky catalog images (Messier, NGC, IC, Caldwell, and more). It gives you a fast image grid, filters, object metadata, and notes so you can track progress and plan what to capture next.
 
 Website: https://astro-catalogue-viewer.com/
 
-If you like the project, please click Like on the project page to help support future development.
+Status: beta
 
-## Features
+## Highlights
 - Fast grid with zoom, search, and filters (catalog, object type, status)
 - Image popup
 - Notes per object (saved into the metadata JSON)
@@ -17,6 +15,14 @@ If you like the project, please click Like on the project page to help support f
 - Master image folder support (if all images live in one place)
 - Optional catalog-specific image folders
 - Offline-safe location picker (browser-based map)
+
+## Quick start (dev)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+python3 app/main.py
+```
 
 ## Screenshots
 ![Main Catalogue](assets/screenshots/screenshot-01.png)
@@ -31,6 +37,9 @@ If you like the project, please click Like on the project page to help support f
 - macOS, Windows, and Linux
 - Python 3.13+ (or any Python 3.10+ that supports PySide6)
 - PySide6 (`pip install -r requirements.txt`)
+
+## Roadmap
+See `ROADMAP.md`.
 
 ## macOS Build
 Clone this repo on macOS and run:
@@ -110,10 +119,12 @@ If the app has a bad image path or filter state saved, delete the config file:
 - macOS: `~/Library/Application Support/AstroCatalogueViewer/config.json`
 
 ## Support
-This project takes time and money to develop. If you find it useful, please consider supporting:
+If this helps your astrophotography workflow, consider supporting ongoing development:
 - https://buymeacoffee.com/PaulSpinelli
 
-Feedback, suggestions, and bug reports are welcome via the GitHub repo issues.
+Sponsor pitch text lives in `SPONSORS.md`.
+
+Feedback, suggestions, and bug reports are welcome via GitHub issues.
 
 ## License
 See `LICENSE`.
