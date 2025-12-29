@@ -309,6 +309,41 @@ class CatalogItemDelegate(QtWidgets.QStyledItemDelegate):
             painter.setPen(pen)
             painter.drawRect(icon_rect)
 
+        item: CatalogItem = index.data(QtCore.Qt.ItemDataRole.UserRole)
+        if item:
+            badge_size = 18
+            margin = 4
+            if len(item.image_paths) > 1:
+                count_rect = QtCore.QRect(
+                    icon_rect.left() + margin,
+                    icon_rect.top() + margin,
+                    badge_size + 6,
+                    badge_size,
+                )
+                painter.fillRect(count_rect, QtGui.QColor(0, 0, 0, 160))
+                painter.setPen(QtGui.QColor("#f2f2f2"))
+                painter.drawRect(count_rect)
+                painter.drawText(
+                    count_rect,
+                    QtCore.Qt.AlignmentFlag.AlignCenter,
+                    str(len(item.image_paths)),
+                )
+            if item.notes:
+                info_rect = QtCore.QRect(
+                    icon_rect.right() - badge_size - margin,
+                    icon_rect.top() + margin,
+                    badge_size,
+                    badge_size,
+                )
+                painter.setBrush(QtGui.QColor(0, 0, 0, 160))
+                painter.setPen(QtGui.QColor("#f2f2f2"))
+                painter.drawEllipse(info_rect)
+                painter.drawText(
+                    info_rect,
+                    QtCore.Qt.AlignmentFlag.AlignCenter,
+                    "i",
+                )
+
         painter.fillRect(text_rect, QtGui.QColor(0, 0, 0, 160))
         painter.setPen(QtGui.QColor("#f2f2f2"))
         elided = metrics.elidedText(text, QtCore.Qt.TextElideMode.ElideRight, text_rect.width())
