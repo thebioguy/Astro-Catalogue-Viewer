@@ -451,8 +451,12 @@ class DetailPanel(QtWidgets.QWidget):
         self.title.setObjectName("detailTitle")
         self.metadata = QtWidgets.QLabel("")
         self.metadata.setWordWrap(True)
+        self.metadata.setSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.metadata.setContentsMargins(0, 0, 0, 0)
         self.image_info = QtWidgets.QLabel("")
         self.image_info.setObjectName("imageInfo")
+        self.image_info.setSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.image_info.setContentsMargins(0, 0, 0, 0)
         self.description = QtWidgets.QTextEdit()
         self.description.setReadOnly(True)
         self.description.setObjectName("descriptionBox")
@@ -464,10 +468,10 @@ class DetailPanel(QtWidgets.QWidget):
         self.external_link = QtWidgets.QLabel("")
         self.external_link.setOpenExternalLinks(True)
         self.external_link.setObjectName("externalLink")
+        self.external_link.setSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.external_link.setContentsMargins(0, 0, 0, 0)
         self.fit_button = QtWidgets.QPushButton("Fit to Window")
         self.fit_button.clicked.connect(self.image_view.fit_to_window)
-        self.zoom_button = QtWidgets.QPushButton("100%")
-        self.zoom_button.clicked.connect(self.image_view.zoom_actual)
         self.prev_button = QtWidgets.QPushButton("◀")
         self.next_button = QtWidgets.QPushButton("▶")
         self.thumb_button = QtWidgets.QPushButton("Set as thumbnail")
@@ -478,39 +482,60 @@ class DetailPanel(QtWidgets.QWidget):
         self._notes_block = False
         self._image_index = 0
 
-        top_widget = QtWidgets.QWidget()
-        top_layout = QtWidgets.QVBoxLayout(top_widget)
-        top_layout.setContentsMargins(0, 0, 0, 0)
-        top_layout.addWidget(self.title)
-        zoom_row = QtWidgets.QHBoxLayout()
-        zoom_row.addWidget(self.fit_button)
-        zoom_row.addWidget(self.zoom_button)
-        zoom_row.addStretch(1)
-        top_layout.addLayout(zoom_row)
-        top_layout.addWidget(self.image_view, stretch=2)
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.title)
+        fit_row = QtWidgets.QHBoxLayout()
+        fit_row.addWidget(self.fit_button)
+        fit_row.addStretch(1)
+        layout.addLayout(fit_row)
+
+        image_container = QtWidgets.QWidget()
+        image_layout = QtWidgets.QVBoxLayout(image_container)
+        image_layout.setContentsMargins(0, 0, 0, 0)
+        image_layout.addWidget(self.image_view, stretch=1)
+
+        left_widget = QtWidgets.QWidget()
+        left_layout = QtWidgets.QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(0)
         nav_row = QtWidgets.QHBoxLayout()
         nav_row.addWidget(self.prev_button)
         nav_row.addWidget(self.next_button)
         nav_row.addWidget(self.thumb_button)
         nav_row.addStretch(1)
-        top_layout.addLayout(nav_row)
-        top_layout.addWidget(self.metadata)
-        top_layout.addWidget(self.image_info)
-        top_layout.addWidget(self.external_link)
+        left_layout.addLayout(nav_row)
+        left_layout.addWidget(self.metadata)
+        left_layout.addWidget(self.image_info)
+        left_layout.addWidget(self.external_link)
 
-        splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
-        splitter.addWidget(top_widget)
-        splitter.addWidget(self.description)
-        splitter.addWidget(self.notes)
-        splitter.setStretchFactor(0, 3)
-        splitter.setStretchFactor(1, 2)
-        splitter.setStretchFactor(2, 1)
-        splitter.setChildrenCollapsible(False)
-        splitter.setHandleWidth(6)
-        self.splitter = splitter
+        right_widget = QtWidgets.QWidget()
+        right_layout = QtWidgets.QVBoxLayout(right_widget)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.addWidget(self.description, stretch=2)
+        right_layout.addWidget(self.notes, stretch=1)
 
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(splitter)
+        columns_splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Horizontal)
+        columns_splitter.addWidget(left_widget)
+        columns_splitter.addWidget(right_widget)
+        columns_splitter.setStretchFactor(0, 1)
+        columns_splitter.setStretchFactor(1, 3)
+        columns_splitter.setChildrenCollapsible(False)
+        columns_splitter.setHandleWidth(6)
+        columns_splitter.setSizes([320, 960])
+        main_splitter = QtWidgets.QSplitter(QtCore.Qt.Orientation.Vertical)
+        main_splitter.addWidget(image_container)
+        main_splitter.addWidget(columns_splitter)
+        main_splitter.setStretchFactor(0, 2)
+        main_splitter.setStretchFactor(1, 1)
+        main_splitter.setChildrenCollapsible(False)
+        main_splitter.setHandleWidth(6)
+        main_splitter.setSizes([520, 306])
+        self.splitter = main_splitter
+        self._left_widget = left_widget
+        self._main_splitter = main_splitter
+        self._initial_detail_sized = False
+
+        layout.addWidget(main_splitter, stretch=1)
 
     def update_item(self, item: Optional[CatalogItem]) -> None:
         self._current_item = item
@@ -558,6 +583,7 @@ class DetailPanel(QtWidgets.QWidget):
             except ValueError:
                 self._image_index = 0
         self._update_image_view()
+        QtCore.QTimer.singleShot(0, self._apply_initial_sizes)
         self._notes_block = False
 
     @staticmethod
@@ -602,6 +628,20 @@ class DetailPanel(QtWidgets.QWidget):
         self.prev_button.setEnabled(len(paths) > 1)
         self.next_button.setEnabled(len(paths) > 1)
         self.thumb_button.setEnabled(True)
+
+    def _apply_initial_sizes(self) -> None:
+        if self._initial_detail_sized:
+            return
+        if not hasattr(self, "_left_widget") or not hasattr(self, "_main_splitter"):
+            return
+        total_height = self._main_splitter.size().height()
+        if total_height <= 0:
+            return
+        left_height = self._left_widget.sizeHint().height()
+        image_height = max(240, total_height - left_height)
+        detail_height = max(120, total_height - image_height)
+        self._main_splitter.setSizes([image_height, detail_height])
+        self._initial_detail_sized = True
 
     def _show_prev_image(self) -> None:
         if not self._current_item or not self._current_item.image_paths:
