@@ -171,7 +171,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
             catalog_entries = _select_catalog_entries(catalog_data, catalog_name)
         for object_id, meta in catalog_entries.items():
             image_paths = image_index.get(object_id.upper(), [])
-            thumbnail_path = image_paths[0] if image_paths else None
+            thumbnail_path = _select_thumbnail(image_paths, meta.get("thumbnail"))
             ra_hours = _parse_ra(meta.get("ra_hours") or meta.get("ra"))
             dec_deg = _parse_dec(meta.get("dec_deg") or meta.get("dec"))
             best_months = _adjust_best_months(meta.get("best_months"), latitude)
@@ -229,6 +229,21 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
     return items
 
 
+def _select_thumbnail(image_paths: List[Path], thumbnail_value: Optional[str]) -> Optional[Path]:
+    if not image_paths:
+        return None
+    if not thumbnail_value:
+        return image_paths[0]
+    normalized = thumbnail_value.strip()
+    for path in image_paths:
+        if path.name == normalized:
+            return path
+    for path in image_paths:
+        if path.stem == normalized:
+            return path
+    return image_paths[0]
+
+
 def _select_catalog_entries(catalog_data: Dict[str, Dict], catalog_name: str) -> Dict[str, Dict]:
     if not isinstance(catalog_data, dict):
         return {}
@@ -258,6 +273,17 @@ def save_note(metadata_path: Path, catalog_name: str, object_id: str, notes: str
     catalog = data.setdefault(catalog_name, {})
     entry = catalog.setdefault(object_id, {})
     entry["notes"] = notes
+    with metadata_path.open("w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2, ensure_ascii=False)
+
+
+def save_thumbnail(metadata_path: Path, catalog_name: str, object_id: str, thumbnail_name: str) -> None:
+    if not metadata_path.exists():
+        return
+    data = _load_catalog_metadata(metadata_path)
+    catalog = data.setdefault(catalog_name, {})
+    entry = catalog.setdefault(object_id, {})
+    entry["thumbnail"] = thumbnail_name
     with metadata_path.open("w", encoding="utf-8") as handle:
         json.dump(data, handle, indent=2, ensure_ascii=False)
 

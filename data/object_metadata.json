@@ -278,7 +278,8 @@
       "discovery_year": 964,
       "best_months": "OctNovDec",
       "description": "The nearest major galaxy to the Milky Way and visible to the naked eye. It is classified as galaxy. It is located approximately 253,700 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Al-Sufi in 964.",
-      "notes": "Processed with Siril and SASPro"
+      "notes": "Processed with Siril and SASPro",
+      "thumbnail": "M31 SAS final.jpg"
     },
     "M32": {
       "name": "Dwarf Elliptical Galaxy",

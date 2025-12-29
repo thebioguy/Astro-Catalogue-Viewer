@@ -11,7 +11,7 @@ import datetime
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from catalog import CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note
+from catalog import CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note, save_thumbnail
 from catalog import PROJECT_ROOT
 from image_cache import ThumbnailCache
 
@@ -248,6 +248,37 @@ class CatalogModel(QtCore.QAbstractListModel):
         index = self.index(row)
         self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DisplayRole])
 
+    def update_item_thumbnail(self, item_key: str, thumbnail_name: str) -> None:
+        row = self._row_lookup.get(item_key)
+        if row is None:
+            return
+        item = self._items[row]
+        thumbnail_path = next(
+            (path for path in item.image_paths if path.name == thumbnail_name or path.stem == thumbnail_name),
+            item.thumbnail_path,
+        )
+        updated = CatalogItem(
+            object_id=item.object_id,
+            catalog=item.catalog,
+            name=item.name,
+            object_type=item.object_type,
+            distance_ly=item.distance_ly,
+            discoverer=item.discoverer,
+            discovery_year=item.discovery_year,
+            best_months=item.best_months,
+            description=item.description,
+            notes=item.notes,
+            external_link=item.external_link,
+            ra_hours=item.ra_hours,
+            dec_deg=item.dec_deg,
+            image_paths=item.image_paths,
+            thumbnail_path=thumbnail_path,
+        )
+        self._items[row] = updated
+        self._pixmaps.pop(item_key, None)
+        index = self.index(row)
+        self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DecorationRole])
+
     def _create_placeholder(self) -> QtGui.QPixmap:
         size = self._cache.thumb_size
         pixmap = QtGui.QPixmap(size, size)
@@ -411,6 +442,8 @@ class ImageView(QtWidgets.QGraphicsView):
 
 
 class DetailPanel(QtWidgets.QWidget):
+    thumbnail_selected = QtCore.Signal(str, str, str)
+
     def __init__(self) -> None:
         super().__init__()
         self.image_view = ImageView()
@@ -437,8 +470,10 @@ class DetailPanel(QtWidgets.QWidget):
         self.zoom_button.clicked.connect(self.image_view.zoom_actual)
         self.prev_button = QtWidgets.QPushButton("◀")
         self.next_button = QtWidgets.QPushButton("▶")
+        self.thumb_button = QtWidgets.QPushButton("Set as thumbnail")
         self.prev_button.clicked.connect(self._show_prev_image)
         self.next_button.clicked.connect(self._show_next_image)
+        self.thumb_button.clicked.connect(self._set_thumbnail)
         self._current_item: Optional[CatalogItem] = None
         self._notes_block = False
         self._image_index = 0
@@ -456,6 +491,7 @@ class DetailPanel(QtWidgets.QWidget):
         nav_row = QtWidgets.QHBoxLayout()
         nav_row.addWidget(self.prev_button)
         nav_row.addWidget(self.next_button)
+        nav_row.addWidget(self.thumb_button)
         nav_row.addStretch(1)
         top_layout.addLayout(nav_row)
         top_layout.addWidget(self.metadata)
@@ -488,6 +524,7 @@ class DetailPanel(QtWidgets.QWidget):
             self.image_view.set_pixmap(None)
             self.prev_button.setEnabled(False)
             self.next_button.setEnabled(False)
+            self.thumb_button.setEnabled(False)
             self._notes_block = False
             return
         self.title.setText(item.display_name)
@@ -515,6 +552,11 @@ class DetailPanel(QtWidgets.QWidget):
         else:
             self.external_link.hide()
         self._image_index = 0
+        if item.thumbnail_path and item.image_paths:
+            try:
+                self._image_index = item.image_paths.index(item.thumbnail_path)
+            except ValueError:
+                self._image_index = 0
         self._update_image_view()
         self._notes_block = False
 
@@ -543,6 +585,7 @@ class DetailPanel(QtWidgets.QWidget):
             self.image_info.setText("No image available")
             self.prev_button.setEnabled(False)
             self.next_button.setEnabled(False)
+            self.thumb_button.setEnabled(False)
             return
         paths = self._current_item.image_paths
         self._image_index = max(0, min(self._image_index, len(paths) - 1))
@@ -558,6 +601,7 @@ class DetailPanel(QtWidgets.QWidget):
         )
         self.prev_button.setEnabled(len(paths) > 1)
         self.next_button.setEnabled(len(paths) > 1)
+        self.thumb_button.setEnabled(True)
 
     def _show_prev_image(self) -> None:
         if not self._current_item or not self._current_item.image_paths:
@@ -570,6 +614,12 @@ class DetailPanel(QtWidgets.QWidget):
             return
         self._image_index = (self._image_index + 1) % len(self._current_item.image_paths)
         self._update_image_view()
+
+    def _set_thumbnail(self) -> None:
+        if not self._current_item or not self._current_item.image_paths:
+            return
+        path = self._current_item.image_paths[self._image_index]
+        self.thumbnail_selected.emit(self._current_item.catalog, self._current_item.object_id, path.name)
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -704,6 +754,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.detail = DetailPanel()
         self.detail.connect_notes_changed(self._on_notes_changed)
+        self.detail.thumbnail_selected.connect(self._on_thumbnail_selected)
 
         splitter = QtWidgets.QSplitter()
         splitter.addWidget(self.grid)
@@ -1003,6 +1054,15 @@ class MainWindow(QtWidgets.QMainWindow):
         key = item.unique_key
         self._pending_notes[key] = self.detail.current_notes()
         self._notes_timer.start()
+
+    def _on_thumbnail_selected(self, catalog: str, object_id: str, thumbnail_name: str) -> None:
+        metadata_path = resolve_metadata_path(self.config, catalog)
+        if metadata_path is None:
+            return
+        save_thumbnail(metadata_path, catalog, object_id, thumbnail_name)
+        item = self.detail.current_item()
+        if item:
+            self.model.update_item_thumbnail(item.unique_key, thumbnail_name)
 
     def _flush_notes(self) -> None:
         if not self._pending_notes:
