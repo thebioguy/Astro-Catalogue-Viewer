@@ -526,10 +526,10 @@ class DetailPanel(QtWidgets.QWidget):
         main_splitter.addWidget(image_container)
         main_splitter.addWidget(columns_splitter)
         main_splitter.setStretchFactor(0, 2)
-        main_splitter.setStretchFactor(1, 1)
+        main_splitter.setStretchFactor(1, 0)
         main_splitter.setChildrenCollapsible(False)
         main_splitter.setHandleWidth(6)
-        main_splitter.setSizes([520, 306])
+        main_splitter.setSizes([520, 200])
         self.splitter = main_splitter
         self._left_widget = left_widget
         self._main_splitter = main_splitter
@@ -583,7 +583,6 @@ class DetailPanel(QtWidgets.QWidget):
             except ValueError:
                 self._image_index = 0
         self._update_image_view()
-        QtCore.QTimer.singleShot(0, self._apply_initial_sizes)
         self._notes_block = False
 
     @staticmethod
@@ -634,14 +633,18 @@ class DetailPanel(QtWidgets.QWidget):
             return
         if not hasattr(self, "_left_widget") or not hasattr(self, "_main_splitter"):
             return
-        total_height = self._main_splitter.size().height()
+        total_height = max(self._main_splitter.size().height(), self.height())
         if total_height <= 0:
+            QtCore.QTimer.singleShot(50, self._apply_initial_sizes)
             return
-        left_height = self._left_widget.sizeHint().height()
-        image_height = max(240, total_height - left_height)
-        detail_height = max(120, total_height - image_height)
+        detail_height = 200
+        image_height = max(240, total_height - detail_height)
         self._main_splitter.setSizes([image_height, detail_height])
         self._initial_detail_sized = True
+
+    def showEvent(self, event: QtGui.QShowEvent) -> None:
+        super().showEvent(event)
+        QtCore.QTimer.singleShot(0, self._apply_initial_sizes)
 
     def _show_prev_image(self) -> None:
         if not self._current_item or not self._current_item.image_paths:
@@ -1061,11 +1064,25 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_label.setText("")
         self._loading = False
         self._set_ui_enabled(True)
+        QtCore.QTimer.singleShot(150, self._select_first_item)
         if self._pending_reload:
             pending = self._pending_config
             self._pending_reload = False
             self._pending_config = None
             self._start_catalog_load(pending)
+
+    def _select_first_item(self) -> None:
+        if self.grid.selectionModel().hasSelection():
+            return
+        if self.proxy.rowCount() == 0:
+            return
+        index = self.proxy.index(0, 0)
+        if not index.isValid():
+            return
+        self.grid.setCurrentIndex(index)
+        self.grid.selectionModel().select(
+            index, QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect
+        )
 
     def _update_grid_metrics(self, size: int) -> None:
         self.grid.setIconSize(QtCore.QSize(size, size))
