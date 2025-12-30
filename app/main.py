@@ -101,6 +101,9 @@ class WikiThumbnailTask(QtCore.QRunnable):
 
     @staticmethod
     def _fetch_bytes(url: str) -> bytes:
+        creationflags = 0
+        if sys.platform.startswith("win"):
+            creationflags = subprocess.CREATE_NO_WINDOW
         result = subprocess.run(
             [
                 "curl",
@@ -115,6 +118,7 @@ class WikiThumbnailTask(QtCore.QRunnable):
             ],
             check=True,
             capture_output=True,
+            creationflags=creationflags,
         )
         return result.stdout
 
