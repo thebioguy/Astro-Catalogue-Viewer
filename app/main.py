@@ -13,6 +13,7 @@ from urllib.parse import urlparse, unquote
 import datetime
 
 from PySide6 import QtCore, QtGui, QtWidgets
+from shiboken6 import isValid
 
 from catalog import CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note, save_thumbnail
 from catalog import PROJECT_ROOT
@@ -21,6 +22,7 @@ from image_cache import ThumbnailCache
 
 APP_NAME = "Astro Catalogue Viewer"
 ORG_NAME = "AstroCatalogueViewer"
+SHUTDOWN_EVENT = threading.Event()
 
 
 class ThumbnailSignals(QtCore.QObject):
@@ -50,10 +52,17 @@ class ThumbnailTask(QtCore.QRunnable):
         self.signals = ThumbnailSignals()
 
     def run(self) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
         image = self.cache.create_thumbnail(self.image_path)
         if image is None:
             return
-        self.signals.loaded.emit(self.item_key, image)
+        if not isValid(self.signals):
+            return
+        try:
+            self.signals.loaded.emit(self.item_key, image)
+        except RuntimeError:
+            return
 
 
 class WikiThumbnailTask(QtCore.QRunnable):
@@ -68,24 +77,34 @@ class WikiThumbnailTask(QtCore.QRunnable):
     def run(self) -> None:
         import urllib.parse
 
+        if SHUTDOWN_EVENT.is_set():
+            return
         if self.cache_path.exists():
             image = QtGui.QImage(str(self.cache_path))
             if not image.isNull():
-                self.signals.loaded.emit(self.item_key, image)
+                self._emit_loaded(image)
                 return
+            try:
+                self.cache_path.unlink()
+            except OSError:
+                pass
         try:
             title = urllib.parse.quote(self.page_title.replace(" ", "_"))
             summary_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
             summary_payload = self._fetch_bytes(summary_url)
+            if SHUTDOWN_EVENT.is_set():
+                return
             payload = json.loads(summary_payload.decode("utf-8"))
             thumb = payload.get("thumbnail", {}).get("source") or payload.get("originalimage", {}).get("source")
             if not thumb:
-                self.signals.failed.emit(self.item_key)
+                self._emit_failed()
                 return
             data = self._fetch_bytes(thumb)
+            if SHUTDOWN_EVENT.is_set():
+                return
             image = QtGui.QImage.fromData(data)
             if image.isNull():
-                self.signals.failed.emit(self.item_key)
+                self._emit_failed()
                 return
             image = image.convertToFormat(QtGui.QImage.Format.Format_ARGB32)
             image = image.scaled(
@@ -95,12 +114,34 @@ class WikiThumbnailTask(QtCore.QRunnable):
             )
             self.cache_path.parent.mkdir(parents=True, exist_ok=True)
             image.save(str(self.cache_path), "PNG")
-            self.signals.loaded.emit(self.item_key, image)
+            self._emit_loaded(image)
         except Exception:
+            self._emit_failed()
+
+    def _emit_loaded(self, image: QtGui.QImage) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
+        if not isValid(self.signals):
+            return
+        try:
+            self.signals.loaded.emit(self.item_key, image)
+        except RuntimeError:
+            return
+
+    def _emit_failed(self) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
+        if not isValid(self.signals):
+            return
+        try:
             self.signals.failed.emit(self.item_key)
+        except RuntimeError:
+            return
 
     @staticmethod
     def _fetch_bytes(url: str) -> bytes:
+        if SHUTDOWN_EVENT.is_set():
+            return b""
         creationflags = 0
         if sys.platform.startswith("win"):
             creationflags = subprocess.CREATE_NO_WINDOW
@@ -108,6 +149,8 @@ class WikiThumbnailTask(QtCore.QRunnable):
             [
                 "curl",
                 "-sL",
+                "--max-time",
+                "8",
                 "--retry",
                 "3",
                 "--retry-delay",
@@ -281,6 +324,8 @@ class CatalogModel(QtCore.QAbstractListModel):
         self._thread_pool.start(task)
 
     def _queue_wiki_thumbnail(self, item: CatalogItem) -> None:
+        if item.catalog != "Messier":
+            return
         if item.unique_key in self._remote_loading or item.unique_key in self._remote_failed:
             return
         title = self._wiki_title_for_item(item)
@@ -298,6 +343,10 @@ class CatalogModel(QtCore.QAbstractListModel):
                     index = self.index(row)
                     self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DecorationRole])
                 return
+            try:
+                cache_path.unlink()
+            except OSError:
+                pass
         self._remote_loading.add(item.unique_key)
         task = WikiThumbnailTask(item.unique_key, title, cache_path, self._cache.thumb_size)
         task.signals.loaded.connect(self._on_wiki_thumbnail_loaded)
@@ -470,6 +519,9 @@ class CatalogItemDelegate(QtWidgets.QStyledItemDelegate):
             pen = QtGui.QPen(QtGui.QColor("#3a3a3a"))
             painter.setPen(pen)
             painter.drawRect(icon_rect)
+        if option.state & QtWidgets.QStyle.StateFlag.State_Selected:
+            painter.setPen(QtGui.QPen(QtGui.QColor("#d94a4a"), 2))
+            painter.drawRect(icon_rect.adjusted(1, 1, -1, -1))
 
         item: CatalogItem = index.data(QtCore.Qt.ItemDataRole.UserRole)
         if item:
@@ -588,6 +640,8 @@ class ImageView(QtWidgets.QGraphicsView):
         self.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.SmoothPixmapTransform)
         self.setDragMode(QtWidgets.QGraphicsView.DragMode.ScrollHandDrag)
         self.setViewportUpdateMode(QtWidgets.QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
+        self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+        self.setResizeAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         self.setScene(QtWidgets.QGraphicsScene(self))
         self._pixmap_item: Optional[QtWidgets.QGraphicsPixmapItem] = None
         self._zoom = 0
@@ -606,7 +660,7 @@ class ImageView(QtWidgets.QGraphicsView):
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         super().resizeEvent(event)
-        if self._pixmap_item and self._pixmap:
+        if self._pixmap_item and self._pixmap and self._zoom == 0:
             self.fit_to_window()
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
@@ -622,8 +676,8 @@ class ImageView(QtWidgets.QGraphicsView):
         if self._zoom < -5:
             self._zoom = -5
             return
-        if self._zoom > 60:
-            self._zoom = 60
+        if self._zoom > 120:
+            self._zoom = 120
             return
         self.scale(factor, factor)
 
@@ -1024,6 +1078,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.search.setPlaceholderText("Search by object ID or name")
         self.search.textChanged.connect(self._on_search_changed)
         self.search.setMaximumWidth(520)
+        self.catalog_title = QtWidgets.QLabel("")
+        self.catalog_title.setObjectName("catalogTitle")
+        self.catalog_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.catalog_title.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.catalog_count = QtWidgets.QLabel("")
+        self.catalog_count.setObjectName("catalogSummary")
+        self.catalog_count.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.catalog_count.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.catalog_summary_container = QtWidgets.QWidget()
+        summary_layout = QtWidgets.QVBoxLayout(self.catalog_summary_container)
+        summary_layout.setContentsMargins(8, 0, 8, 0)
+        summary_layout.setSpacing(0)
+        summary_layout.addWidget(self.catalog_title)
+        summary_layout.addWidget(self.catalog_count)
 
         self.catalog_filter = QtWidgets.QComboBox()
         self.catalog_filter.currentTextChanged.connect(self._on_catalog_changed)
@@ -1054,6 +1122,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.settings_button.clicked.connect(self._open_settings)
 
         toolbar.addWidget(self.search)
+        toolbar.addStretch(1)
+        toolbar.addWidget(self.catalog_summary_container)
         toolbar.addStretch(1)
         toolbar.addWidget(QtWidgets.QLabel("Catalog"))
         toolbar.addWidget(self.catalog_filter)
@@ -1129,6 +1199,7 @@ class MainWindow(QtWidgets.QMainWindow):
             QSplitter::handle:horizontal { width: 6px; }
             QSplitter::handle:vertical { height: 6px; }
             QLabel#detailTitle { font-size: 20px; font-weight: 600; }
+            QLabel#catalogTitle { font-size: 18px; font-weight: 600; color: #d9a441; }
             QLabel#welcomeTitle { font-size: 20px; font-weight: 600; }
             QTextBrowser#welcomeBody { background: #101010; border: 1px solid #2a2a2a; }
             QLabel#statusLabel { color: #d9a441; padding: 4px 0; }
@@ -1164,7 +1235,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.catalog_filter.blockSignals(True)
         self.catalog_filter.clear()
         self.catalog_filter.addItem("All")
-        self.catalog_filter.addItems(catalogs)
+        self.catalog_filter.addItems([self._catalog_display_name(name) for name in catalogs])
         if current_catalog:
             self.catalog_filter.setCurrentText(current_catalog)
         self.catalog_filter.blockSignals(False)
@@ -1190,6 +1261,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status_filter.setCurrentText(current_status)
         self.status_filter.blockSignals(False)
         self.status_filter.view().setMinimumWidth(160)
+        self._update_catalog_summary()
 
     def _refresh_catalog(self) -> None:
         self.config = load_config(self.config_path)
@@ -1216,7 +1288,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if value == "All":
             self.proxy.set_catalog_filter("")
         else:
-            self.proxy.set_catalog_filter(value)
+            self.proxy.set_catalog_filter(self._catalog_internal_name(value))
+        self._update_catalog_summary()
         self._schedule_auto_fit()
 
     def _on_type_changed(self, value: str) -> None:
@@ -1236,6 +1309,41 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_search_changed(self, text: str) -> None:
         self.proxy.set_search_text(text)
         self._schedule_auto_fit()
+
+    def _update_catalog_summary(self) -> None:
+        current = self.catalog_filter.currentText()
+        if current == "All" or not current:
+            filtered = self.items
+            title = "All Catalogues"
+        else:
+            internal = self._catalog_internal_name(current)
+            filtered = [item for item in self.items if item.catalog == internal]
+            title = internal
+        total = len(filtered)
+        captured = sum(1 for item in filtered if item.image_paths)
+        suffix = "" if title == "All Catalogues" else " Catalogue"
+        if total:
+            self.catalog_title.setText(self._catalog_title_text(title, suffix))
+            self.catalog_count.setText(f"{captured}/{total} captured")
+        else:
+            self.catalog_title.setText(self._catalog_title_text(title, suffix))
+            self.catalog_count.setText("0/0 captured")
+
+    @staticmethod
+    def _catalog_display_name(name: str) -> str:
+        if name in {"NGC", "IC", "Caldwell"}:
+            return f"{name} (In progress)"
+        return name
+
+    @staticmethod
+    def _catalog_title_text(title: str, suffix: str) -> str:
+        if title in {"NGC", "IC", "Caldwell"}:
+            return f"{title}{suffix} (In progress)"
+        return f"{title}{suffix}"
+
+    @staticmethod
+    def _catalog_internal_name(display_name: str) -> str:
+        return display_name.replace(" (In progress)", "")
 
     def _on_zoom_changed(self, value: int) -> None:
         self._auto_fit_enabled = False
@@ -1332,6 +1440,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._preview_active = False
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        SHUTDOWN_EVENT.set()
+        self._thread_pool.clear()
+        self._thread_pool.waitForDone(1500)
         self._capture_ui_state()
         save_config(self.config_path, self.config)
         super().closeEvent(event)
