@@ -43,6 +43,8 @@ DEFAULT_CONFIG = {
     "observer": {"latitude": 0.0, "longitude": 0.0, "elevation_m": 0.0},
     "show_welcome": True,
     "master_image_dir": "",
+    "archive_image_dir": "",
+    "use_wiki_thumbnails": False,
 }
 
 
@@ -349,6 +351,10 @@ def _normalize_text(value: Optional[str]) -> Optional[str]:
 
 
 def _default_external_link(object_id: str, name: Optional[str]) -> str:
+    match = re.match(r"^M\\s*0*(\\d+)$", object_id, re.IGNORECASE)
+    if match:
+        messier_num = int(match.group(1))
+        return f"https://en.wikipedia.org/wiki/Messier_{messier_num}"
     target = name or object_id
     slug = quote(target.replace(" ", "_"))
     return f"https://en.wikipedia.org/wiki/{slug}"

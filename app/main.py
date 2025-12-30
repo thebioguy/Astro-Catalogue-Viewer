@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import sys
+import hashlib
+import subprocess
+import shutil
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import http.server
 import json
 import threading
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 import datetime
 
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -33,6 +36,11 @@ class MapFetchSignals(QtCore.QObject):
     failed = QtCore.Signal()
 
 
+class RemoteThumbnailSignals(QtCore.QObject):
+    loaded = QtCore.Signal(str, QtGui.QImage)
+    failed = QtCore.Signal(str)
+
+
 class ThumbnailTask(QtCore.QRunnable):
     def __init__(self, item_key: str, image_path: Path, cache: ThumbnailCache) -> None:
         super().__init__()
@@ -46,6 +54,69 @@ class ThumbnailTask(QtCore.QRunnable):
         if image is None:
             return
         self.signals.loaded.emit(self.item_key, image)
+
+
+class WikiThumbnailTask(QtCore.QRunnable):
+    def __init__(self, item_key: str, page_title: str, cache_path: Path, thumb_size: int) -> None:
+        super().__init__()
+        self.item_key = item_key
+        self.page_title = page_title
+        self.cache_path = cache_path
+        self.thumb_size = thumb_size
+        self.signals = RemoteThumbnailSignals()
+
+    def run(self) -> None:
+        import urllib.parse
+
+        if self.cache_path.exists():
+            image = QtGui.QImage(str(self.cache_path))
+            if not image.isNull():
+                self.signals.loaded.emit(self.item_key, image)
+                return
+        try:
+            title = urllib.parse.quote(self.page_title.replace(" ", "_"))
+            summary_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
+            summary_payload = self._fetch_bytes(summary_url)
+            payload = json.loads(summary_payload.decode("utf-8"))
+            thumb = payload.get("thumbnail", {}).get("source") or payload.get("originalimage", {}).get("source")
+            if not thumb:
+                self.signals.failed.emit(self.item_key)
+                return
+            data = self._fetch_bytes(thumb)
+            image = QtGui.QImage.fromData(data)
+            if image.isNull():
+                self.signals.failed.emit(self.item_key)
+                return
+            image = image.convertToFormat(QtGui.QImage.Format.Format_ARGB32)
+            image = image.scaled(
+                QtCore.QSize(self.thumb_size, self.thumb_size),
+                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                QtCore.Qt.TransformationMode.SmoothTransformation,
+            )
+            self.cache_path.parent.mkdir(parents=True, exist_ok=True)
+            image.save(str(self.cache_path), "PNG")
+            self.signals.loaded.emit(self.item_key, image)
+        except Exception:
+            self.signals.failed.emit(self.item_key)
+
+    @staticmethod
+    def _fetch_bytes(url: str) -> bytes:
+        result = subprocess.run(
+            [
+                "curl",
+                "-sL",
+                "--retry",
+                "3",
+                "--retry-delay",
+                "1",
+                "-H",
+                "User-Agent: AstroCatalogueViewer/1.0",
+                url,
+            ],
+            check=True,
+            capture_output=True,
+        )
+        return result.stdout
 
 
 class CatalogLoadTask(QtCore.QRunnable):
@@ -146,12 +217,18 @@ class MapTileFetchTask(QtCore.QRunnable):
 
 
 class CatalogModel(QtCore.QAbstractListModel):
+    wiki_thumbnail_loaded = QtCore.Signal(str, QtGui.QPixmap)
+
     def __init__(self, items: List[CatalogItem], cache: ThumbnailCache, parent: Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
         self._items = items
         self._cache = cache
         self._loading = set()
         self._pixmaps: Dict[str, QtGui.QPixmap] = {}
+        self._remote_pixmaps: Dict[str, QtGui.QPixmap] = {}
+        self._remote_loading = set()
+        self._remote_failed = set()
+        self._wiki_enabled = False
         self._row_lookup = {item.unique_key: row for row, item in enumerate(items)}
         self._thread_pool = QtCore.QThreadPool.globalInstance()
         self._placeholder = self._create_placeholder()
@@ -171,6 +248,11 @@ class CatalogModel(QtCore.QAbstractListModel):
             return f"{item.catalog} | {item.object_type}"
         if role == QtCore.Qt.ItemDataRole.DecorationRole:
             if item.thumbnail_path is None:
+                remote = self._remote_pixmaps.get(item.unique_key)
+                if remote:
+                    return remote
+                if self._wiki_enabled:
+                    self._queue_wiki_thumbnail(item)
                 return self._placeholder
             cached = self._cache.get_thumbnail(item.thumbnail_path)
             if cached:
@@ -194,6 +276,66 @@ class CatalogModel(QtCore.QAbstractListModel):
         task.signals.loaded.connect(self._on_thumbnail_loaded)
         self._thread_pool.start(task)
 
+    def _queue_wiki_thumbnail(self, item: CatalogItem) -> None:
+        if item.unique_key in self._remote_loading or item.unique_key in self._remote_failed:
+            return
+        title = self._wiki_title_for_item(item)
+        if not title:
+            self._remote_failed.add(item.unique_key)
+            return
+        cache_path = self._wiki_cache_path(title)
+        if cache_path.exists():
+            image = QtGui.QImage(str(cache_path))
+            if not image.isNull():
+                pixmap = QtGui.QPixmap.fromImage(image)
+                self._remote_pixmaps[item.unique_key] = pixmap
+                row = self._row_lookup.get(item.unique_key)
+                if row is not None:
+                    index = self.index(row)
+                    self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DecorationRole])
+                return
+        self._remote_loading.add(item.unique_key)
+        task = WikiThumbnailTask(item.unique_key, title, cache_path, self._cache.thumb_size)
+        task.signals.loaded.connect(self._on_wiki_thumbnail_loaded)
+        task.signals.failed.connect(self._on_wiki_thumbnail_failed)
+        self._thread_pool.start(task)
+
+    def _on_wiki_thumbnail_loaded(self, item_key: str, image: QtGui.QImage) -> None:
+        pixmap = QtGui.QPixmap.fromImage(image)
+        if pixmap.isNull():
+            self._remote_failed.add(item_key)
+            self._remote_loading.discard(item_key)
+            return
+        self._remote_pixmaps[item_key] = pixmap
+        self.wiki_thumbnail_loaded.emit(item_key, pixmap)
+        self._remote_loading.discard(item_key)
+        row = self._row_lookup.get(item_key)
+        if row is None:
+            return
+        index = self.index(row)
+        self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DecorationRole])
+
+    def _on_wiki_thumbnail_failed(self, item_key: str) -> None:
+        self._remote_loading.discard(item_key)
+        self._remote_failed.add(item_key)
+
+    def _wiki_title_for_item(self, item: CatalogItem) -> Optional[str]:
+        link = item.external_link or ""
+        if "wikipedia.org" not in link:
+            return None
+        parsed = urlparse(link)
+        if not parsed.path.startswith("/wiki/"):
+            return None
+        title = parsed.path[len("/wiki/"):]
+        if not title:
+            return None
+        return unquote(title)
+
+    def _wiki_cache_path(self, title: str) -> Path:
+        payload = f"{title}:{self._cache.thumb_size}"
+        key = hashlib.sha1(payload.encode("utf-8")).hexdigest()
+        return self._cache.cache_dir / f"wiki_{key}.png"
+
     def _on_thumbnail_loaded(self, item_key: str, image: QtGui.QImage) -> None:
         row = self._row_lookup.get(item_key)
         if row is None:
@@ -211,6 +353,9 @@ class CatalogModel(QtCore.QAbstractListModel):
         self.beginResetModel()
         self._items = items
         self._pixmaps.clear()
+        self._remote_pixmaps.clear()
+        self._remote_loading.clear()
+        self._remote_failed.clear()
         self._loading.clear()
         self._row_lookup = {item.unique_key: row for row, item in enumerate(items)}
         self.endResetModel()
@@ -218,9 +363,22 @@ class CatalogModel(QtCore.QAbstractListModel):
     def update_cache(self, cache: ThumbnailCache) -> None:
         self._cache = cache
         self._pixmaps.clear()
+        self._remote_pixmaps.clear()
+        self._remote_loading.clear()
+        self._remote_failed.clear()
+
+    def set_wiki_thumbnails_enabled(self, enabled: bool) -> None:
+        self._wiki_enabled = enabled
+        if not enabled:
+            self._remote_pixmaps.clear()
+            self._remote_loading.clear()
+            self._remote_failed.clear()
         self._loading.clear()
         if self._items:
             self.dataChanged.emit(self.index(0), self.index(len(self._items) - 1))
+
+    def get_wiki_pixmap(self, item_key: str) -> Optional[QtGui.QPixmap]:
+        return self._remote_pixmaps.get(item_key)
 
     def update_item_notes(self, item_key: str, notes: str) -> None:
         row = self._row_lookup.get(item_key)
@@ -419,6 +577,8 @@ class CatalogFilterProxy(QtCore.QSortFilterProxyModel):
 
 
 class ImageView(QtWidgets.QGraphicsView):
+    fullscreen_requested = QtCore.Signal()
+
     def __init__(self) -> None:
         super().__init__()
         self.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.SmoothPixmapTransform)
@@ -475,9 +635,62 @@ class ImageView(QtWidgets.QGraphicsView):
         self.resetTransform()
         self.centerOn(self._pixmap_item)
 
+    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+        if self._pixmap_item is None:
+            return
+        self.fullscreen_requested.emit()
+        event.accept()
+
+
+class LightboxDialog(QtWidgets.QDialog):
+    def __init__(self, pixmap: QtGui.QPixmap, parent: Optional[QtWidgets.QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Image Preview")
+        self.setWindowFlag(QtCore.Qt.WindowType.FramelessWindowHint, True)
+        self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint, True)
+        self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose, True)
+
+        self.image_view = ImageView()
+        self.image_view.set_pixmap(pixmap)
+
+        close_button = QtWidgets.QPushButton("Exit")
+        close_button.clicked.connect(self.close)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.addWidget(self.image_view, stretch=1)
+
+        button_row = QtWidgets.QHBoxLayout()
+        button_row.addStretch(1)
+        button_row.addWidget(close_button)
+        layout.addLayout(button_row)
+
+        self.setStyleSheet(
+            "QDialog { background: #0b0b0b; } QPushButton { background: #2c2c2c; border: 1px solid #3b3b3b; padding: 8px 16px; }"
+        )
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        if event.key() in (QtCore.Qt.Key.Key_Escape, QtCore.Qt.Key.Key_Return, QtCore.Qt.Key.Key_Enter):
+            self.close()
+            event.accept()
+            return
+        super().keyPressEvent(event)
+
+    def showEvent(self, event: QtGui.QShowEvent) -> None:
+        screen = None
+        if self.parentWidget():
+            screen = self.parentWidget().screen()
+        if screen is None:
+            screen = QtGui.QGuiApplication.primaryScreen()
+        if screen:
+            self.setGeometry(screen.geometry())
+        super().showEvent(event)
+
 
 class DetailPanel(QtWidgets.QWidget):
     thumbnail_selected = QtCore.Signal(str, str, str)
+    archive_requested = QtCore.Signal(str)
 
     def __init__(self) -> None:
         super().__init__()
@@ -507,15 +720,20 @@ class DetailPanel(QtWidgets.QWidget):
         self.external_link.setContentsMargins(0, 0, 0, 0)
         self.fit_button = QtWidgets.QPushButton("Fit to Window")
         self.fit_button.clicked.connect(self.image_view.fit_to_window)
+        self.image_view.fullscreen_requested.connect(self._open_lightbox)
         self.prev_button = QtWidgets.QPushButton("◀")
         self.next_button = QtWidgets.QPushButton("▶")
         self.thumb_button = QtWidgets.QPushButton("Set as thumbnail")
+        self.archive_button = QtWidgets.QPushButton("Archive image")
         self.prev_button.clicked.connect(self._show_prev_image)
         self.next_button.clicked.connect(self._show_next_image)
         self.thumb_button.clicked.connect(self._set_thumbnail)
+        self.archive_button.clicked.connect(self._request_archive)
         self._current_item: Optional[CatalogItem] = None
         self._notes_block = False
         self._image_index = 0
+        self._wiki_pixmap: Optional[QtGui.QPixmap] = None
+        self._lightbox: Optional[LightboxDialog] = None
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.title)
@@ -537,6 +755,7 @@ class DetailPanel(QtWidgets.QWidget):
         nav_row.addWidget(self.prev_button)
         nav_row.addWidget(self.next_button)
         nav_row.addWidget(self.thumb_button)
+        nav_row.addWidget(self.archive_button)
         nav_row.addStretch(1)
         left_layout.addLayout(nav_row)
         left_layout.addWidget(self.metadata)
@@ -575,6 +794,7 @@ class DetailPanel(QtWidgets.QWidget):
     def update_item(self, item: Optional[CatalogItem]) -> None:
         self._current_item = item
         self._notes_block = True
+        self._wiki_pixmap = None
         if item is None:
             self.title.setText("Select an object")
             self.metadata.setText("")
@@ -585,6 +805,7 @@ class DetailPanel(QtWidgets.QWidget):
             self.prev_button.setEnabled(False)
             self.next_button.setEnabled(False)
             self.thumb_button.setEnabled(False)
+            self.archive_button.setEnabled(False)
             self._notes_block = False
             return
         self.title.setText(item.display_name)
@@ -641,11 +862,17 @@ class DetailPanel(QtWidgets.QWidget):
 
     def _update_image_view(self) -> None:
         if not self._current_item or not self._current_item.image_paths:
-            self.image_view.set_pixmap(None)
-            self.image_info.setText("No image available")
+            if self._wiki_pixmap and not self._wiki_pixmap.isNull():
+                self.image_view.set_pixmap(self._wiki_pixmap)
+                size_info = f"{self._wiki_pixmap.width()}x{self._wiki_pixmap.height()}"
+                self.image_info.setText(f"Wikipedia preview (not captured) | {size_info}")
+            else:
+                self.image_view.set_pixmap(None)
+                self.image_info.setText("No image available")
             self.prev_button.setEnabled(False)
             self.next_button.setEnabled(False)
             self.thumb_button.setEnabled(False)
+            self.archive_button.setEnabled(False)
             return
         paths = self._current_item.image_paths
         self._image_index = max(0, min(self._image_index, len(paths) - 1))
@@ -662,6 +889,7 @@ class DetailPanel(QtWidgets.QWidget):
         self.prev_button.setEnabled(len(paths) > 1)
         self.next_button.setEnabled(len(paths) > 1)
         self.thumb_button.setEnabled(True)
+        self.archive_button.setEnabled(True)
 
     def _apply_initial_sizes(self) -> None:
         if self._initial_detail_sized:
@@ -698,6 +926,30 @@ class DetailPanel(QtWidgets.QWidget):
             return
         path = self._current_item.image_paths[self._image_index]
         self.thumbnail_selected.emit(self._current_item.catalog, self._current_item.object_id, path.name)
+
+    def set_wiki_pixmap(self, pixmap: Optional[QtGui.QPixmap]) -> None:
+        self._wiki_pixmap = pixmap if pixmap and not pixmap.isNull() else None
+        self._update_image_view()
+
+    def _request_archive(self) -> None:
+        if not self._current_item or not self._current_item.image_paths:
+            return
+        path = self._current_item.image_paths[self._image_index]
+        self.archive_requested.emit(str(path))
+
+    def _open_lightbox(self) -> None:
+        pixmap = self.image_view._pixmap
+        if pixmap is None or pixmap.isNull():
+            return
+        if self._lightbox and self._lightbox.isVisible():
+            return
+        dialog = LightboxDialog(pixmap, self)
+        dialog.finished.connect(lambda _result: self._clear_lightbox())
+        self._lightbox = dialog
+        QtCore.QTimer.singleShot(0, dialog.show)
+
+    def _clear_lightbox(self) -> None:
+        self._lightbox = None
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -789,6 +1041,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.zoom_slider.setValue(self.thumbnail_cache.thumb_size)
         self.zoom_slider.valueChanged.connect(self._on_zoom_changed)
 
+        self.wiki_thumbs = QtWidgets.QCheckBox("Wiki thumbnails")
+        self.wiki_thumbs.setChecked(bool(self.config.get("use_wiki_thumbnails", False)))
+        self.wiki_thumbs.toggled.connect(self._on_wiki_thumbs_toggled)
         self.refresh_button = QtWidgets.QPushButton("Refresh")
         self.refresh_button.clicked.connect(self._refresh_catalog)
         self.settings_button = QtWidgets.QPushButton("Settings")
@@ -807,6 +1062,7 @@ class MainWindow(QtWidgets.QMainWindow):
         toolbar.addSpacing(6)
         toolbar.addWidget(QtWidgets.QLabel("Zoom"))
         toolbar.addWidget(self.zoom_slider)
+        toolbar.addWidget(self.wiki_thumbs)
         toolbar.addWidget(self.refresh_button)
         toolbar.addWidget(self.settings_button)
 
@@ -833,6 +1089,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.detail = DetailPanel()
         self.detail.connect_notes_changed(self._on_notes_changed)
         self.detail.thumbnail_selected.connect(self._on_thumbnail_selected)
+        self.detail.archive_requested.connect(self._on_archive_requested)
+        self.model.wiki_thumbnail_loaded.connect(self._on_wiki_thumbnail_loaded)
 
         splitter = QtWidgets.QSplitter()
         splitter.addWidget(self.grid)
@@ -943,6 +1201,10 @@ class MainWindow(QtWidgets.QMainWindow):
         source_index = self.proxy.mapToSource(indexes[0])
         item = self.model.data(source_index, QtCore.Qt.ItemDataRole.UserRole)
         self.detail.update_item(item)
+        if item and not item.image_paths:
+            pixmap = self.model.get_wiki_pixmap(item.unique_key)
+            if pixmap:
+                self.detail.set_wiki_pixmap(pixmap)
         if item:
             self._notes_timer.start()
 
@@ -1089,6 +1351,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_catalog_loaded(self, items: List[CatalogItem]) -> None:
         self.items = items
         self.model.set_items(self.items)
+        wiki_enabled = bool(self._loading_config.get("use_wiki_thumbnails", False))
+        self.model.set_wiki_thumbnails_enabled(wiki_enabled)
         self._update_filters()
         if not self._saved_state_applied:
             self._apply_saved_filters()
@@ -1130,6 +1394,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_filter.setEnabled(enabled)
         self.zoom_slider.setEnabled(enabled)
         self.grid.setEnabled(enabled)
+        self.wiki_thumbs.setEnabled(enabled)
         self.refresh_button.setEnabled(enabled)
         self.settings_button.setEnabled(enabled)
 
@@ -1155,6 +1420,84 @@ class MainWindow(QtWidgets.QMainWindow):
         item = self.detail.current_item()
         if item:
             self.model.update_item_thumbnail(item.unique_key, thumbnail_name)
+
+    def _on_wiki_thumbs_toggled(self, enabled: bool) -> None:
+        self.config["use_wiki_thumbnails"] = bool(enabled)
+        save_config(self.config_path, self.config)
+        self.model.set_wiki_thumbnails_enabled(bool(enabled))
+        current = self.detail.current_item()
+        if current and not current.image_paths and not enabled:
+            self.detail.update_item(current)
+        self._schedule_view_refresh()
+
+    def _on_wiki_thumbnail_loaded(self, item_key: str, pixmap: QtGui.QPixmap) -> None:
+        current = self.detail.current_item()
+        if not current or current.unique_key != item_key:
+            return
+        if current.image_paths:
+            return
+        self.detail.set_wiki_pixmap(pixmap)
+
+    def _on_archive_requested(self, path_value: str) -> None:
+        archive_dir = (self.config.get("archive_image_dir") or "").strip()
+        if not archive_dir:
+            choice = QtWidgets.QMessageBox.question(
+                self,
+                "Archive folder not set",
+                "Set an Archive Image Folder in Settings to enable archiving.",
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel,
+            )
+            if choice == QtWidgets.QMessageBox.StandardButton.Yes:
+                self._open_settings()
+            return
+
+        path = Path(path_value)
+        if not path.exists():
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Image not found",
+                "The selected image no longer exists on disk.",
+            )
+            return
+
+        archive_root = Path(archive_dir)
+        if not archive_root.is_absolute():
+            archive_root = (PROJECT_ROOT / archive_root).resolve()
+        archive_root.mkdir(parents=True, exist_ok=True)
+
+        stat = path.stat()
+        size = self._format_bytes(stat.st_size)
+        modified = datetime.datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
+        target = self._next_available_path(archive_root / path.name)
+
+        confirm = QtWidgets.QMessageBox.question(
+            self,
+            "Archive image",
+            (
+                "Move this image to the archive folder?\n\n"
+                f"File: {path.name}\n"
+                f"Size: {size}\n"
+                f"Modified: {modified}\n"
+                f"From: {path}\n"
+                f"To: {target}"
+            ),
+            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel,
+        )
+        if confirm != QtWidgets.QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            shutil.move(str(path), str(target))
+        except Exception as exc:
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Archive failed",
+                f"Unable to move the image.\n\n{exc}",
+            )
+            return
+
+        self.status_label.setText(f"Archived {path.name}")
+        self._start_catalog_load()
 
     def _flush_notes(self) -> None:
         if not self._pending_notes:
@@ -1221,6 +1564,29 @@ class MainWindow(QtWidgets.QMainWindow):
             "search": self.search.text() if self.search else "",
         }
 
+    @staticmethod
+    def _format_bytes(value: int) -> str:
+        units = ["B", "KB", "MB", "GB", "TB"]
+        size = float(value)
+        for unit in units:
+            if size < 1024 or unit == units[-1]:
+                return f"{size:.1f} {unit}" if unit != "B" else f"{int(size)} {unit}"
+            size /= 1024.0
+
+    @staticmethod
+    def _next_available_path(path: Path) -> Path:
+        if not path.exists():
+            return path
+        stem = path.stem
+        suffix = path.suffix
+        parent = path.parent
+        counter = 1
+        while True:
+            candidate = parent / f"{stem}-{counter}{suffix}"
+            if not candidate.exists():
+                return candidate
+            counter += 1
+
 
 class SettingsDialog(QtWidgets.QDialog):
     previewChanged = QtCore.Signal(dict)
@@ -1270,6 +1636,16 @@ class SettingsDialog(QtWidgets.QDialog):
         master_row.addWidget(browse_master)
         form.addRow("Master Image Folder", master_row)
 
+        self.archive_folder = QtWidgets.QLineEdit()
+        self.archive_folder.setText(config.get("archive_image_dir", ""))
+        browse_archive = QtWidgets.QPushButton("Browse…")
+        browse_archive.clicked.connect(self._browse_archive_folder)
+        archive_row = QtWidgets.QHBoxLayout()
+        archive_row.addWidget(self.archive_folder)
+        archive_row.addWidget(browse_archive)
+        form.addRow("Archive Image Folder", archive_row)
+
+
         self.catalog_fields: Dict[str, QtWidgets.QLineEdit] = {}
         catalogs = config.get("catalogs", [])
         catalog_group = QtWidgets.QGroupBox("Image folder per catalog")
@@ -1307,6 +1683,7 @@ class SettingsDialog(QtWidgets.QDialog):
             "elevation_m": self.elevation.value(),
         }
         updated["master_image_dir"] = self.master_folder.text().strip()
+        updated["archive_image_dir"] = self.archive_folder.text().strip()
 
         catalogs = []
         for catalog in updated.get("catalogs", []):
@@ -1336,6 +1713,13 @@ class SettingsDialog(QtWidgets.QDialog):
         if not directory:
             return
         self.master_folder.setText(directory)
+        self._emit_preview()
+
+    def _browse_archive_folder(self) -> None:
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Archive Image Folder")
+        if not directory:
+            return
+        self.archive_folder.setText(directory)
         self._emit_preview()
 
     def _open_map_picker(self) -> None:
@@ -1450,6 +1834,7 @@ class SettingsDialog(QtWidgets.QDialog):
             "elevation_m": self.elevation.value(),
         }
         updated["master_image_dir"] = self.master_folder.text().strip()
+        updated["archive_image_dir"] = self.archive_folder.text().strip()
         catalogs = []
         for catalog in updated.get("catalogs", []):
             name = catalog.get("name", "Unknown")
@@ -1585,6 +1970,7 @@ def main() -> None:
     app = QtWidgets.QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName(ORG_NAME)
+    QtCore.QLoggingCategory.setFilterRules("qt.gui.imageio=false\n")
 
     location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.AppConfigLocation)
     if location:

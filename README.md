@@ -1,6 +1,6 @@
 # Astro Catalogue Viewer
 
-Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky catalog images (Messier, NGC, IC, Caldwell, and more). It gives you a fast image grid, filters, object metadata, and notes so you can track progress and plan what to capture next.
+Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky catalog images (Messier, NGC, IC, Caldwell, and more). It gives you a fast image grid, filters, rich object metadata, and notes so you can track progress and plan what to capture next.
 
 Website: https://astro-catalogue-viewer.com/
 
@@ -8,9 +8,11 @@ Status: beta
 
 ## Highlights
 - Fast grid with zoom, search, and filters (catalog, object type, status)
-- Image popup
-- Notes per object (saved into the metadata JSON)
-- Detail panel with image zoom/pan and external info link
+- Two-column detail view with zoom/pan, notes, and external info links
+- Archive action to move selected images into an archive folder
+- Wikipedia thumbnails for missing images (toggleable, cached)
+- Wikipedia previews labeled as not captured
+- Full-screen lightbox on double-click (Exit/Esc/Return)
 - Catalog-aware image matching by filename (e.g., M31, NGC7000, IC5070, C14)
 - Master image folder support (if all images live in one place)
 - Optional catalog-specific image folders
@@ -90,9 +92,12 @@ The packaged app will be in `dist/`.
 Open **Settings** to set:
 - **Master Image Folder** (optional): a single folder containing all your images
 - **Per-catalog Image Folder**: use if you store catalogs separately
+- **Archive Image Folder**: where archived images are moved
 - **Observer Location**: used for best-visibility suggestions
 
 The “best visibility” months are computed from RA/Dec + your latitude/longitude using a sidereal-time approximation. It’s a solid planning heuristic (altitude at midnight on the 15th of each month) and will drive the “Suggested” filter accurately.
+
+The **Wiki thumbnails** toggle lives in the main toolbar. When enabled, missing images use cached Wikipedia thumbnails and are labeled as not captured.
 
 ### Image Naming
 Filenames must include the standard object ID, for example:
@@ -112,7 +117,7 @@ Metadata is stored in JSON files under `data/`. Example files included:
 
 Notes you add in the app are saved back into the catalog JSON under the `notes` field.
 
-Messier metadata is complete. The NGC, IC, and Caldwell metadata sets are in progress.
+Messier metadata is complete and includes expanded descriptions with astrophotography guidance. The NGC, IC, and Caldwell metadata sets are in progress.
 
 ### Resetting saved settings
 If the app has a bad image path or filter state saved, delete the config file:

@@ -7,7 +7,8 @@
       "discoverer": "John Bevis",
       "discovery_year": 1731,
       "best_months": "JanFebMar",
-      "description": "The Crab Nebula is the expanding debris cloud from the supernova recorded in 1054 CE. It contains the famous Crab Pulsar at its core, which powers much of the nebula’s glow. Visually it appears as a softly textured oval patch; long exposures reveal tangled filaments rich in ionized gas and synchrotron emission."
+      "description": "M1 (Crab Nebula) is a supernova remnant in the constellation Taurus about 4.9–8.1 kly away. It appears around magnitude 8.4, spanning roughly 420″ × 290″. It was discovered by John Bevis in 1731. The Crab Nebula (catalogue designations M1, NGC 1952, Taurus A) is a supernova remnant and pulsar wind nebula in the constellation of Taurus. The common name comes from a drawing that somewhat resembled a crab with arms produced by William Parsons, 3rd Earl of Rosse, in 1842 or 1843 using a 36-inch (91 cm) telescope. The nebula was discovered by English astronomer John Bevis in 1731. It corresponds with a bright supernova observed in 1054 C.E. Astrophotography notes: Sky position: northern sky in Taurus. Target characteristics: brightness around mag 8.4, apparent size 420″ × 290″. Ha and OIII are the go-to filters for filamentary structure. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_1"
     },
     "M2": {
       "name": "Globular Cluster",
@@ -16,7 +17,8 @@
       "discoverer": "Jean-Dominique Maraldi",
       "discovery_year": 1746,
       "best_months": "SepOctNov",
-      "description": "Messier 2 is a bright, compact globular cluster in Aquarius. It contains a dense swarm of very old stars and shows a noticeably condensed core in telescopes. Deep images show extended halos and subtle star-stream structure around the cluster."
+      "description": "M2 (Globular Cluster) is a globular cluster in the constellation Aquarius about 33 kly away. It appears around magnitude 6.5, spanning roughly 16′. It was discovered by Jean-Dominique Maraldi in 1746. Messier 2 or M2 (also designated NGC 7089) is a globular cluster in the constellation Aquarius, five degrees north of the star Beta Aquarii. It was discovered by Jean-Dominique Maraldi in 1746, and is one of the largest known globular clusters. == Discovery and visibility == M2 was discovered by the French astronomer Jean-Dominique Maraldi in 1746 while observing a comet with Jacques Cassini. Charles Messier rediscovered it in 1760, but thought that it is a nebula without any stars associated with it. Astrophotography notes: Sky position: equatorial sky in Aquarius. Target characteristics: brightness around mag 6.5, apparent size 16′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_2"
     },
     "M3": {
       "name": "Globular Cluster",
@@ -25,7 +27,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "AprMayJun",
-      "description": "Messier 3 is one of the sky’s premier globular clusters, packed with hundreds of thousands of ancient stars. It resolves beautifully in moderate apertures and hosts many variable stars. Astrophotos often show a rich gradient from a bright core to a grainy halo of resolved members."
+      "description": "M3 (Globular Cluster) is a globular cluster in the constellation Canes Venatici about 33.9 kly away. It appears around magnitude 6.2, spanning roughly 18′. It was discovered by Charles Messier in 1764. Messier 3 (M3; also NGC 5272) is a globular cluster located 33.9 thousand light years from Earth in the northern constellation of Canes Venatici. It is one of the largest and brightest globular clusters discovered with around 500,000 stars. == Discovery == It was discovered on May 3, 1764, and was the first Messier object to be discovered by Charles Messier himself. Messier originally mistook the object for a nebula without stars. Astrophotography notes: Sky position: northern sky in Canes Venatici. Target characteristics: brightness around mag 6.2, apparent size 18′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_3"
     },
     "M4": {
       "name": "Globular Cluster",
@@ -34,7 +37,8 @@
       "discoverer": "Philippe de Chéseaux",
       "discovery_year": 1745,
       "best_months": "MayJunJul",
-      "description": "Messier 4 is among the nearest globular clusters to Earth and sits close to Antares in Scorpius. It is relatively loose compared with many globulars, so it resolves easily into individual stars. Many observers notice a central ‘bar’ of stars running through the cluster."
+      "description": "M4 (Globular Cluster) is a globular cluster in the constellation Scorpius about 7.2 kly away. It appears around magnitude 5.6, spanning roughly 26′. It was discovered by Philippe de Chéseaux in 1745. Messier 4 or M4 (also known as NGC 6121 or the Spider Globular Cluster) is a globular cluster in the constellation of Scorpius. It was discovered by Philippe Loys de Chéseaux in 1745 and catalogued by Charles Messier in 1764. It was the first globular cluster in which individual stars were resolved. == Visibility == M4 is conspicuous in even the smallest of telescopes as a fuzzy ball of light. It appears about the same size as the Moon in the sky. Astrophotography notes: Sky position: equatorial sky in Scorpius. Target characteristics: brightness around mag 5.6, apparent size 26′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_4"
     },
     "M5": {
       "name": "Globular Cluster",
@@ -43,7 +47,8 @@
       "discoverer": "Gottfried Kirch",
       "discovery_year": 1702,
       "best_months": "MayJunJul",
-      "description": "Messier 5 is a bright globular cluster in Serpens and is strongly concentrated toward its core. It is rich in variable stars and is a classic target for visual observers. Long exposures reveal a dense nucleus surrounded by a wide halo of resolved stars."
+      "description": "M5 (Globular Cluster) is a globular cluster in the constellation Serpens about 24.5 kly away. It appears around magnitude 5.6, spanning roughly 23′. It was discovered by Gottfried Kirch in 1702. Messier 5 or M5 (also designated NGC 5904) is a globular cluster in the constellation Serpens. It was discovered by Gottfried Kirch in 1702. == Discovery and visibility == M5 is, under extremely good conditions, just visible to the naked eye as a faint \"star\" 0.37 of a degree (22' (arcmin)) north-west of star 5 Serpentis. Binoculars and/or small telescopes resolve the object as non-stellar; larger telescopes will show some individual stars, some of which are as bright as apparent magnitude 10.6. Astrophotography notes: Sky position: northern sky in Serpens. Target characteristics: brightness around mag 5.6, apparent size 23′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_5"
     },
     "M6": {
       "name": "Butterfly Cluster",
@@ -52,7 +57,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "JunJulAug",
-      "description": "Messier 6 is a bright open cluster in Scorpius whose star pattern resembles a butterfly with spread wings. It contains hot blue stars plus a prominent orange giant that stands out in small telescopes. The surrounding Milky Way star field makes it a great wide-field photographic target."
+      "description": "M6 (Butterfly Cluster) is a open cluster in the constellation Scorpius about 1.6 kly away. It appears around magnitude 4.2, spanning roughly 25′. It was discovered by Giovanni Battista Hodierna in 1654. The Butterfly Cluster (cataloged as Messier 6 or M6, and as NGC 6405) is an open cluster of stars in the southern constellation of Scorpius. Its name derives from the resemblance of its shape to a butterfly. The first astronomer to record the Butterfly Cluster's existence was Giovanni Battista Hodierna in 1654. However, Robert Burnham Jr. has proposed that the 2nd century astronomer Ptolemy may have seen it with the naked eye while observing its neighbor the Ptolemy Cluster (M7). Astrophotography notes: Sky position: equatorial sky in Scorpius. Target characteristics: brightness around mag 4.2, apparent size 25′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_6"
     },
     "M7": {
       "name": "Ptolemy's Cluster",
@@ -61,7 +67,8 @@
       "discoverer": "Claudius Ptolemy",
       "discovery_year": 130,
       "best_months": "JunJulAug",
-      "description": "Messier 7 is a large, bright open cluster visible to the naked eye under dark skies. It lies near the Scorpius tail and is embedded in a rich Milky Way backdrop. Photographs show dozens of stars scattered across a wide area, making it ideal for short focal lengths."
+      "description": "M7 (Ptolemy's Cluster) is a open cluster in the constellation Scorpius about 0.65–1.31 kly away. It appears around magnitude 3.3, spanning roughly 80′. It was discovered by Claudius Ptolemy in 130. Messier 7 or M7, also designated NGC 6475 and sometimes known as Ptolemy's Cluster, is an open cluster of stars in the constellation of Scorpius. The cluster is easily detectable with the naked eye, close to the \"stinger\" of Scorpius. With a declination of −34.8°, it is the southernmost Messier object. == Observations == M7 has been known since antiquity; it was first recorded by the 2nd-century Greek-Roman astronomer Ptolemy, who described it as a nebula in 130 AD. Astrophotography notes: Sky position: equatorial sky in Scorpius. Target characteristics: brightness around mag 3.3, apparent size 80′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_7"
     },
     "M8": {
       "name": "Lagoon Nebula",
@@ -70,7 +77,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "JunJulAug",
-      "description": "The Lagoon Nebula is a glowing star-forming region in Sagittarius with dark dust lanes cutting through bright hydrogen emission. It includes the open cluster NGC 6530 and many compact knots of active star birth. Long exposures show strong H‑alpha structure, dust pillars, and a complex mix of bright and dark regions."
+      "description": "M8 (Lagoon Nebula) is a emission nebula in the constellation Sagittarius about 4.1 kly away. It appears around magnitude 4.6, spanning roughly 90′ × 40′. It was discovered by Giovanni Battista Hodierna in 1654. The Lagoon Nebula (catalogued as Messier 8 or M8, NGC 6523, Sharpless 25, RCW 146, and Gum 72) is a giant emission nebula with an H II region located in the constellation Sagittarius. Discovered by Giovanni Hodierna in 1654, it is one of only two star-forming nebulae faintly visible to the naked eye from mid-northern latitudes (the other being the Orion Nebula). == Characteristics == Located approximately 4,000–6,000 light-years from Earth, the nebula spans 110 by 50 light-years (appearing as 90' by 40' in Earth's sky). Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 4.6, apparent size 90′ × 40′. Ha, OIII, and SII reveal structure and make moonlit sessions viable.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_8"
     },
     "M9": {
       "name": "Globular Cluster",
@@ -79,7 +87,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "Messier 9 is a globular cluster near the Galactic Center, which means it is seen through heavy star fields and dust. It appears compact and somewhat subdued visually compared to many globulars. Imaging can bring out its dense core and the surrounding halo of resolved members."
+      "description": "M9 (Globular Cluster) is a globular cluster in the constellation Ophiuchus about 25.8 kly away. It appears around magnitude 7.7, spanning roughly 9.3′. It was discovered by Charles Messier in 1764. Messier 9 or M9 (also designated NGC 6333) is a globular cluster in the constellation of Ophiuchus. It is positioned in the southern part of the constellation to the southwest of Eta Ophiuchi, and lies atop a dark cloud of dust designated Barnard 64. The cluster was discovered by French astronomer Charles Messier on June 3, 1764, who described it as a \"nebula without stars\". In 1783, English astronomer William Herschel was able to use his reflector to resolve individual stars within the cluster. Astrophotography notes: Sky position: equatorial sky in Ophiuchus. Target characteristics: brightness around mag 7.7, apparent size 9.3′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_9"
     },
     "M10": {
       "name": "Globular Cluster",
@@ -88,7 +97,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "Messier 10 is a bright globular cluster in Ophiuchus with a strongly concentrated center. It resolves well in telescopes and often shows a granular texture toward the core. Deep images reveal a broad halo of faint stars surrounding the brighter nucleus."
+      "description": "M10 (Globular Cluster) is a globular cluster in the constellation Ophiuchus about 14.3 kly away. It appears around magnitude 6.6, spanning roughly 20′. It was discovered by Charles Messier in 1764. Messier 10 or M10 (also designated NGC 6254) is a globular cluster of stars in the equatorial constellation of Ophiuchus. The object was discovered by the French astronomer Charles Messier on May 29, 1764, who cataloged it as number 10 in his catalogue and described it as a \"nebula without stars\". In 1774, German astronomer Johann Elert Bode likewise called it a \"nebulous patch without stars; very pale\". Using larger instrumentation, German-born astronomer William Herschel was able to resolve the cluster into its individual members. Astrophotography notes: Sky position: equatorial sky in Ophiuchus. Target characteristics: brightness around mag 6.6, apparent size 20′. No narrowband needed; focus on star color and core resolution.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_10"
     },
     "M11": {
       "name": "Wild Duck Cluster",
@@ -97,7 +107,8 @@
       "discoverer": "Gottfried Kirch",
       "discovery_year": 1681,
       "best_months": "JulAugSep",
-      "description": "Messier 11 is one of the richest and most compact open clusters in the sky, packed with stars against the Scutum star cloud. It has a bright, wedge-like appearance that inspired its nickname. Astrophotos show an extremely dense field of cluster members with subtle color variation and background Milky Way structure."
+      "description": "M11 (Wild Duck Cluster) is a open cluster in the constellation Scutum about 6.2 kly away. It appears around magnitude 5.8, spanning roughly 22.8′. It was discovered by Gottfried Kirch in 1681. The Wild Duck Cluster (also known as Messier 11, or NGC 6705) is an open cluster of stars in the constellation Scutum (the Shield). It was discovered by Gottfried Kirch in 1681. Charles Messier included it in his catalogue of diffuse objects in 1764. Its popular name derives from the brighter stars forming a triangle which could resemble a flying flock of ducks (or, from other angles, one swimming duck). The cluster is located just to the east of the Scutum Star Cloud midpoint. Astrophotography notes: Sky position: equatorial sky in Scutum. Target characteristics: brightness around mag 5.8, apparent size 22.8′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_11"
     },
     "M12": {
       "name": "Globular Cluster",
@@ -106,7 +117,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "Messier 12 is a globular cluster in Ophiuchus with a relatively loose structure compared to many globulars. It resolves into many stars in moderate apertures, especially under steady seeing. Imaging often highlights its gently graded core and broad halo."
+      "description": "M12 (Globular Cluster) is a globular cluster in the constellation Ophiuchus about 15.7 kly away. It appears around magnitude 6.7, spanning roughly 16′. It was discovered by Charles Messier in 1764. Messier 12 or M 12 (also designated NGC 6218) is a globular cluster in the constellation of Ophiuchus. It was discovered by the French astronomer Charles Messier on May 30, 1764, who described it as a \"nebula without stars\". In dark conditions this cluster can be faintly seen with a pair of binoculars. Resolving the stellar components requires a telescope with an aperture of 8 in (20 cm) or greater. In a 10 in (25 cm) scope, the granular core shows a diameter of 3′ (arcminutes) surrounded by a 10′ halo of stars. Astrophotography notes: Sky position: equatorial sky in Ophiuchus. Target characteristics: brightness around mag 6.7, apparent size 16′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_12"
     },
     "M13": {
       "name": "Great Hercules Cluster",
@@ -115,7 +127,8 @@
       "discoverer": "Edmond Halley",
       "discovery_year": 1714,
       "best_months": "JunJulAug",
-      "description": "Messier 13 is the showpiece globular cluster in Hercules, containing hundreds of thousands of ancient stars. It resolves spectacularly in amateur telescopes and is a favorite for outreach. Long exposures reveal a blazing core, countless resolved members, and faint outer halos extending well beyond the bright center."
+      "description": "M13 (Great Hercules Cluster) is a globular cluster in the constellation Hercules about 22.2 kly away. It appears around magnitude 5.8, spanning roughly 20′. It was discovered by Edmond Halley in 1714. Messier 13, or M13 (also designated NGC 6205 and sometimes called the Great Globular Cluster in Hercules, the Hercules Globular Cluster, or the Great Hercules Cluster), is a globular cluster of several hundred thousand stars in the constellation of Hercules. == Discovery and visibility == Messier 13 was discovered by Edmond Halley in 1714, and cataloged by Charles Messier on June 1, 1764, into his list of objects not to mistake for comets; Messier's list, including Messier 13, eventually became known as the Messier catalog. Astrophotography notes: Sky position: northern sky in Hercules. Target characteristics: brightness around mag 5.8, apparent size 20′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_13"
     },
     "M14": {
       "name": "Globular Cluster",
@@ -124,7 +137,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "Messier 14 is a globular cluster in Ophiuchus that appears compact and slightly diffuse. It lies in a busy star field and can be challenging from light-polluted sites. Deep images show a rich, dense core and a wide surrounding halo of stars."
+      "description": "M14 (Globular Cluster) is a globular cluster in the constellation Ophiuchus about 30.3 kly away. It appears around magnitude 7.6, spanning roughly 11′. It was discovered by Charles Messier in 1764. Messier 14 (also known as M14 or NGC 6402) is a globular cluster of stars in the constellation Ophiuchus. It was discovered by Charles Messier in 1764. At a distance of about 30,000 light-years, M14 contains several hundred thousand stars. At an apparent magnitude of +7.6 it can be easily observed with binoculars. Medium-sized telescopes will show some hint of the individual stars of which the brightest is of magnitude +14. Astrophotography notes: Sky position: equatorial sky in Ophiuchus. Target characteristics: brightness around mag 7.6, apparent size 11′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_14"
     },
     "M15": {
       "name": "Globular Cluster",
@@ -133,7 +147,8 @@
       "discoverer": "Jean-Dominique Maraldi",
       "discovery_year": 1746,
       "best_months": "SepOctNov",
-      "description": "Messier 15 is a highly concentrated globular cluster in Pegasus and is famous for its very dense core. It contains many variable stars and a notable planetary nebula (Pease 1) within the cluster. Imaging emphasizes the intense central brightness and the packed star distribution outward into the halo."
+      "description": "M15 (Globular Cluster) is a globular cluster in the constellation Pegasus about 33 kly away. It appears around magnitude 6.2, spanning roughly 18′. It was discovered by Jean-Dominique Maraldi in 1746. Messier 15 or M15 (also designated NGC 7078 and sometimes known as the Great Pegasus Cluster) is a globular cluster in the constellation Pegasus. It was discovered by Jean-Dominique Maraldi in 1746 and included in Charles Messier's catalogue of comet-like objects in 1764. At an estimated 12.5±1.3 billion years old, it is one of the oldest known globular clusters. == Characteristics == M 15 is about 35,700 light-years from Earth, and 175 light-years in diameter. Astrophotography notes: Sky position: northern sky in Pegasus. Target characteristics: brightness around mag 6.2, apparent size 18′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_15"
     },
     "M16": {
       "name": "Eagle Nebula",
@@ -142,7 +157,8 @@
       "discoverer": "Jean-Philippe de Chéseaux",
       "discovery_year": 1745,
       "best_months": "JunJulAug",
-      "description": "The Eagle Nebula is a star-forming region in Serpens known for the ‘Pillars of Creation’ within its dusty interior. It includes the open cluster NGC 6611, whose hot young stars illuminate surrounding gas. Narrowband imaging brings out layered hydrogen, oxygen, and sulfur structures plus dark dust columns."
+      "description": "M16 (Eagle Nebula) is a emission nebula in the constellation Serpens about 7 kly away. It appears around magnitude 6.4, spanning roughly 70′ × 50′. It was discovered by Jean-Philippe de Chéseaux in 1745. The Eagle Nebula (catalogued as Messier 16 or M16, and as NGC 6611, and also known as the Star Queen Nebula) is a young open cluster of stars in the constellation Serpens, discovered by Jean-Philippe de Cheseaux in 1745–46. Both the \"Eagle\" and the \"Star Queen\" refer to visual impressions of the dark silhouette near the center of the nebula, an area made famous as the \"Pillars of Creation\" imaged by the Hubble Space Telescope. Astrophotography notes: Sky position: equatorial sky in Serpens. Target characteristics: brightness around mag 6.4, apparent size 70′ × 50′. Ha, OIII, and SII reveal structure and make moonlit sessions viable. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_16"
     },
     "M17": {
       "name": "Omega Nebula",
@@ -151,7 +167,8 @@
       "discoverer": "Philippe de Chéseaux",
       "discovery_year": 1745,
       "best_months": "JunJulAug",
-      "description": "The Omega Nebula is a bright emission nebula in Sagittarius often nicknamed the Swan or Horseshoe Nebula. It is an active star-forming region with sharp ridges and billowing gas. Wide-field images show a luminous core surrounded by faint outer arcs and extensive nebulosity."
+      "description": "M17 (Omega Nebula) is a emission nebula in the constellation Sagittarius about 5–6 kly away. It appears around magnitude 6.0, spanning roughly 11′. It was discovered by Philippe de Chéseaux in 1745. The Omega Nebula is an H II region in the constellation Sagittarius. It was discovered by Philippe Loys de Chéseaux in 1745. Charles Messier catalogued it in 1764. It is by some of the richest starfields of the Milky Way, figuring in the northern two-thirds of Sagittarius. This feature is also known as the Swan Nebula, Checkmark Nebula, Lobster Nebula, and the Horseshoe Nebula, and catalogued as Messier 17 or M17 or NGC 6618. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 6.0, apparent size 11′. Ha, OIII, and SII reveal structure and make moonlit sessions viable. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_17"
     },
     "M18": {
       "name": "Open Cluster",
@@ -160,7 +177,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "Messier 18 is a modest open cluster in Sagittarius located near the Lagoon and Trifid region. It is best seen in binoculars or a low-power telescope field as a small group of stars. Photographs show it embedded in rich Milky Way star fields with subtle background dust and nebulosity nearby."
+      "description": "M18 (Open Cluster) is a open cluster in the constellation Sagittarius about 4.9 kly away. It appears around magnitude 7.5, spanning roughly 9.8′. It was discovered by Charles Messier in 1764. Messier 18 or M18, also designated NGC 6613 and sometimes known as the Black Swan Cluster, is an open cluster of stars in the constellation Sagittarius. It was discovered by Charles Messier in 1764 and included in his list of comet-like objects. From the perspective of Earth, M18 is situated between the Omega Nebula (M17) and the Small Sagittarius Star Cloud (M24). This is a sparse cluster with a linear diameter of 8.04 pc, a tidal radius of 7.3 pc, and is centrally concentrated with core radius of 0.012 pc. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 7.5, apparent size 9.8′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_18"
     },
     "M19": {
       "name": "Globular Cluster",
@@ -169,7 +187,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "Messier 19 is a globular cluster in Ophiuchus and appears slightly elongated, likely influenced by its location near the Galactic bulge. It is relatively compact and can look dimmer due to extinction. Imaging reveals a condensed center and an extended halo that stands out with longer integration."
+      "description": "M19 (Globular Cluster) is a globular cluster in the constellation Ophiuchus about 28.7 kly away. It appears around magnitude 6.8, spanning roughly 17′. It was discovered by Charles Messier in 1764. Messier 19 or M19 (also designated NGC 6273) is a globular cluster in the constellation Ophiuchus. It was discovered by Charles Messier on June 5, 1764 and added to his catalogue of comet-like objects that same year. It was resolved into individual stars by William Herschel in 1784. His son, John Herschel, described it as \"a superb cluster resolvable into countless stars\". The cluster is located 4.5° WSW of Theta Ophiuchi and is just visible as a fuzzy point of light using 50 mm (2.0 in) binoculars. Astrophotography notes: Sky position: equatorial sky in Ophiuchus. Target characteristics: brightness around mag 6.8, apparent size 17′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_19"
     },
     "M20": {
       "name": "Trifid Nebula",
@@ -178,7 +197,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "The Trifid Nebula is a complex nebula in Sagittarius famous for dark dust lanes that split its bright core into three main lobes. It combines emission, reflection, and dark nebula components in one field. Imaging shows blue reflection regions, red hydrogen glow, and intricate dust structure."
+      "description": "M20 (Trifid Nebula) is a emission/reflection nebula in the constellation Sagittarius about 5.2 kly away. It appears around magnitude 6.3, spanning roughly 28′. It was discovered by Charles Messier in 1764. The Trifid Nebula (catalogued as Messier 20 or M20 and as NGC 6514) is an H II region in the north-west of Sagittarius in a star-forming region in the Milky Way's Scutum–Centaurus Arm. It was discovered by Charles Messier on June 5, 1764. Its name means 'three-lobe'. The object is an unusual combination of an open cluster of stars, an emission nebula (the relatively dense, reddish-pink portion), a reflection nebula (the mainly NNE blue portion), and a dark nebula (the apparent 'gaps' in the former that cause the trifurcated appearance, also designated Barnard 85). Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 6.3, apparent size 28′. Ha, OIII, and SII reveal structure and make moonlit sessions viable.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_20"
     },
     "M21": {
       "name": "Open Cluster",
@@ -187,7 +207,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JunJulAug",
-      "description": "Messier 21 is a small open cluster in Sagittarius near the Trifid Nebula. It contains young, hot stars and is often captured in the same wide-field frames as M20. Photographs show a compact grouping of bright members against a dense Milky Way backdrop."
+      "description": "M21 (Open Cluster) is a open cluster in the constellation Sagittarius about 4.25 kly away. It appears around magnitude 6.5, spanning roughly 14′. It was discovered by Charles Messier in 1764. Messier 21 or M21, also designated NGC 6531 or Webb's Cross, is an open cluster of stars located to the north-east of Sagittarius in the night sky, close to the Messier objects M20 to M25 (except M24). It was discovered and catalogued by Charles Messier on June 5, 1764. This cluster is relatively young and tightly packed. A few blue giant stars have been identified in the cluster, but Messier 21 is composed mainly of small dim stars. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 6.5, apparent size 14′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_21"
     },
     "M22": {
       "name": "Globular Cluster",
@@ -196,7 +217,8 @@
       "discoverer": "Abraham Ihle",
       "discovery_year": 1665,
       "best_months": "JulAugSep",
-      "description": "Messier 22 is a bright globular cluster in Sagittarius and is among the nearest and largest globulars visible from mid-northern latitudes. It resolves readily into stars and has a relatively loose structure. Imaging reveals a sprawling halo of members with subtle star color differences."
+      "description": "M22 (Globular Cluster) is a globular cluster in the constellation Sagittarius about 9.6–11.6 kly away. It appears around magnitude 5.1, spanning roughly 32′. It was discovered by Abraham Ihle in 1665. Messier 22 or M22, also known as NGC 6656 or the Great Sagittarius Cluster, is an elliptical globular cluster of stars in the constellation Sagittarius, near the Galactic bulge region. It is one of the brightest globulars visible in the night sky. The brightest stars are 11th magnitude, with hundreds of stars bright enough to resolve with an 8\" telescope. It is just south of the sun's position in mid-December, and northeast of Lambda Sagittarii (Kaus Borealis), the northernmost star of the \"Teapot\" asterism. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 5.1, apparent size 32′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_22"
     },
     "M23": {
       "name": "Open Cluster",
@@ -205,7 +227,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "JanFebMar",
-      "description": "Messier 23 is a bright open cluster in Puppis with dozens of members visible in binoculars and small telescopes. It sits in a rich Milky Way region and offers a pleasing wide-field view. Photographs emphasize the scattered star patterns and the surrounding star cloud."
+      "description": "M23 (Open Cluster) is a open cluster in the constellation Sagittarius about 2.15 kly away. It appears around magnitude 5.5, spanning roughly 35′. It was discovered by Giovanni Battista Hodierna in 1654. Messier 23, also known as NGC 6494, is an open cluster of stars in the northwest of the southern constellation of Sagittarius. It was discovered by Charles Messier in 1764. It can be found in good conditions with binoculars or a modestly sized telescope. It is in front of \"an extensive gas and dust network\", which there may be no inter-association. It is within 5° the sun's position (namely in mid-December) so can be occulted by the moon. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 5.5, apparent size 35′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_23"
     },
     "M24": {
       "name": "Sagittarius Star Cloud",
@@ -214,7 +237,8 @@
       "discoverer": "N/A",
       "discovery_year": null,
       "best_months": "JulAugSep",
-      "description": "Messier 24 is not a single object but a luminous window into the Milky Way in Sagittarius where interstellar dust is thinner. It appears as a bright star cloud rich with dark lanes and embedded clusters. Wide-field astrophotography captures dense star fields, dust structure, and nearby nebulae."
+      "description": "M24 (Sagittarius Star Cloud) is a milky way star cloud in the constellation Sagittarius about ~10 kly away. It appears around magnitude 2.5, spanning roughly 2°x1°. It was discovered by N/A. The Small Sagittarius Star Cloud (also known as Messier 24 and IC 4715) is a star cloud in the constellation of Sagittarius approximately 600 light years wide, which was catalogued by Charles Messier in 1764. It should not be confused with the nearby Large Sagittarius Star Cloud which lies about 10° to the south. Messier described the cloud as \"a large nebulosity in which there are many stars of different magnitudes\" and gave its dimensions as being some 1.5° across. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 2.5, apparent size 2°x1°. Broadband capture is a safe starting point. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_24"
     },
     "M25": {
       "name": "Open Cluster",
@@ -223,7 +247,8 @@
       "discoverer": "Philippe de Chéseaux",
       "discovery_year": 1745,
       "best_months": "JulAugSep",
-      "description": "Messier 25 is a loose open cluster in Sagittarius, best appreciated at low power because it spans a relatively large area. It includes several brighter stars and sits in a busy Milky Way region. Images show a gentle scatter of members set against dense background star fields."
+      "description": "M25 (Open Cluster) is a open cluster in the constellation Sagittarius about 2.0 kly away. It appears around magnitude 4.6, spanning roughly 36′. It was discovered by Philippe de Chéseaux in 1745. Messier 25, also known as IC 4725, is an open cluster of stars in the southern constellation of Sagittarius. The first recorded observation of this cluster was made by Philippe Loys de Chéseaux in 1745 and it was included in Charles Messier's list of nebulous objects in 1764. The cluster is located near some obscuring features, with a dark lane passing near the center. M25 is at a distance of about 2,000 light-years away from Earth and is 67.6 million years old. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 4.6, apparent size 36′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_25"
     },
     "M26": {
       "name": "Open Cluster",
@@ -232,7 +257,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "AugSepOct",
-      "description": "Messier 26 is a small open cluster in Scutum that can be subtle visually from light-polluted areas. It is embedded in the Scutum star cloud and sits near rich background fields. Imaging helps separate cluster members from the surrounding Milky Way stars and brings out its compact core."
+      "description": "M26 (Open Cluster) is a open cluster in the constellation Scutum about 5.0 kly away. It appears around magnitude 8.0, spanning roughly 14′. It was discovered by Charles Messier in 1764. Messier 26, also known as NGC 6694, is an open cluster of stars in the southern constellation of Scutum. It was discovered by Charles Messier in 1764. This 8th magnitude cluster is a challenge to find in ideal skies with typical binoculars, where it can be, with any modern minimum 3-inch (76 mm) aperture device. It is south-southwest of the open cluster Messier 11 and is 14′ across. About 25 stars are visible in a telescope with a 150–200 mm (6–8 in) aperture. Astrophotography notes: Sky position: equatorial sky in Scutum. Target characteristics: brightness around mag 8.0, apparent size 14′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_26"
     },
     "M27": {
       "name": "Dumbbell Nebula",
@@ -241,7 +267,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JulAugSep",
-      "description": "The Dumbbell Nebula is a bright planetary nebula in Vulpecula and one of the finest of its kind for amateur telescopes. It shows a characteristic hourglass or ‘dumbbell’ shape, with faint outer halos visible in long exposures. Narrowband images reveal strong oxygen and hydrogen structures plus delicate outer shells."
+      "description": "M27 (Dumbbell Nebula) is a planetary nebula in the constellation Vulpecula about 1.148–1.52 kly away. It appears around magnitude 7.4, spanning roughly 8.0′ × 5.6′. It was discovered by Charles Messier in 1764. The Dumbbell Nebula (also known as the Apple Core Nebula, Messier 27, and NGC 6853) is a planetary nebula (nebulosity surrounding a white dwarf) in the constellation Vulpecula, at a distance of about 1360 light-years. It was the first such nebula to be discovered, by Charles Messier in 1764. At its brightness of visual magnitude 7.5 and diameter of about 8 arcminutes, it is easily visible in binoculars and is a popular observing target in amateur telescopes. Astrophotography notes: Sky position: northern sky in Vulpecula. Target characteristics: brightness around mag 7.4, apparent size 8.0′ × 5.6′. OIII and Ha help pull out the shell and faint halos. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_27"
     },
     "M28": {
       "name": "Globular Cluster",
@@ -250,7 +277,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JulAugSep",
-      "description": "Messier 28 is a globular cluster in Sagittarius near the Galactic Center region. It appears compact and is seen through crowded star fields. Imaging reveals a dense core and a surrounding halo of resolved stars with sufficient exposure time."
+      "description": "M28 (Globular Cluster) is a globular cluster in the constellation Sagittarius about 17.9 kly away. It appears around magnitude 6.8, spanning roughly 11.2′. It was discovered by Charles Messier in 1764. Messier 28 or M28, also known as NGC 6626, is a globular cluster of stars in the center-west of Sagittarius. It was discovered by French astronomer Charles Messier in 1764. He briefly described it as a \"nebula containing no star... round, seen with difficulty in 31⁄2-foot telescope; Diam 2′.\" == Location == In the sky it is less than a degree to the northwest of the 3rd magnitude star Kaus Borealis (Lambda Sgr). This cluster is faintly visible as a hazy patch with a pair of binoculars and can be readily found in a small telescope with an 8 cm (3.1 in) aperture, showing as a nebulous feature spanning 11.2 arcminutes. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 6.8, apparent size 11.2′.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_28"
     },
     "M29": {
       "name": "Open Cluster",
@@ -259,7 +287,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "SepOctNov",
-      "description": "Messier 29 is a small open cluster in Cygnus set against a dense Milky Way backdrop. It is easy to miss visually because the surrounding star field is so rich. Photographs can isolate the compact cluster pattern and show subtle dust structure in the region."
+      "description": "M29 (Open Cluster) is a open cluster in the constellation Cygnus about 7.2 kly away. It appears around magnitude 7.1, spanning roughly 7′. It was discovered by Charles Messier in 1764. Messier 29 or M29, also known as NGC 6913 or the Cooling Tower Cluster, is a quite small, bright open cluster of stars just south of the central bright star Gamma Cygni of a northerly zone of the sky, Cygnus. It was discovered by Charles Messier in 1764, and can be seen from Earth by using binoculars. M29 is well within the several degrees of the arms and bulge of the Milky Way. It is at least many hundreds of light years short of the yardstick distance to the Galactic Center, as is between 4,000 and 7,200 light years away. Astrophotography notes: Sky position: northern sky in Cygnus. Target characteristics: brightness around mag 7.1, apparent size 7′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_29"
     },
     "M30": {
       "name": "Globular Cluster",
@@ -268,7 +297,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "SepOctNov",
-      "description": "Messier 30 is a globular cluster in Capricornus with a bright, condensed core and a compact appearance. It is a classic late-summer to autumn target from mid-northern latitudes. Deep images emphasize its concentrated center and the gradual falloff into a faint outer halo."
+      "description": "M30 (Globular Cluster) is a globular cluster in the constellation Capricornus about 27.8–31 kly away. It appears around magnitude 7.2, spanning roughly 12′. It was discovered by Charles Messier in 1764. Messier 30 (also known as M30, NGC 7099, or the Jellyfish Cluster) is a globular cluster of stars in the southeast of the southern constellation of Capricornus, at about the declination of the Sun when the latter is at December solstice. It was discovered by the French astronomer Charles Messier in 1764, who described it as a circular nebula without a star. In the New General Catalogue, compiled during the 1880s, it was described as a \"remarkable globular, bright, large, slightly oval.\" It can be easily viewed with a pair of 10×50 binoculars, forming a patch of hazy light some 4 arcminutes wide that is slightly elongated along the east–west axis. Astrophotography notes: Sky position: equatorial sky in Capricornus. Target characteristics: brightness around mag 7.2, apparent size 12′.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_30"
     },
     "M31": {
       "name": "Andromeda Galaxy",
@@ -277,9 +307,10 @@
       "discoverer": "Al-Sufi",
       "discovery_year": 964,
       "best_months": "OctNovDec",
-      "description": "The nearest major galaxy to the Milky Way and visible to the naked eye. It is classified as galaxy. It is located approximately 253,700 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Al-Sufi in 964.",
+      "description": "M31 (Andromeda Galaxy) is a galaxy in the constellation Andromeda about 2,430–2,650 kly away. It appears around magnitude 3.4, spanning roughly 3.17° × 1°. It was discovered by Al-Sufi in 964. The Andromeda Galaxy is a barred spiral galaxy and is the nearest major galaxy to the Milky Way. It was originally named the Andromeda Nebula and is cataloged as Messier 31, M31, and NGC 224. Andromeda has a D25 isophotal diameter of about 46.56 kiloparsecs (152,000 light-years) and is approximately 765 kpc (2.5 million light-years) from Earth. The galaxy's name stems from the area of Earth's sky in which it appears, the constellation of Andromeda, which itself is named after the princess who was the wife of Perseus in Greek mythology. Astrophotography notes: Sky position: northern sky in Andromeda. Target characteristics: brightness around mag 3.4, apparent size 3.17° × 1°. Broadband LRGB is typical; Ha can highlight star-forming knots.",
       "notes": "Processed with Siril and SASPro",
-      "thumbnail": "M31 SAS final.jpg"
+      "thumbnail": "M31 SAS final.jpg",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_31"
     },
     "M32": {
       "name": "Dwarf Elliptical Galaxy",
@@ -288,7 +319,8 @@
       "discoverer": "Guillaume Le Gentil",
       "discovery_year": 1749,
       "best_months": "OctNovDec",
-      "description": "A small bright satellite galaxy of Andromeda. It is classified as galaxy. It is located approximately 253,700 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Guillaume Le Gentil in 1749."
+      "description": "M32 (Dwarf Elliptical Galaxy) is a galaxy in the constellation Andromeda about 2,410–2,570 kly away. It appears around magnitude 8.1, spanning roughly 8.7′ × 6.5′. It was discovered by Guillaume Le Gentil in 1749. Messier 32 (also known as M32 and NGC 221) is a dwarf \"early-type\" galaxy about 2,490,000 light-years (760,000 pc) from the Solar System, appearing in the constellation Andromeda. M32 is a satellite galaxy of the Andromeda Galaxy (M31) and was discovered by Guillaume Le Gentil in 1749. The galaxy is a prototype of the relatively rare compact elliptical (cE) class. Half the stars are concentrated within the inner core, which has an effective radius of 330 light-years (100 pc). Astrophotography notes: Sky position: northern sky in Andromeda. Target characteristics: brightness around mag 8.1, apparent size 8.7′ × 6.5′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_32"
     },
     "M33": {
       "name": "Triangulum Galaxy",
@@ -297,7 +329,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "NovDecJan",
-      "description": "A face-on spiral rich in star-forming regions. It is classified as galaxy. It is located approximately 2,730,000 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Giovanni Battista Hodierna in 1654."
+      "description": "M33 (Triangulum Galaxy) is a galaxy in the constellation Triangulum about 2,380–3,070 kly away. It appears around magnitude 5.7, spanning roughly 70.8′ × 41.7′. It was discovered by Giovanni Battista Hodierna in 1654. The Triangulum Galaxy is a spiral galaxy 2.878 million light-years (ly) from Earth in the constellation Triangulum. It is catalogued as Messier 33 or NGC 598. With the D25 isophotal diameter of 18.74 kiloparsecs (61,100 light-years), the Triangulum Galaxy is the third-largest member of the Local Group of galaxies, behind the Andromeda Galaxy and the Milky Way. The galaxy is the second-smallest spiral galaxy in the Local Group after the Large Magellanic Cloud, which is a Magellanic-type spiral galaxy. Astrophotography notes: Sky position: northern sky in Triangulum. Target characteristics: brightness around mag 5.7, apparent size 70.8′ × 41.7′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_33"
     },
     "M34": {
       "name": "Open Cluster",
@@ -306,7 +339,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "OctNovDec",
-      "description": "A bright compact cluster in Perseus. It is classified as open cluster. It is located approximately 1,500 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Giovanni Battista Hodierna in 1654."
+      "description": "M34 (Open Cluster) is a open cluster in the constellation Perseus about 1.5 kly away. It appears around magnitude 5.5, spanning roughly 35′. It was discovered by Giovanni Battista Hodierna in 1654. Messier 34 (also known as M34, NGC 1039, or the Spiral Cluster) is a large and relatively near open cluster in Perseus. It was probably discovered by Giovanni Batista Hodierna before 1654 and included by Charles Messier in his catalog of comet-like objects in 1764. Messier described it as, \"A cluster of small stars a little below the parallel of γ (Andromedae). In an ordinary telescope of 3 feet one can distinguish the stars.\" Based on the distance modulus of 8.38, it is about 470 parsecs (1,500 ly) away. Astrophotography notes: Sky position: northern sky in Perseus. Target characteristics: brightness around mag 5.5, apparent size 35′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_34"
     },
     "M35": {
       "name": "Open Cluster",
@@ -315,7 +349,8 @@
       "discoverer": "Philippe Loys de Chseaux",
       "discovery_year": 1745,
       "best_months": "DecJanFeb",
-      "description": "A rich open cluster of bright blue stars. It is classified as open cluster. It is located approximately 2,800 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Philippe Loys de Chseaux in 1745."
+      "description": "M35 (Open Cluster) is a open cluster in the constellation Gemini about 2.8 kly away. It appears around magnitude 5.3, spanning roughly 28′. It was discovered by Philippe Loys de Chseaux in 1745. Messier 35 or M35, also known as NGC 2168 or the Shoe-Buckle Cluster, is a relatively close open cluster of stars in the west of Gemini, at about the declination of the Sun when the latter is at June solstice. It was discovered by Philippe Loys de Chéseaux around 1745 and independently discovered by John Bevis before 1750. It is scattered over part of the sky almost the size of the full moon and is 2,970 light-years (912 parsecs) away. Astrophotography notes: Sky position: northern sky in Gemini. Target characteristics: brightness around mag 5.3, apparent size 28′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_35"
     },
     "M36": {
       "name": "Pinwheel Cluster",
@@ -324,7 +359,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "JanFebMar",
-      "description": "A young cluster in Auriga with curved stellar arms. It is classified as open cluster. It is located approximately 4,180 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Giovanni Battista Hodierna in 1654."
+      "description": "M36 (Pinwheel Cluster) is a open cluster in the constellation Auriga about 4.1 kly away. It appears around magnitude 6.3, spanning roughly 12′. It was discovered by Giovanni Battista Hodierna in 1654. Messier 36 or M36, also known as NGC 1960 or the Pinwheel Cluster, is an open cluster of stars in the somewhat northern Auriga constellation. It was discovered by Giovanni Batista Hodierna before 1654, who described it as a nebulous patch. The cluster was independently re-discovered by Guillaume Le Gentil in 1749, then Charles Messier observed it in 1764 and added it to his catalogue. It is about 1,330 pc (4,340 light years) away from Earth. Astrophotography notes: Sky position: northern sky in Auriga. Target characteristics: brightness around mag 6.3, apparent size 12′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_36"
     },
     "M37": {
       "name": "Open Cluster",
@@ -333,7 +369,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "JanFebMar",
-      "description": "The richest and brightest of AurigaÕs open clusters. It is classified as open cluster. It is located approximately 4,500 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Charles Messier in 1764."
+      "description": "M37 (Open Cluster) is a open cluster in the constellation Auriga about 4.511 kly away. It appears around magnitude 6.2, spanning roughly 24′. It was discovered by Charles Messier in 1764. Messier 37 (also known as M37, NGC 2099, or the Salt and Pepper Cluster) is the brightest and richest open cluster in the constellation Auriga. It was discovered by the Italian astronomer Giovanni Battista Hodierna before 1654. M37 was missed by French astronomer Guillaume Le Gentil when he rediscovered M36 and M38 in 1749. French astronomer Charles Messier independently rediscovered M37 in September 1764 but all three of these clusters were recorded by Hodierna. Astrophotography notes: Sky position: northern sky in Auriga. Target characteristics: brightness around mag 6.2, apparent size 24′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_37"
     },
     "M38": {
       "name": "Starfish Cluster",
@@ -342,7 +379,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "JanFebMar",
-      "description": "An open cluster with a starfish-like shape. It is classified as open cluster. It is located approximately 4,200 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Giovanni Battista Hodierna in 1654."
+      "description": "M38 (Starfish Cluster) is a open cluster in the constellation Auriga about 4.2 kly away. It appears around magnitude 7.4, spanning roughly 21′. It was discovered by Giovanni Battista Hodierna in 1654. Messier 38 or M38, also known as NGC 1912 or Starfish Cluster, is an open cluster of stars in the constellation of Auriga. It was discovered by Giovanni Batista Hodierna before 1654 and independently found by Guillaume Le Gentil in 1749. The open clusters M36 and M37, also discovered by Hodierna, are often grouped together with M38. Distance is about 1.066 kpc (3,480 ly) away from Earth. The open cluster NGC 1907 lies nearby on the sky, but the two are most likely just experiencing a fly-by, having originated in different parts of the galaxy. Astrophotography notes: Sky position: northern sky in Auriga. Target characteristics: brightness around mag 7.4, apparent size 21′. Broadband is sufficient; shorter subs keep bright stars tight.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_38"
     },
     "M39": {
       "name": "Open Cluster",
@@ -351,7 +389,8 @@
       "discoverer": "Guillaume Le Gentil",
       "discovery_year": 1749,
       "best_months": "JulAugSep",
-      "description": "A loose grouping of bright stars in Cygnus. It is classified as open cluster. It is located approximately 820 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Guillaume Le Gentil in 1749."
+      "description": "M39 (Open Cluster) is a open cluster in the constellation Cygnus about 0.8244 kly away. It appears around magnitude 4.6, spanning roughly 29′. It was discovered by Guillaume Le Gentil in 1749. Messier 39 or M39, also known as NGC 7092, is an open cluster of stars in the constellation of Cygnus, sometimes referred to as the Pyramid Cluster. It is positioned two degrees south of the star Pi Cygni and around 9° east-northeast of Deneb. The cluster was discovered by Guillaume Le Gentil in 1749, then Charles Messier added it to his catalogue in 1764. When observed in a small telescope at low power the cluster shows around two dozen members but is best observed with binoculars. Astrophotography notes: Sky position: northern sky in Cygnus. Target characteristics: brightness around mag 4.6, apparent size 29′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_39"
     },
     "M40": {
       "name": "Double Star",
@@ -360,7 +399,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1764,
       "best_months": "MarAprMay",
-      "description": "A simple optical double star; unusual for the Messier list. It is classified as double star. It is located approximately 510 light-years away. It is best observed during Mar, Apr, May. It was discovered by Charles Messier in 1764."
+      "description": "M40 (Double Star) is a double star in the constellation Ursa Major about 0.51 kly away. It appears around magnitude 8.4, spanning roughly 51.7″. It was discovered by Charles Messier in 1764. Winnecke 4 (also known as Messier 40 or WNC 4) is an optical double star consisting of two unrelated stars in a northerly zone of the sky, Ursa Major. The pair were discovered by Charles Messier in 1764 while he was searching for a nebula that had been reported in the area by Johannes Hevelius. Not seeing any nebulae, Messier catalogued this apparent pair instead. The pair were rediscovered by Friedrich August Theodor Winnecke in 1863, and included in the Winnecke Catalogue of Double Stars as number 4. Astrophotography notes: Sky position: northern sky in Ursa Major. Target characteristics: brightness around mag 8.4, apparent size 51.7″. Broadband capture is a safe starting point. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_40"
     },
     "M41": {
       "name": "Open Cluster",
@@ -369,7 +409,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "JanFebMar",
-      "description": "A bright open cluster near Sirius. It is classified as open cluster. It is located approximately 2,300 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Giovanni Battista Hodierna in 1654."
+      "description": "M41 (Open Cluster) is a open cluster in the constellation Canis Major about 2.3 kly away. It appears around magnitude 4.5, spanning roughly 38′. It was discovered by Giovanni Battista Hodierna in 1654. Messier 41 (also known as M41 or NGC 2287) is an open cluster in the constellation Canis Major. Located approximately four degrees south of Sirius, it forms a roughly equilateral triangle with Sirius and Nu2 Canis Majoris, visible together in binoculars. The cluster spans an area comparable to the size of the full moon and contains about 100 stars, including several red giants and white dwarfs. == Discovery and history == Discovered by Giovanni Batista Hodierna before 1654, M41 may have been observed by Aristotle as early as 325 BC. Astrophotography notes: Sky position: equatorial sky in Canis Major. Target characteristics: brightness around mag 4.5, apparent size 38′. Broadband is sufficient; shorter subs keep bright stars tight.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_41"
     },
     "M42": {
       "name": "Orion Nebula",
@@ -378,7 +419,8 @@
       "discoverer": "Nicolas-Claude de Peiresc",
       "discovery_year": 1610,
       "best_months": "DecJanFeb",
-      "description": "The brightest star-forming nebula visible from Earth. It is classified as emission nebula. It is located approximately 1,344 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Nicolas-Claude de Peiresc in 1610."
+      "description": "M42 (Orion Nebula) is a emission nebula in the constellation Orion about 1.324–1.364 kly away. It appears around magnitude 4.0, spanning roughly 65′ × 60′. It was discovered by Nicolas-Claude de Peiresc in 1610. The Orion Nebula (also known as Messier 42, M42, or NGC 1976) is a diffuse nebula in the Milky Way situated south of Orion's Belt in the constellation of Orion, and is known as the middle \"star\" in the \"sword\" of Orion. It is one of the brightest nebulae and is visible to the naked eye in the night sky with an apparent magnitude of 4.0. It is 1,344 ± 20 light-years (412.1 ± 6.1 pc) away and is the closest region of massive star formation to Earth. Astrophotography notes: Sky position: equatorial sky in Orion. Target characteristics: brightness around mag 4.0, apparent size 65′ × 60′. Ha, OIII, and SII reveal structure and make moonlit sessions viable. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_42"
     },
     "M43": {
       "name": "De MairanÕs Nebula",
@@ -387,7 +429,8 @@
       "discoverer": "Jean-Jacques d'Ortous de Mairan",
       "discovery_year": 1731,
       "best_months": "DecJanFeb",
-      "description": "A bright detached portion of the Orion Nebula. It is classified as emission nebula. It is located approximately 1,600 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Jean-Jacques d'Ortous de Mairan in 1731."
+      "description": "M43 (De MairanÕs Nebula) is a emission nebula in the constellation Orion about 1.6 kly away. It appears around magnitude 9.0, spanning roughly 20′ × 15′. It was discovered by Jean-Jacques d'Ortous de Mairan in 1731. Messier 43 or M43, also known as De Mairan's Nebula and NGC 1982, is a star-forming nebula with a prominent H II region in the equatorial constellation of Orion. It was discovered by the French scientist Jean-Jacques d'Ortous de Mairan some time before 1731, then catalogued by Charles Messier in 1769. It is physically part of the Orion Nebula (Messier 42), separate from that main nebula by a dense lane of dust known as the northeast dark lane. Astrophotography notes: Sky position: equatorial sky in Orion. Target characteristics: brightness around mag 9.0, apparent size 20′ × 15′. Ha, OIII, and SII reveal structure and make moonlit sessions viable. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_43"
     },
     "M44": {
       "name": "Beehive Cluster",
@@ -396,7 +439,8 @@
       "discoverer": "Galileo Galilei",
       "discovery_year": 1609,
       "best_months": "MarAprMay",
-      "description": "A large naked-eye cluster resembling a swarm of bees. It is classified as open cluster. It is located approximately 577 light-years away. It is best observed during Mar, Apr, May. It was discovered by Galileo Galilei in 1609."
+      "description": "M44 (Beehive Cluster) is a open cluster in the constellation Cancer about 0.577 kly away. It appears around magnitude 3.7, spanning roughly 95′. It was discovered by Galileo Galilei in 1609. The Beehive Cluster (also known as Praesepe (Latin for \"manger\", \"cot\" or \"crib\"), M44, NGC 2632, or Cr 189) is an open cluster in the constellation Cancer. One of the nearest open clusters to Earth, it contains a larger population of stars than other nearby bright open clusters holding around 1,000 stars. Under dark skies, the Beehive Cluster looks like a small nebulous object to the naked eye, and has been known since ancient times. Astrophotography notes: Sky position: northern sky in Cancer. Target characteristics: brightness around mag 3.7, apparent size 95′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_44"
     },
     "M45": {
       "name": "Pleiades",
@@ -405,7 +449,8 @@
       "discoverer": "Galileo Galilei",
       "discovery_year": 1610,
       "best_months": "DecJanFeb",
-      "description": "The Seven Sisters; a young nearby star cluster with reflection nebulosity. It is classified as open cluster. It is located approximately 444 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Galileo Galilei in 1610."
+      "description": "M45 (Pleiades) is a open cluster in the constellation Taurus about 0.39–0.46 kly away. It appears around magnitude 1.6, spanning roughly 2°. It was discovered by Galileo Galilei in 1610. The Pleiades ( PLEE-ə-deez, PLAY-, PLY-), also known as Seven Sisters and Messier 45 (M45), is an asterism of an open star cluster containing young B-type stars in the northwest of the constellation Taurus. At a distance of about 444 light-years, it is among the nearest star clusters to Earth and the nearest Messier object to Earth, being the most obvious star cluster to the naked eye in the night sky. It contains the reflection nebulae NGC 1432, an HII region, and NGC 1435, known as the Merope Nebula. Astrophotography notes: Sky position: northern sky in Taurus. Target characteristics: brightness around mag 1.6, apparent size 2°. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_45"
     },
     "M46": {
       "name": "Open Cluster",
@@ -414,7 +459,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1771,
       "best_months": "JanFebMar",
-      "description": "A cluster containing planetary nebula NGC 2438 in the same line of sight. It is classified as open cluster. It is located approximately 5,400 light-years away. It is best observed during Jan, Feb, Mar. It was discovered by Charles Messier in 1771."
+      "description": "M46 (Open Cluster) is a open cluster in the constellation Puppis about 5.4 kly away. It appears around magnitude 6.0, spanning roughly 22.8′. It was discovered by Charles Messier in 1771. Messier 46 or M46, also known as NGC 2437, is an open cluster of stars in the slightly southern constellation of Puppis. It was discovered by Charles Messier in 1771. Dreyer described it as \"very bright, very rich, very large.\" It is about 5,000 light-years away. There are an estimated 500 stars in the cluster with a combined mass of 453 M☉, and it is thought to be a mid-range estimate of 251.2 million years old. The cluster has a very broadest (tidal) radius of 37.8 ± 4.6 ly (11.6 ± 1.4 pc) and core radius of 8.5 ± 1.3 ly (2.6 ± 0.4 pc). Astrophotography notes: Sky position: equatorial sky in Puppis. Target characteristics: brightness around mag 6.0, apparent size 22.8′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_46"
     },
     "M47": {
       "name": "Open Cluster",
@@ -423,7 +469,8 @@
       "discoverer": "Giovanni Battista Hodierna",
       "discovery_year": 1654,
       "best_months": "FebMarApr",
-      "description": "A bright sparse cluster near M46. It is classified as open cluster. It is located approximately 1,600 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Giovanni Battista Hodierna in 1654."
+      "description": "M47 (Open Cluster) is a open cluster in the constellation Puppis about 1.6 kly away. It appears around magnitude 4.4, spanning roughly 30′. It was discovered by Giovanni Battista Hodierna in 1654. Messier 47 (M47 or NGC 2422), also known as NGC 2478 is an open cluster in the mildly southern constellation of Puppis. It was discovered by Giovanni Batista Hodierna before 1654 and in his then keynote work re-discovered by Charles Messier on 1771. It was also independently discovered by Caroline Herschel. There is no cluster in the position indicated by Messier, which he expressed in terms of its right ascension and declination with respect to the star 2 Puppis. Astrophotography notes: Sky position: equatorial sky in Puppis. Target characteristics: brightness around mag 4.4, apparent size 30′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_47"
     },
     "M48": {
       "name": "Open Cluster",
@@ -432,7 +479,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1771,
       "best_months": "FebMarApr",
-      "description": "A broad loose cluster of moderately bright stars. It is classified as open cluster. It is located approximately 1,500 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Charles Messier in 1771."
+      "description": "M48 (Open Cluster) is a open cluster in the constellation Hydra about 1.5 kly away. It appears around magnitude 5.5, spanning roughly 30′. It was discovered by Charles Messier in 1771. Messier 48 or M48, also known as NGC 2548, is an open cluster of stars in the equatorial constellation of Hydra. It sits near Hydra's westernmost limit with Monoceros, about 18° 34′ to the east and slightly south of Hydra's brightest star, Alphard. This grouping was discovered by Charles Messier in 1771, but there is no cluster precisely where Messier indicated; he made an error, as he did with M47. The value that he gave for the right ascension matches, however, his declination is off by five degrees. Astrophotography notes: Sky position: equatorial sky in Hydra. Target characteristics: brightness around mag 5.5, apparent size 30′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_48"
     },
     "M49": {
       "name": "Elliptical Galaxy",
@@ -441,7 +489,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1777,
       "best_months": "AprMayJun",
-      "description": "One of the brightest Virgo Cluster galaxies. It is classified as galaxy. It is located approximately 56,600,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1777."
+      "description": "M49 (Elliptical Galaxy) is a galaxy in the constellation Virgo about 53,600–58,200 kly away. It appears around magnitude 8.4, spanning roughly 10.2′ × 8.3′. It was discovered by Charles Messier in 1777. Messier 49 (also known as M49 or NGC 4472) is a giant elliptical galaxy about 56 million light-years away in the equatorial constellation of Virgo. This galaxy was discovered by astronomer Charles Messier in 1777. As an elliptical galaxy, Messier 49 has the physical form of a radio galaxy, but it only has the radio emission of a normal galaxy. From the detected radio emission, the core region has roughly 1053 erg (1046 J or 1022 YJ) of synchrotron energy. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 8.4, apparent size 10.2′ × 8.3′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_49"
     },
     "M50": {
       "name": "Heart-Shaped Cluster",
@@ -450,7 +499,8 @@
       "discoverer": "Giovanni Domenico Cassini",
       "discovery_year": 1711,
       "best_months": "FebMarApr",
-      "description": "A heart-shaped open cluster in Monoceros. It is classified as open cluster. It is located approximately 3,000 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Giovanni Domenico Cassini in 1711."
+      "description": "M50 (Heart-Shaped Cluster) is a open cluster in the constellation Monoceros about 3.2 kly away. It appears around magnitude 5.9, spanning roughly 16′. It was discovered by Giovanni Domenico Cassini in 1711. Messier 50 or M 50, also known as NGC 2323 or the Heart-shaped Cluster, is an open cluster of stars in the constellation Monoceros. It was recorded by G. D. Cassini before 1711 and independently discovered by Charles Messier in 1772 while observing Biela's Comet. It is sometimes described as a 'heart-shaped' figure or a blunt arrowhead. M50 is about 2,900 light-years away from Earth and is near to but narrowly not estimated to be gravitationally tied to the Canis Major (CMa) OB1 association. Astrophotography notes: Sky position: equatorial sky in Monoceros. Target characteristics: brightness around mag 5.9, apparent size 16′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_50"
     },
     "M51": {
       "name": "Whirlpool Galaxy",
@@ -459,7 +509,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1773,
       "best_months": "AprMayJun",
-      "description": "A classic face-on spiral interacting with NGC 5195. It is classified as galaxy. It is located approximately 23,500,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1773."
+      "description": "M51 (Whirlpool Galaxy) is a galaxy in the constellation Canes Venatici about 19,000–27,000 kly away. It appears around magnitude 8.4, spanning roughly 11.2′ × 6.9′. It was discovered by Charles Messier in 1773. The Whirlpool Galaxy, also known as Messier 51a (M51a) or NGC 5194, is an interacting grand-design spiral galaxy with a Seyfert 2 active galactic nucleus. It lies in the constellation Canes Venatici, and was the first galaxy to be classified as a spiral galaxy. It is 31 million lightyears (9.5 megaparsecs/Mpc) away and 23.58 kiloparsecs (76,900 ly) in diameter. The galaxy and its companion, NGC 5195, are easily observed by amateur astronomers, and the two galaxies may be seen with binoculars. Astrophotography notes: Sky position: northern sky in Canes Venatici. Target characteristics: brightness around mag 8.4, apparent size 11.2′ × 6.9′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_51"
     },
     "M52": {
       "name": "Open Cluster",
@@ -468,7 +519,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1774,
       "best_months": "SepOctNov",
-      "description": "A compact cluster in Cassiopeia. It is classified as open cluster. It is located approximately 4,600 light-years away. It is best observed during Sep, Oct, Nov. It was discovered by Charles Messier in 1774."
+      "description": "M52 (Open Cluster) is a open cluster in the constellation Cassiopeia about 5.0 kly away. It appears around magnitude 7.3, spanning roughly 13′. It was discovered by Charles Messier in 1774. Messier 52 or M52, also known as NGC 7654 or the Scorpion Cluster, is an open cluster of stars in the highly northern constellation of Cassiopeia. It was discovered by Charles Messier in 1774. It can be seen from Earth under a good night sky with binoculars. The brightness of the cluster is influenced by extinction, which is stronger in the southern half. Its metallicity is somewhat below that of the Sun, and is estimated to be [Fe/H] = −0.05 ± 0.01. Astrophotography notes: Sky position: northern sky in Cassiopeia. Target characteristics: brightness around mag 7.3, apparent size 13′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_52"
     },
     "M53": {
       "name": "Globular Cluster",
@@ -477,7 +529,8 @@
       "discoverer": "Johann Elert Bode",
       "discovery_year": 1775,
       "best_months": "AprMayJun",
-      "description": "A distant metal-poor globular cluster. It is classified as globular cluster. It is located approximately 58,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Elert Bode in 1775."
+      "description": "M53 (Globular Cluster) is a globular cluster in the constellation Coma Berenices about 58 kly away. It appears around magnitude 7.6, spanning roughly 13′. It was discovered by Johann Elert Bode in 1775. Messier 53 (also known as M53 or NGC 5024) is a globular cluster in the Coma Berenices constellation. It was discovered by Johann Elert Bode in 1775. M53 is one of the more outlying globular clusters, being about 60,000 light-years (18.4 kpc) light-years away from the Galactic Center, and almost the same distance (about 58,000 light-years (17.9 kpc)) from the Solar System. The cluster has a core radius (rc) of 2.18 pc, a half-light radius (rh) of 5.84 pc, and a tidal radius (rtr) of 239.9 pc. Astrophotography notes: Sky position: northern sky in Coma Berenices. Target characteristics: brightness around mag 7.6, apparent size 13′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_53"
     },
     "M54": {
       "name": "Globular Cluster",
@@ -486,7 +539,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1778,
       "best_months": "MayJunJul",
-      "description": "Originally thought Milky Way, now known to belong to the Sagittarius Dwarf Galaxy. It is classified as globular cluster. It is located approximately 87,000 light-years away. It is best observed during May, Jun, Jul. It was discovered by Charles Messier in 1778."
+      "description": "M54 (Globular Cluster) is a globular cluster in the constellation Sagittarius about 87.4 kly away. It appears around magnitude 7.6, spanning roughly 12′. It was discovered by Charles Messier in 1778. Messier 54 (also known as M54 or NGC 6715) is a globular cluster in the constellation Sagittarius. It was discovered by Charles Messier in 1778 and then included in his catalog of objects that could be mistaken for comets. It is easily found in the sky, being close to the star ζ Sagittarii. It is, however, not resolvable into individual stars even with larger amateur telescopes. In July 2009, a team of astronomers reported that they had found evidence of an intermediate-mass black hole in the core of M54. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 7.6, apparent size 12′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_54"
     },
     "M55": {
       "name": "Globular Cluster",
@@ -495,7 +549,8 @@
       "discoverer": "Nicolas Louis de Lacaille",
       "discovery_year": 1752,
       "best_months": "JulAugSep",
-      "description": "A loose globular cluster with low central concentration. It is classified as globular cluster. It is located approximately 17,400 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Nicolas Louis de Lacaille in 1752."
+      "description": "M55 (Globular Cluster) is a globular cluster in the constellation Sagittarius about 17.6 kly away. It appears around magnitude 6.3, spanning roughly 19′. It was discovered by Nicolas Louis de Lacaille in 1752. Messier 55 (also known as M55, NGC 6809, or Specter Cluster) is a globular cluster in the south of the constellation Sagittarius. It was discovered by Nicolas Louis de Lacaille in 1752 while observing from what today is South Africa. Starting in 1754, Charles Messier made several attempts to find this object from Paris but its low declination meant from there it rises daily very little above the horizon, hampering observation. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 6.3, apparent size 19′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_55"
     },
     "M56": {
       "name": "Globular Cluster",
@@ -504,7 +559,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1779,
       "best_months": "JulAugSep",
-      "description": "A faint cluster located between Lyra and Cygnus. It is classified as globular cluster. It is located approximately 32,600 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Charles Messier in 1779."
+      "description": "M56 (Globular Cluster) is a globular cluster in the constellation Lyra about 32.9 kly away. It appears around magnitude 8.3, spanning roughly 8.8′. It was discovered by Charles Messier in 1779. Messier 56 (also known as M56 or NGC 6779) is a globular cluster in the constellation Lyra. It was discovered by Charles Messier in 1779. It is angularly found about midway between Albireo (Beta (β) Cygni) and Sulafat (Gamma (γ) Lyrae). In a good night sky it is tricky to find with large (50–80 mm) binoculars, appearing as a slightly fuzzy star. The cluster can be resolved using a telescope with an aperture of 8 in (20 cm) or larger. Astrophotography notes: Sky position: northern sky in Lyra. Target characteristics: brightness around mag 8.3, apparent size 8.8′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_56"
     },
     "M57": {
       "name": "Ring Nebula",
@@ -513,7 +569,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1779,
       "best_months": "JulAugSep",
-      "description": "The famous smoke-ring style planetary nebula in Lyra. It is classified as planetary nebula. It is located approximately 2,300 light-years away. It is best observed during Jul, Aug, Sep. It was discovered by Charles Messier in 1779."
+      "description": "M57 (Ring Nebula) is a planetary nebula in the constellation Lyra about 1.6–3.8 kly away. It appears around magnitude 8.8, spanning roughly 230″ × 230″. It was discovered by Charles Messier in 1779. The Ring Nebula is a planetary nebula in the northern constellation of Lyra,[C] positioned about mid-way between the prominent stars Beta and Gamma Lyrae. It is catalogued as Messier 57, M57 and NGC 6720; Ring Nebula is its proper name. This nebula was discovered Charles Messier in 1779. It has an apparent visual magnitude of 8.8, which is too faint to be visible with the naked eye, but it can be readily observed with a small telescope. Astrophotography notes: Sky position: northern sky in Lyra. Target characteristics: brightness around mag 8.8, apparent size 230″ × 230″. OIII and Ha help pull out the shell and faint halos. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_57"
     },
     "M58": {
       "name": "Spiral Galaxy",
@@ -522,7 +579,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1779,
       "best_months": "AprMayJun",
-      "description": "One of the first galaxies confirmed to have spiral structure. It is classified as galaxy. It is located approximately 62,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1779."
+      "description": "M58 (Spiral Galaxy) is a galaxy in the constellation Virgo about ~63,000 kly away. It appears around magnitude 9.7, spanning roughly 5.9′ × 4.7′. It was discovered by Charles Messier in 1779. Messier 58 (also known as M58 and NGC 4579) is an intermediate barred spiral galaxy with a weak inner ring structure located within the constellation Virgo, approximately 68 million light-years away from Earth. It was discovered by Charles Messier on April 15, 1779 and is one of four barred spiral galaxies that appear in Messier's catalogue. M58 is one of the brightest galaxies in the Virgo Cluster. From 1779 it was arguably (though unknown at that time) the farthest known astronomical object until the release of the New General Catalogue in the 1880s and even more so the publishing of redshift values in the 1920s. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 9.7, apparent size 5.9′ × 4.7′.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_58"
     },
     "M59": {
       "name": "Elliptical Galaxy",
@@ -531,7 +589,8 @@
       "discoverer": "Johann Gottfried Koehler",
       "discovery_year": 1779,
       "best_months": "AprMayJun",
-      "description": "A bright elliptical in the Virgo Cluster. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Gottfried Koehler in 1779."
+      "description": "M59 (Elliptical Galaxy) is a galaxy in the constellation Virgo about 55,000–65,000 kly away. It appears around magnitude 9.6, spanning roughly 5.4′ × 3.7′. It was discovered by Johann Gottfried Koehler in 1779. Messier 59 or M59, also known as NGC 4621, is an elliptical galaxy in the equatorial constellation of Virgo. It is a member of the Virgo Cluster, with the nearest fellow member 8′ away and around 5 magnitudes fainter. The nearest cluster member of comparable brightness is the lenticular galaxy NGC 4638, which is around 17′ away. It and the angularly nearby elliptical galaxy Messier 60 were both discovered by Johann Gottfried Koehler in April 1779 when observing comet seeming close by. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 9.6, apparent size 5.4′ × 3.7′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_59"
     },
     "M60": {
       "name": "Elliptical Galaxy",
@@ -540,7 +599,8 @@
       "discoverer": "Johann Gottfried Koehler",
       "discovery_year": 1779,
       "best_months": "AprMayJun",
-      "description": "A giant elliptical with an embedded supermassive black hole. It is classified as galaxy. It is located approximately 55,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Gottfried Koehler in 1779."
+      "description": "M60 (Elliptical Galaxy) is a galaxy in the constellation Virgo about 51,000–59,000 kly away. It appears around magnitude 8.8, spanning roughly 7.4′ × 6.0′. It was discovered by Johann Gottfried Koehler in 1779. Messier 60 or M60, also known as NGC 4649, is an elliptical galaxy approximately 57 million light-years away in the equatorial constellation of Virgo. Together with NGC 4647, it forms a pair known as Arp 116. Messier 60 and nearby elliptical galaxy Messier 59 were discovered by Johann Gottfried Koehler in April 1779, observing a comet in the same part of the sky. Charles Messier added both to his catalogue about three days after this. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 8.8, apparent size 7.4′ × 6.0′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_60"
     },
     "M61": {
       "name": "Barred Spiral Galaxy",
@@ -549,7 +609,8 @@
       "discoverer": "Barnaba Oriani",
       "discovery_year": 1779,
       "best_months": "AprMayJun",
-      "description": "A star-forming barred spiral with multiple recorded supernovae. It is classified as galaxy. It is located approximately 52,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Barnaba Oriani in 1779."
+      "description": "M61 (Barred Spiral Galaxy) is a galaxy in the constellation Virgo about 50,200–54,800 kly away. It appears around magnitude 9.7, spanning roughly 6.5′ × 5.8′. It was discovered by Barnaba Oriani in 1779. Messier 61 (also known as M61, NGC 4303, or the Swelling Spiral Galaxy) is an intermediate barred spiral galaxy in the Virgo Cluster of galaxies. It was first discovered by Barnaba Oriani on May 5, 1779, six days before Charles Messier discovered the same galaxy. Messier had observed it on the same night as Oriani but had mistaken it for a comet. Its distance has been estimated to be 45.61 million light years from the Milky Way Galaxy. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 9.7, apparent size 6.5′ × 5.8′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_61"
     },
     "M62": {
       "name": "Globular Cluster",
@@ -558,7 +619,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1772,
       "best_months": "MayJunJul",
-      "description": "Highly irregular due to tidal forces near the galactic center. It is classified as globular cluster. It is located approximately 22,500 light-years away. It is best observed during May, Jun, Jul. It was discovered by Charles Messier in 1772."
+      "description": "M62 (Globular Cluster) is a globular cluster in the constellation Ophiuchus about 22.2 kly away. It appears around magnitude 6.5, spanning roughly 15′. It was discovered by Charles Messier in 1772. Messier 62 or M62, also known as NGC 6266 or the Flickering Globular Cluster, is a globular cluster of stars in the south of the equatorial constellation of Ophiuchus. It was discovered in 1771 by Charles Messier, then added to his catalogue eight years later. M62 is about 21.5 kly from Earth and 5.5 kly from the Galactic Center. It is among the ten most massive and luminous globular clusters in the Milky Way, showing an integrated absolute magnitude of −9.18. Astrophotography notes: Sky position: equatorial sky in Ophiuchus. Target characteristics: brightness around mag 6.5, apparent size 15′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_62"
     },
     "M63": {
       "name": "Sunflower Galaxy",
@@ -567,7 +629,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1779,
       "best_months": "AprMayJun",
-      "description": "A flocculent spiral with bright patchy arms. It is classified as galaxy. It is located approximately 29,300,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1779."
+      "description": "M63 (Sunflower Galaxy) is a galaxy in the constellation Canes Venatici about 37,000 kly away. It appears around magnitude 8.6, spanning roughly 12.6′ × 7.2′. It was discovered by Pierre Mchain in 1779. Messier 63 or M63, also known as NGC 5055 or the seldom-used Sunflower Galaxy, is a spiral galaxy in the northern constellation of Canes Venatici with approximately 400 billion stars. M63 was first discovered by the French astronomer Pierre Méchain, then later verified by his colleague Charles Messier on 14 June 1779. The galaxy became listed as object 63 in the Messier Catalogue. In the mid-19th century, Anglo-Irish astronomer Lord Rosse identified spiral structures within the galaxy, making this one of the first galaxies in which such structure was identified. Astrophotography notes: Sky position: northern sky in Canes Venatici. Target characteristics: brightness around mag 8.6, apparent size 12.6′ × 7.2′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_63"
     },
     "M64": {
       "name": "Black Eye Galaxy",
@@ -576,7 +639,8 @@
       "discoverer": "Edward Pigott",
       "discovery_year": 1779,
       "best_months": "AprMayJun",
-      "description": "Famous for its dark dust lane across the bright core. It is classified as galaxy. It is located approximately 17,300,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Edward Pigott in 1779."
+      "description": "M64 (Black Eye Galaxy) is a galaxy in the constellation Coma Berenices about 22,000–26,000 kly away. It appears around magnitude 8.5, spanning roughly 10.7′ × 5.1′. It was discovered by Edward Pigott in 1779. The Black Eye Galaxy (also called Sleeping Beauty Galaxy or Evil Eye Galaxy and designated Messier 64, M64, or NGC 4826) is a relatively isolated spiral galaxy 17 million light-years away in the mildly northern constellation of Coma Berenices. It was discovered by Edward Pigott in March 1779, and independently by Johann Elert Bode in April of the same year, as well as by Charles Messier the next year. A dark band of absorbing dust partially in front of its bright nucleus gave rise to its nicknames of the \"Black Eye\", \"Evil Eye\", or \"Sleeping Beauty\" galaxy. Astrophotography notes: Sky position: northern sky in Coma Berenices. Target characteristics: brightness around mag 8.5, apparent size 10.7′ × 5.1′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_64"
     },
     "M65": {
       "name": "Spiral Galaxy",
@@ -585,7 +649,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1780,
       "best_months": "AprMayJun",
-      "description": "Part of the Leo Triplet of interacting galaxies. It is classified as galaxy. It is located approximately 35,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1780."
+      "description": "M65 (Spiral Galaxy) is a galaxy in the constellation Leo about 41,000–42,000 kly away. It appears around magnitude 9.3, spanning roughly 8.7′ × 2.5′. It was discovered by Charles Messier in 1780. Messier 65 (also known as NGC 3623) is an intermediate spiral galaxy about 35 million light-years away in the constellation Leo, within its highly equatorial southern half. It was discovered by Charles Messier in 1780. With M66 and NGC 3628, it forms the Leo Triplet, a small close group of galaxies. == Discovery == M65 was discovered by Charles Messier and included in his Messier Objects list. However, William Henry Smyth accidentally attributed the discovery to Pierre Méchain in his popular 19th-century astronomical work A Cycle of Celestial Objects (stating \"They [M65 and M66] were pointed out by Méchain to Messier in 1780\"). Astrophotography notes: Sky position: northern sky in Leo. Target characteristics: brightness around mag 9.3, apparent size 8.7′ × 2.5′.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_65"
     },
     "M66": {
       "name": "Spiral Galaxy",
@@ -594,7 +659,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1780,
       "best_months": "AprMayJun",
-      "description": "Another member of the Leo Triplet with distorted arms. It is classified as galaxy. It is located approximately 36,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1780."
+      "description": "M66 (Spiral Galaxy) is a galaxy in the constellation Leo about 31,000–41,000 kly away. It appears around magnitude 8.9, spanning roughly 9.1′ × 4.2′. It was discovered by Charles Messier in 1780. Messier 66 or M66, also known as NGC 3627, is an intermediate spiral galaxy in the southern, equatorial half of Leo. It was discovered by French astronomer Charles Messier on 1 March 1780, who described it as \"very long and very faint\". This galaxy is a member of a small group of galaxies that includes M65 and NGC 3628, known as the Leo Triplet or the M66 Group. M65 and M66 are a common object for amateur astronomic observation, being separated by only 20′. Astrophotography notes: Sky position: northern sky in Leo. Target characteristics: brightness around mag 8.9, apparent size 9.1′ × 4.2′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_66"
     },
     "M67": {
       "name": "Open Cluster",
@@ -603,7 +669,8 @@
       "discoverer": "Johann Gottfried Koehler",
       "discovery_year": 1779,
       "best_months": "AprMayJun",
-      "description": "One of the oldest known open clusters. It is classified as open cluster. It is located approximately 2,700 light-years away. It is best observed during Apr, May, Jun. It was discovered by Johann Gottfried Koehler in 1779."
+      "description": "M67 (Open Cluster) is a open cluster in the constellation Cancer about 2.61–2.93 kly away. It appears around magnitude 6.1, spanning roughly 30′. It was discovered by Johann Gottfried Koehler in 1779. Messier 67 (also known as M67 or NGC 2682) and sometimes called the King Cobra Cluster or the Golden Eye Cluster is an open cluster in the southern, equatorial half of Cancer. It was discovered by Johann Gottfried Koehler in 1779. Estimates of its age range between 3.2 and 5 billion years. Distance estimates are likewise varied, but typically are 800–900 parsecs (2,600–2,900 ly). Estimates of 855, 840, and 815 pc were established via binary star modelling and infrared color-magnitude diagram fitting. Astrophotography notes: Sky position: northern sky in Cancer. Target characteristics: brightness around mag 6.1, apparent size 30′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_67"
     },
     "M68": {
       "name": "Globular Cluster",
@@ -612,7 +679,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1780,
       "best_months": "AprMayJun",
-      "description": "A faint remote globular in Hydra. It is classified as globular cluster. It is located approximately 33,500 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1780."
+      "description": "M68 (Globular Cluster) is a globular cluster in the constellation Hydra about 33.6 kly away. It appears around magnitude 7.8, spanning roughly 11′. It was discovered by Charles Messier in 1780. Messier 68 (also known as M68 or NGC 4590) is a globular cluster found in the east south-east of Hydra, away from its precisely equatorial part. It was discovered by Charles Messier in 1780. William Herschel described it as \"a beautiful cluster of stars, extremely rich, and so compressed that most of the stars are blended together\". His son John noted that it was \"all clearly resolved into stars of 12th magnitude, very loose and ragged at the borders\". Astrophotography notes: Sky position: equatorial sky in Hydra. Target characteristics: brightness around mag 7.8, apparent size 11′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_68"
     },
     "M69": {
       "name": "Globular Cluster",
@@ -621,7 +689,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1780,
       "best_months": "JunJulAug",
-      "description": "A compact cluster near the galactic center. It is classified as globular cluster. It is located approximately 29,400 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Charles Messier in 1780."
+      "description": "M69 (Globular Cluster) is a globular cluster in the constellation Sagittarius about 29.7 kly away. It appears around magnitude 7.6, spanning roughly 10.8′. It was discovered by Charles Messier in 1780. Messier 69 or M69, also known NGC 6637, and NGC 6634, is a globular cluster in the southern constellation of Sagittarius. It can be found 2.5° to the northeast of the star Epsilon Sagittarii and is dimly visible in 50 mm aperture binoculars. The cluster was discovered by Charles Messier on August 31, 1780, the same night he discovered M70. At the time, he was searching for an object described by Nicolas-Louis de Lacaille in 1751–2 and thought he had rediscovered it, but it is unclear if Lacaille actually described M69. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 7.6, apparent size 10.8′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_69"
     },
     "M70": {
       "name": "Globular Cluster",
@@ -630,7 +699,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1780,
       "best_months": "JunJulAug",
-      "description": "A slightly elongated but otherwise typical globular cluster. It is classified as globular cluster. It is located approximately 29,400 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Charles Messier in 1780."
+      "description": "M70 (Globular Cluster) is a globular cluster in the constellation Sagittarius about 29.4 kly away. It appears around magnitude 7.9, spanning roughly 8′. It was discovered by Charles Messier in 1780. Messier 70 or M70, also known as NGC 6681, is a globular cluster of stars to be found in the south of Sagittarius. It was discovered by Charles Messier in 1780. The famous comet Hale–Bopp was discovered near this cluster in 1995. It is about 29,400 light years away from Earth and around 6,500 light-years from the Galactic Center. It is roughly the same size and luminosity as its neighbour in space, M69. M70 has a very small core radius of 0.22 ly (0.068 pc) and a half-light radius of 182.0 ly (55.80 pc). Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 7.9, apparent size 8′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_70"
     },
     "M71": {
       "name": "Globular Cluster",
@@ -639,7 +709,8 @@
       "discoverer": "Philippe Loys de Chseaux",
       "discovery_year": 1745,
       "best_months": "AugSepOct",
-      "description": "A loose low-density globular cluster in Sagitta. It is classified as globular cluster. It is located approximately 13,600 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Philippe Loys de Chseaux in 1745."
+      "description": "M71 (Globular Cluster) is a globular cluster in the constellation Sagitta about 13.0 kly away. It appears around magnitude 8.2, spanning roughly 7.2′. It was discovered by Philippe Loys de Chseaux in 1745. Messier 71 (also known as M71, NGC 6838, or the Angelfish Cluster) is a globular cluster in the small northern constellation Sagitta. It was discovered by Philippe Loys de Chéseaux in 1745 and included by Charles Messier in his catalog of non-comet-like objects in 1780. It was also noted by Koehler at Dresden around 1775. Messier 71 is also known as NGC 6839, though this identification is very uncertain. This star cluster is about 13,000 light years away from Earth and spans 27 light-years (8 pc). Astrophotography notes: Sky position: northern sky in Sagitta. Target characteristics: brightness around mag 8.2, apparent size 7.2′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_71"
     },
     "M72": {
       "name": "Globular Cluster",
@@ -648,7 +719,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AugSepOct",
-      "description": "A faint distant cluster with a small core. It is classified as globular cluster. It is located approximately 55,600 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Pierre Mchain in 1781."
+      "description": "M72 (Globular Cluster) is a globular cluster in the constellation Aquarius about 53.40–55.74 kly away. It appears around magnitude 9.3, spanning roughly 6.6′. It was discovered by Pierre Mchain in 1781. Messier 72 (also known as M72 or NGC 6981) is a globular cluster in the south west of the very mildly southern constellation of Aquarius. == Observational history and guide == M72 was discovered by astronomer Pierre Méchain in 1780. His countryman Charles Messier looked for it 36 days later, and included it in his catalog. Both opted for the then-dominant of the competing terms for such objects, considering it a faint nebula rather than a cluster. Astrophotography notes: Sky position: equatorial sky in Aquarius. Target characteristics: brightness around mag 9.3, apparent size 6.6′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_72"
     },
     "M73": {
       "name": "Asterism",
@@ -657,7 +729,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AugSepOct",
-      "description": "A line-of-sight grouping of four stars; not a true cluster. It is classified as asterism. It is located approximately 2,500 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Charles Messier in 1781."
+      "description": "M73 (Asterism) is a asterism in the constellation Aquarius about ~2.5 kly away. It appears around magnitude 9.0, spanning roughly 2.8′. It was discovered by Charles Messier in 1781. Messier 73 (M73, also known as NGC 6994) is an asterism of four stars in the constellation Aquarius which was long thought to be a small open cluster. It lies several arcminutes east of globular cluster M72. According to Gaia EDR3, the stars are 1030±9, 1249±10, 2170±22, and 2290±24 light-years from the Sun, with the second being a binary star. == History == M73 was discovered by Charles Messier in 1780 who originally described the object as a cluster of four stars with some nebulosity. Astrophotography notes: Sky position: equatorial sky in Aquarius. Target characteristics: brightness around mag 9.0, apparent size 2.8′. Broadband capture is a safe starting point. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_73"
     },
     "M74": {
       "name": "Spiral Galaxy",
@@ -666,7 +739,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1780,
       "best_months": "NovDecJan",
-      "description": "A faint but perfect face-on spiral galaxy. It is classified as galaxy. It is located approximately 32,000,000 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Pierre Mchain in 1780."
+      "description": "M74 (Spiral Galaxy) is a galaxy in the constellation Pisces about 24,000–36,000 kly away. It appears around magnitude 9.4, spanning roughly 10.5′ × 9.5′. It was discovered by Pierre Mchain in 1780. Messier 74 (also known as NGC 628 and Phantom Galaxy) is a large spiral galaxy in the equatorial constellation Pisces. It is about 32 million light-years away from Earth. The galaxy contains two clearly defined spiral arms and is therefore used as an archetypal example of a grand design spiral galaxy. The galaxy's low surface brightness makes it the most difficult Messier object for amateur astronomers to observe. Its relatively large angular (that is, apparent) size and the galaxy's face-on orientation make it an ideal object for professional astronomers who want to study spiral arm structure and spiral density waves. Astrophotography notes: Sky position: northern sky in Pisces. Target characteristics: brightness around mag 9.4, apparent size 10.5′ × 9.5′.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_74"
     },
     "M75": {
       "name": "Globular Cluster",
@@ -675,7 +749,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1780,
       "best_months": "AugSepOct",
-      "description": "A compact dense cluster near the galactic center. It is classified as globular cluster. It is located approximately 67,000 light-years away. It is best observed during Aug, Sep, Oct. It was discovered by Pierre Mchain in 1780."
+      "description": "M75 (Globular Cluster) is a globular cluster in the constellation Sagittarius about 67.5 kly away. It appears around magnitude 8.5, spanning roughly 6.8′. It was discovered by Pierre Mchain in 1780. Messier 75 or M75, also known as NGC 6864, is a globular cluster of stars in the southern constellation Sagittarius. It was discovered by Pierre Méchain in 1780 and included in Charles Messier's catalog of comet-like objects that same year. M75 is about 67,500 light years away from Earth and is 14,700 light years away from, and on the opposite side of, the Galactic Center. Its apparent size on the sky translates to a true radius of 67 light years. Astrophotography notes: Sky position: equatorial sky in Sagittarius. Target characteristics: brightness around mag 8.5, apparent size 6.8′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_75"
     },
     "M76": {
       "name": "Little Dumbbell",
@@ -684,7 +759,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1780,
       "best_months": "OctNovDec",
-      "description": "A bipolar planetary nebula resembling M27 in miniature. It is classified as planetary nebula. It is located approximately 3,400 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Pierre Mchain in 1780."
+      "description": "M76 (Little Dumbbell) is a planetary nebula in the constellation Perseus about 2.5 kly away. It appears around magnitude 10.1, spanning roughly 2.7′ × 1.8′. It was discovered by Pierre Mchain in 1780. The Little Dumbbell Nebula, also known as Messier 76, NGC 650/651, the Barbell Nebula, or the Cork Nebula, is a planetary nebula in the northern constellation of Perseus. It was discovered by Pierre Méchain in 1780 and included in Charles Messier's catalog of comet-like objects as number 76. It was first classified as a planetary nebula in 1918 by the astronomer Heber Doust Curtis. However, others might have previously recognized it as a planetary nebula; for example, William Huggins found its spectrum indicated it was a nebula (instead of a galaxy or a star cluster); and Isaac Roberts in 1891 suggested that M76 might be similar to the Ring Nebula (M57), as seen instead from the side view. Astrophotography notes: Sky position: northern sky in Perseus.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_76"
     },
     "M77": {
       "name": "Barred Spiral Galaxy",
@@ -693,7 +769,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1780,
       "best_months": "NovDecJan",
-      "description": "One of the brightest active galactic nuclei. It is classified as galaxy. It is located approximately 47,000,000 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Pierre Mchain in 1780."
+      "description": "M77 (Barred Spiral Galaxy) is a galaxy in the constellation Cetus about 47,000 kly away. It appears around magnitude 8.9, spanning roughly 7.1′ × 6.0′. It was discovered by Pierre Mchain in 1780. Messier 77 (M77), also known as NGC 1068 or the Squid Galaxy, is a barred spiral galaxy in the constellation Cetus. It is about 47 million light-years (14 Mpc) away from Earth, and was discovered by Pierre Méchain in 1780, who originally described it as a nebula. Méchain then communicated his discovery to Charles Messier, who subsequently listed the object in his catalog. Both Messier and William Herschel described this galaxy as a star cluster. Astrophotography notes: Sky position: equatorial sky in Cetus. Target characteristics: brightness around mag 8.9, apparent size 7.1′ × 6.0′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_77"
     },
     "M78": {
       "name": "Reflection Nebula",
@@ -702,7 +779,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1780,
       "best_months": "DecJanFeb",
-      "description": "A bright dusty reflection nebula in Orion. It is classified as reflection nebula. It is located approximately 1,600 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Pierre Mchain in 1780."
+      "description": "M78 (Reflection Nebula) is a reflection nebula in the constellation Orion about 1.6 kly away. It appears around magnitude 8.3, spanning roughly 8′ × 6′. It was discovered by Pierre Mchain in 1780. Messier 78 (also known as M78 or NGC 2068) is a reflection nebula in the constellation Orion. It is the brightest diffuse reflection nebula in a group that includes NGC 2064, NGC 2067, and NGC 2071, all part of the Orion B molecular cloud complex. Located approximately 1,350 light-years from Earth, M78 is visible in small telescopes as a hazy patch illuminated by two B-type stars, HD 38563 A and HD 38563 B, of 10th and 11th magnitude. Astrophotography notes: Sky position: northern sky in Orion. Target characteristics: brightness around mag 8.3, apparent size 8′ × 6′. Broadband works best; narrowband adds little to reflection dust. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_78"
     },
     "M79": {
       "name": "Globular Cluster",
@@ -711,7 +789,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1780,
       "best_months": "DecJanFeb",
-      "description": "A southern globular likely captured from another galaxy. It is classified as globular cluster. It is located approximately 41,000 light-years away. It is best observed during Dec, Jan, Feb. It was discovered by Pierre Mchain in 1780."
+      "description": "M79 (Globular Cluster) is a globular cluster in the constellation Lepus about 41 kly away. It appears around magnitude 7.7, spanning roughly 8.7′. It was discovered by Pierre Mchain in 1780. Messier 79 (also known as M79 or NGC 1904) is a globular cluster in the southern constellation Lepus. It was discovered by Pierre Méchain in 1780 and is about 42,000 light-years away from Earth and 60,000 light years from the Galactic Center. Like Messier 54 (the other extragalactic globular on Messier's list), it is believed to not be native to the Milky Way galaxy at all, but instead to the putative Canis Major Dwarf Galaxy, which is currently experiencing a very close encounter with our galaxy. Astrophotography notes: Sky position: equatorial sky in Lepus. Target characteristics: brightness around mag 7.7, apparent size 8.7′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_79"
     },
     "M80": {
       "name": "Globular Cluster",
@@ -720,7 +799,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "MayJunJul",
-      "description": "A very compact cluster containing many blue stragglers. It is classified as globular cluster. It is located approximately 32,600 light-years away. It is best observed during May, Jun, Jul. It was discovered by Charles Messier in 1781."
+      "description": "M80 (Globular Cluster) is a globular cluster in the constellation Scorpius about 32.6 kly away. It appears around magnitude 7.3, spanning roughly 10′. It was discovered by Charles Messier in 1781. Messier 80 (also known as M80 or NGC 6093) is a globular cluster located approximately 32,600 light-years (10,000 pc) from Earth in the constellation Scorpius. Discovered by Charles Messier in 1781, it is one of the densest globular clusters in the Milky Way, containing several hundred thousand stars within a spatial diameter of about 95 light-years. The cluster is situated in the Galactic halo, more than twice as distant as the Galactic Center, and lies midway between the stars α Scorpii (Antares) and β Scorpii in a region rich with nebulæ. Astrophotography notes: Sky position: equatorial sky in Scorpius. Target characteristics: brightness around mag 7.3, apparent size 10′. No narrowband needed; focus on star color and core resolution.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_80"
     },
     "M81": {
       "name": "Bode's Galaxy",
@@ -729,7 +809,8 @@
       "discoverer": "Johann Elert Bode",
       "discovery_year": 1774,
       "best_months": "MarAprMay",
-      "description": "A bright near-edge-on spiral, one of the best northern galaxies. It is classified as galaxy. It is located approximately 12,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Johann Elert Bode in 1774."
+      "description": "M81 (Bode's Galaxy) is a galaxy in the constellation Ursa Major about 11,400–12,200 kly away. It appears around magnitude 6.9, spanning roughly 26.9′ × 14.1′. It was discovered by Johann Elert Bode in 1774. Messier 81 (also known as NGC 3031 or Bode's Galaxy) is a grand design spiral galaxy about 12 million light-years away in the constellation Ursa Major. It has a D25 isophotal diameter of 29.44 kiloparsecs (96,000 light-years). Because of its relative proximity to the Milky Way galaxy, large size, and active galactic nucleus (which harbors a 70 million M☉ supermassive black hole), Messier 81 has been studied extensively by professional astronomers. Astrophotography notes: Sky position: northern sky in Ursa Major. Target characteristics: brightness around mag 6.9, apparent size 26.9′ × 14.1′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_81"
     },
     "M82": {
       "name": "Cigar Galaxy",
@@ -738,7 +819,8 @@
       "discoverer": "Johann Elert Bode",
       "discovery_year": 1774,
       "best_months": "MarAprMay",
-      "description": "A starburst galaxy with dramatic dust lanes and winds. It is classified as starburst galaxy. It is located approximately 12,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Johann Elert Bode in 1774."
+      "description": "M82 (Cigar Galaxy) is a starburst galaxy in the constellation Ursa Major about 10,700–12,300 kly away. It appears around magnitude 8.4, spanning roughly 11.2′ × 4.3′. It was discovered by Johann Elert Bode in 1774. Messier 82 (also known as NGC 3034, Cigar Galaxy or M82) is a starburst galaxy approximately 12 million light-years away in the constellation Ursa Major. It is the second-largest member of the M81 Group, with the D25 isophotal diameter of 12.52 kiloparsecs (40,800 light-years). It is about five times more luminous than the Milky Way and its central region is about one hundred times more luminous. The starburst activity is thought to have been triggered by interaction with neighboring galaxy M81. Astrophotography notes: Sky position: northern sky in Ursa Major. Target characteristics: brightness around mag 8.4, apparent size 11.2′ × 4.3′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_82"
     },
     "M83": {
       "name": "Southern Pinwheel",
@@ -747,7 +829,8 @@
       "discoverer": "Nicolas Louis de Lacaille",
       "discovery_year": 1752,
       "best_months": "AprMayJun",
-      "description": "A grand-design face-on spiral galaxy. It is classified as galaxy. It is located approximately 15,200,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Nicolas Louis de Lacaille in 1752."
+      "description": "M83 (Southern Pinwheel) is a galaxy in the constellation Hydra about 14,700 kly away. It appears around magnitude 7.6, spanning roughly 12.9′ × 11.5′. It was discovered by Nicolas Louis de Lacaille in 1752. Messier 83 or M83, also known as the Southern Pinwheel Galaxy and NGC 5236, is a barred spiral galaxy approximately 15 million light-years away in the constellation borders of Hydra and Centaurus. Nicolas-Louis de Lacaille discovered M83 on 17 February 1752 at the Cape of Good Hope. Charles Messier added it to his catalogue of nebulous objects (now known as the Messier Catalogue) in March 1781. It is one of the closest and brightest barred spiral galaxies in the sky, and is visible with binoculars. Astrophotography notes: Sky position: equatorial sky in Hydra. Target characteristics: brightness around mag 7.6, apparent size 12.9′ × 11.5′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_83"
     },
     "M84": {
       "name": "Elliptical Galaxy",
@@ -756,7 +839,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A bright member of the Virgo Cluster. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+      "description": "M84 (Elliptical Galaxy) is a galaxy in the constellation Virgo about 57,000–63,000 kly away. It appears around magnitude 9.1, spanning roughly 6.5′ × 5.6′. It was discovered by Charles Messier in 1781. Messier 84 or M84, also known as NGC 4374, is a giant elliptical or lenticular galaxy in the constellation Virgo. Charles Messier discovered the object in 1781 in a systematic search for \"nebulous objects\" in the night sky. It is the 84th object in the Messier Catalogue and in the heavily populated core of the Virgo Cluster of galaxies, part of the local supercluster. This galaxy has morphological classification E1, denoting it has flattening of about 10%. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 9.1, apparent size 6.5′ × 5.6′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_84"
     },
     "M85": {
       "name": "Lenticular Galaxy",
@@ -765,7 +849,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A lenticular galaxy interacting with small companion NGC 4394. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+      "description": "M85 (Lenticular Galaxy) is a galaxy in the constellation Coma Berenices about 56,000–64,000 kly away. It appears around magnitude 9.1, spanning roughly 7.1′ × 5.5′. It was discovered by Pierre Mchain in 1781. Messier 85 (also known as M85 or NGC 4382 or PGC 40515 or ISD 0135852) is a lenticular galaxy, or elliptical galaxy for other authors, in the Coma Berenices constellation. It is 60 million light-years away, and has a diameter of about 36.99 kiloparsecs (120,600 light-years) across. Pierre Méchain discovered M85 in 1781. It is within the outskirts of the Virgo Cluster, and is relatively isolated. Use dithering and good calibration frames, and expect improved contrast with steady seeing. Use dithering and good calibration frames, and expect improved contrast with steady seeing. Use dithering and good calibration frames, and expect improved contrast with steady seeing.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_85"
     },
     "M86": {
       "name": "Elliptical Galaxy",
@@ -774,7 +859,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A bright elliptical in the Virgo Cluster. It is classified as galaxy. It is located approximately 52,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+      "description": "M86 (Elliptical Galaxy) is a galaxy in the constellation Virgo about 49,000–55,000 kly away. It appears around magnitude 8.9, spanning roughly 8.9′ × 5.8′. It was discovered by Charles Messier in 1781. Messier 86 (also known as M86 or NGC 4406) is a bright elliptical or lenticular galaxy in the constellation of Virgo. It was discovered by Charles Messier in 1781. M86 lies in the heart of the Virgo Cluster of galaxies and forms a most conspicuous group with another large galaxy known as Messier 84. It displays the highest blue shift of all Messier objects, as it is, net of its other vectors of travel, approaching the Milky Way at 244 km/s. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 8.9, apparent size 8.9′ × 5.8′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_86"
     },
     "M87": {
       "name": "Virgo A",
@@ -783,7 +869,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "Home of a supermassive black hole photographed by the EHT. It is classified as galaxy. It is located approximately 53,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+      "description": "M87 (Virgo A) is a galaxy in the constellation Virgo about 51,870–55,130 kly away. It appears around magnitude 8.6, spanning roughly 7.2′ × 6.8′. It was discovered by Charles Messier in 1781. Messier 87 (also known as Virgo A or NGC 4486, generally abbreviated to M87) is a supergiant elliptical galaxy in the constellation Virgo that contains several trillion stars. One of the largest and most massive galaxies in the local universe, it has a large population of globular clusters—about 15,000 compared with the 150–200 orbiting the Milky Way—and a jet of energetic plasma that originates at the core and extends at least 1,500 parsecs (4,900 light-years), traveling at a relativistic speed. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 8.6, apparent size 7.2′ × 6.8′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_87"
     },
     "M88": {
       "name": "Spiral Galaxy",
@@ -792,7 +879,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A tightly wound spiral in the Virgo Cluster. It is classified as galaxy. It is located approximately 55,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+      "description": "M88 (Spiral Galaxy) is a galaxy in the constellation Coma Berenices about 39,000–56,000 kly away. It appears around magnitude 9.6, spanning roughly 6.9′ × 3.7′. It was discovered by Charles Messier in 1781. Messier 88 (also known as M88 or NGC 4501) is a spiral galaxy about 50 to 60 million light-years away from Earth in the constellation Coma Berenices. It was discovered by Charles Messier in 1781. == Properties == M88 is one of the fifteen Messier objects that belong to the nearby Virgo Cluster of galaxies. It is galaxy number 1401 in the Virgo Cluster Catalogue (VCC) of 2096 galaxies that are candidate members of the cluster. Astrophotography notes: Sky position: northern sky in Coma Berenices. Target characteristics: brightness around mag 9.6, apparent size 6.9′ × 3.7′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_88"
     },
     "M89": {
       "name": "Elliptical Galaxy",
@@ -801,7 +889,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A round elliptical possibly surrounded by faint shells. It is classified as galaxy. It is located approximately 60,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+      "description": "M89 (Elliptical Galaxy) is a galaxy in the constellation Virgo about 47,000–53,000 kly away. It appears around magnitude 9.8, spanning roughly 5.1′ × 4.7′. It was discovered by Charles Messier in 1781. Messier 89 (M89 for short, also known as NGC 4552) is an elliptical galaxy in the constellation Virgo. It was discovered by Charles Messier on March 18, 1781. M89 is a member of the Virgo Cluster of galaxies. == Features == Current observations allow the possibility that M89 may be nearly perfectly spherical. Distinct flattening as ellipsoids is found in all easily measurable comparators up to a few times of its distance. Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 9.8, apparent size 5.1′ × 4.7′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_89"
     },
     "M90": {
       "name": "Spiral Galaxy",
@@ -810,7 +899,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "An edge-on spiral moving rapidly within the Virgo Cluster. It is classified as galaxy. It is located approximately 59,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+      "description": "M90 (Spiral Galaxy) is a galaxy in the constellation Virgo about 55,900–61,500 kly away. It appears around magnitude 9.5, spanning roughly 9.5′ × 4.4′. It was discovered by Charles Messier in 1781. Messier 90 (also known as M90 and NGC 4569) is an intermediate spiral galaxy exhibiting a weak inner ring structure about 60 million light-years away[a] in the constellation Virgo. It was discovered by Charles Messier in 1781. == Membership of the Virgo Cluster == Messier 90 is a member of the Virgo Cluster, being one of its largest and brightest spiral galaxies, with an absolute magnitude of around −22 (brighter than the Andromeda Galaxy). Astrophotography notes: Sky position: northern sky in Virgo. Target characteristics: brightness around mag 9.5, apparent size 9.5′ × 4.4′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_90"
     },
     "M91": {
       "name": "Barred Spiral Galaxy",
@@ -819,7 +909,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A barred spiral galaxy with tightly wrapped arms. It is classified as galaxy. It is located approximately 52,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Charles Messier in 1781."
+      "description": "M91 (Barred Spiral Galaxy) is a galaxy in the constellation Coma Berenices about 47,000–79,000 kly away. It appears around magnitude 10.2, spanning roughly 5.4′ × 4.3′. It was discovered by Charles Messier in 1781. Messier 91 (also known as NGC 4548 or M91) is a barred spiral galaxy that is found in the south of Coma Berenices. It is in the local supercluster and is part of the Virgo Cluster of galaxies. It is about 63 million light-years away from our galaxy. It was the last of a group of eight \"nebulae\" – the term 'galaxy' only coming into use for these objects once it was realized in the 20th century that they were extragalactic – discovered by Charles Messier in 1781. Astrophotography notes: Sky position: northern sky in Coma Berenices. Target characteristics: brightness around mag 10.2, apparent size 5.4′ × 4.3′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_91"
     },
     "M92": {
       "name": "Globular Cluster",
@@ -828,7 +919,8 @@
       "discoverer": "Johann Elert Bode",
       "discovery_year": 1777,
       "best_months": "JunJulAug",
-      "description": "A bright compact cluster near Hercules. It is classified as globular cluster. It is located approximately 26,700 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Johann Elert Bode in 1777."
+      "description": "M92 (Globular Cluster) is a globular cluster in the constellation Hercules about 26.7 kly away. It appears around magnitude 6.4, spanning roughly 14′. It was discovered by Johann Elert Bode in 1777. Messier 92 (also known as M92, M 92, or NGC 6341) is a globular cluster of stars in the northern constellation of Hercules. == Discovery == It was discovered by Johann Elert Bode on December 27, 1777, then published in the Berliner Astronomisches Jahrbuch during 1779. It was inadvertently rediscovered by Charles Messier on March 18, 1781, and added as the 92nd entry in his catalogue. William Herschel first resolved individual stars in 1783. Astrophotography notes: Sky position: northern sky in Hercules. Target characteristics: brightness around mag 6.4, apparent size 14′. No narrowband needed; focus on star color and core resolution. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_92"
     },
     "M93": {
       "name": "Open Cluster",
@@ -837,7 +929,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1781,
       "best_months": "FebMarApr",
-      "description": "A bright open cluster in Puppis. It is classified as open cluster. It is located approximately 3,400 light-years away. It is best observed during Feb, Mar, Apr. It was discovered by Charles Messier in 1781."
+      "description": "M93 (Open Cluster) is a open cluster in the constellation Puppis about 3.6 kly away. It appears around magnitude 6.0, spanning roughly 10′. It was discovered by Charles Messier in 1781. Messier 93 or M93, also known as NGC 2447 or the Critter Cluster, is an open cluster in the modestly southern constellation Puppis, the imagined poop deck of the legendary Argo. == Observational history and appearance == It was discovered by Charles Messier then added to his catalogue of comet-like objects in 1781. Caroline Herschel, the younger sister of William Herschel, independently discovered it in 1783, thinking it had not yet been catalogued by Messier. Astrophotography notes: Sky position: equatorial sky in Puppis. Target characteristics: brightness around mag 6.0, apparent size 10′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_93"
     },
     "M94": {
       "name": "Spiral Galaxy",
@@ -846,7 +939,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A spiral galaxy with an unusually bright core. It is classified as galaxy. It is located approximately 16,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+      "description": "M94 (Spiral Galaxy) is a galaxy in the constellation Canes Venatici about 14,700–17,300 kly away. It appears around magnitude 8.2, spanning roughly 11.2′ × 9.1′. It was discovered by Pierre Mchain in 1781. Messier 94 (also known as NGC 4736, Cat's Eye Galaxy, Crocodile Eye Galaxy, or Croc's Eye Galaxy) is a spiral galaxy in the mid-northern constellation Canes Venatici. It was discovered by Pierre Méchain in 1781, and catalogued by Charles Messier two days later. Although some references describe M94 as a barred spiral galaxy, the \"bar\" structure appears to be more oval-shaped. The galaxy has two ring structures. == Structure == M94 is classified as having a low ionization nuclear emission region (LINER) nucleus. Astrophotography notes: Sky position: northern sky in Canes Venatici. Target characteristics: brightness around mag 8.2, apparent size 11.2′ × 9.1′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_94"
     },
     "M95": {
       "name": "Barred Spiral Galaxy",
@@ -855,7 +949,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "MarAprMay",
-      "description": "A barred spiral with an inner star-forming ring. It is classified as galaxy. It is located approximately 33,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+      "description": "M95 (Barred Spiral Galaxy) is a galaxy in the constellation Leo about 31,200–34,000 kly away. It appears around magnitude 9.7, spanning roughly 3.1′ × 2.9′. It was discovered by Pierre Mchain in 1781. Messier 95, also known as M95 or NGC 3351, is a barred spiral galaxy about 33 million light-years away in the zodiac constellation Leo. It was discovered by Pierre Méchain in 1781, and catalogued by compatriot Charles Messier four days later. In 2012 its most recent supernova was discovered. The galaxy has a morphological classification of SB(r)b, with the SBb notation indicating it is a barred spiral with arms that are intermediate on the scale from tightly to loosely wound, and an \"(r)\" meaning an inner ring surrounds the bar. Astrophotography notes: Sky position: northern sky in Leo. Target characteristics: brightness around mag 9.7, apparent size 3.1′ × 2.9′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_95"
     },
     "M96": {
       "name": "Spiral Galaxy",
@@ -864,7 +959,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "MarAprMay",
-      "description": "A bright spiral with an asymmetric disk. It is classified as galaxy. It is located approximately 31,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+      "description": "M96 (Spiral Galaxy) is a galaxy in the constellation Leo about 28,000–34,000 kly away. It appears around magnitude 9.2, spanning roughly 7.6′ × 5.2′. It was discovered by Pierre Mchain in 1781. Messier 96 (also known as M96 or NGC 3368) is an intermediate spiral galaxy about 31 million light-years away in the constellation Leo. == Observational history and appearance == M96 was discovered by French astronomer Pierre Méchain on March 20, 1781. After communicating his finding, French astronomer Charles Messier confirmed the finding four days later and added it to his catalogue of nebulous objects. Finding this object is burdensome with large binoculars. Astrophotography notes: Sky position: northern sky in Leo. Target characteristics: brightness around mag 9.2, apparent size 7.6′ × 5.2′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_96"
     },
     "M97": {
       "name": "Owl Nebula",
@@ -873,7 +969,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "MarAprMay",
-      "description": "A planetary nebula with two dark cavities resembling owl eyes. It is classified as planetary nebula. It is located approximately 2,030 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+      "description": "M97 (Owl Nebula) is a planetary nebula in the constellation Ursa Major about 2.03 kly away. It appears around magnitude 9.9, spanning roughly 3.4′ × 3.3′. It was discovered by Pierre Mchain in 1781. The Owl Nebula (also known as Messier 97, M97 or NGC 3587) is a planetary nebula approximately 2,030 light years away in the constellation Ursa Major. Estimated to be about 8,000 years old, it is approximately circular in cross-section with a faint internal structure. It was formed from the outflow of material from the stellar wind of the central star as it evolved along the asymptotic giant branch. The nebula is arranged in three concentric shells, with the outermost shell being about 20–30% larger than the inner shell. Astrophotography notes: Sky position: northern sky in Ursa Major. Target characteristics: brightness around mag 9.9, apparent size 3.4′ × 3.3′. OIII and Ha help pull out the shell and faint halos. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_97"
     },
     "M98": {
       "name": "Spiral Galaxy",
@@ -882,7 +979,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A blue-shifted edge-on spiral galaxy. It is classified as galaxy. It is located approximately 44,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+      "description": "M98 (Spiral Galaxy) is a galaxy in the constellation Coma Berenices about 44,400 kly away. It appears around magnitude 10.1, spanning roughly 9.8′ × 2.8′. It was discovered by Pierre Mchain in 1781. Messier 98, M98 or NGC 4192, is an intermediate spiral galaxy about 44.4 million light-years away in slightly northerly Coma Berenices, about 6° to the east of the bright star Denebola (Beta Leonis). It was discovered by French astronomer Pierre Méchain on 1781, along with nearby M99 and M100, and was catalogued by compatriot Charles Messier 29 days later in his Catalogue des Nébuleuses & des amas d'Étoiles. It has a blueshift, denoting ignoring of its fast other movement (vectors of proper motion), it is approaching at about 140 km/s. Astrophotography notes: Sky position: northern sky in Coma Berenices. Target characteristics: brightness around mag 10.1, apparent size 9.8′ × 2.8′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_98"
     },
     "M99": {
       "name": "Pinwheel Galaxy",
@@ -891,7 +989,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A grand-design spiral with asymmetric arms. It is classified as galaxy. It is located approximately 50,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+      "description": "M99 (Pinwheel Galaxy) is a galaxy in the constellation Coma Berenices about 44,700–55,700 kly away. It appears around magnitude 9.9, spanning roughly 5.4′ × 4.7′. It was discovered by Pierre Mchain in 1781. Messier 99 or M99, also known as NGC 4254 or St. Catherine's Wheel, is a grand design spiral galaxy in the northern constellation Coma Berenices approximately 15,000,000 parsecs (49,000,000 light-years) from the Milky Way. It was discovered by Pierre Méchain on 17 March 1781. The discovery was then reported to Charles Messier, who included the object in the Messier Catalogue of comet-like objects. It was one of the first galaxies in which a spiral pattern was seen. Astrophotography notes: Sky position: northern sky in Coma Berenices. Target characteristics: brightness around mag 9.9, apparent size 5.4′ × 4.7′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_99"
     },
     "M100": {
       "name": "Spiral Galaxy",
@@ -900,7 +999,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A bright spiral galaxy in the Virgo Cluster. It is classified as galaxy. It is located approximately 55,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+      "description": "M100 (Spiral Galaxy) is a galaxy in the constellation Coma Berenices about 55,000 kly away. It appears around magnitude 9.3, spanning roughly 7.4′ × 6.3′. It was discovered by Pierre Mchain in 1781. Messier 100 (also known as NGC 4321 or the Mirror Galaxy) is a grand design intermediate spiral galaxy in the southern part of the mildly northern Coma Berenices. It is one of the brightest and largest galaxies in the Virgo Cluster and is approximately 55 million light-years from our galaxy, about 166,000 light-years in diameter. It was discovered by Pierre Méchain in 1781 and 29 days later seen again and entered by Charles Messier in his catalogue \"of nebulae and star clusters\". Astrophotography notes: Sky position: northern sky in Coma Berenices. Target characteristics: brightness around mag 9.3, apparent size 7.4′ × 6.3′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_100"
     },
     "M101": {
       "name": "Pinwheel Galaxy",
@@ -909,7 +1009,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "One of the largest nearby face-on spiral galaxies. It is classified as galaxy. It is located approximately 21,200,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+      "description": "M101 (Pinwheel Galaxy) is a galaxy in the constellation Ursa Major about 19,100–22,400 kly away. It appears around magnitude 7.9, spanning roughly 28.8′ × 26.9′. It was discovered by Pierre Mchain in 1781. The Pinwheel Galaxy (also known as Messier 101, M101 or NGC 5457) is a face-on, counterclockwise intermediate spiral galaxy located 21 million light-years (6.4 megaparsecs) from Earth in the constellation Ursa Major. It was discovered by Pierre Méchain in 1781 and was communicated that year to Charles Messier, who verified its position for inclusion in the Messier Catalogue as one of its final entries. On February 28, 2006, NASA and the European Space Agency released a very detailed image of the Pinwheel Galaxy, which was the largest and most detailed image of a galaxy by Hubble Space Telescope at the time. Astrophotography notes: Sky position: northern sky in Ursa Major. Target characteristics: brightness around mag 7.9, apparent size 28.8′ × 26.9′.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_101"
     },
     "M102": {
       "name": "Spindle Galaxy",
@@ -918,7 +1019,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "MayJunJul",
-      "description": "A lenticular galaxy with a thin elongated shape. It is classified as galaxy. It is located approximately 50,000,000 light-years away. It is best observed during May, Jun, Jul. It was discovered by Pierre Mchain in 1781."
+      "description": "M102 (Spindle Galaxy) is a galaxy in the constellation Draco about 50,000 kly away. It appears around magnitude 9.9, spanning roughly 4.7′ × 1.9′. It was discovered by Pierre Mchain in 1781. Messier 102 (also known as M102) is a galaxy listed in the Messier Catalogue that cannot be unambiguously identified. Its original discoverer Pierre Méchain retracted his discovery two years after publication and said that it was a duplicate observation of Messier 101. Later historical evidence favors that M102 is actually the galaxy NGC 5866, although other galaxies have been suggested as possible identities. The National Aeronautics and Space Administration (NASA) considers it to be the same as NGC 5866. Astrophotography notes: Sky position: northern sky in Draco. Target characteristics: brightness around mag 9.9, apparent size 4.7′ × 1.9′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_102"
     },
     "M103": {
       "name": "Open Cluster",
@@ -927,7 +1029,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "NovDecJan",
-      "description": "A colorful compact open cluster in Cassiopeia. It is classified as open cluster. It is located approximately 9,500 light-years away. It is best observed during Nov, Dec, Jan. It was discovered by Pierre Mchain in 1781."
+      "description": "M103 (Open Cluster) is a open cluster in the constellation Cassiopeia about 10 kly away. It appears around magnitude 7.4, spanning roughly 6′. It was discovered by Pierre Mchain in 1781. Messier 103 (also known as M103, or NGC 581) is a small open cluster of many faint stars in Cassiopeia. It was discovered on 27 March 1781 by Pierre Méchain, but later added as Charles Messier's last deep-sky object in his catalogue. It is located 9,400 light-years from the Sun and is about 15 light years across. It holds two prominent stars, of which the brightest is magnitude 10.5, and in the center of the cluster, another magnitude 10.8 red giant. Astrophotography notes: Sky position: northern sky in Cassiopeia. Target characteristics: brightness around mag 7.4, apparent size 6′. Broadband is sufficient; shorter subs keep bright stars tight. Moderate skies are workable, but darker sites improve contrast. Capture tips: ISO 1600+ (or gain ~100-200), 120-300s subs, and 2-6 hours total integration.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_103"
     },
     "M104": {
       "name": "Sombrero Galaxy",
@@ -936,7 +1039,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "AprMayJun",
-      "description": "A striking galaxy with a massive dust lane and bright bulge. It is classified as galaxy. It is located approximately 29,000,000 light-years away. It is best observed during Apr, May, Jun. It was discovered by Pierre Mchain in 1781."
+      "description": "M104 (Sombrero Galaxy) is a galaxy in the constellation Virgo about 28,700–30,900 kly away. It appears around magnitude 8.0, spanning roughly 9′ × 4′. It was discovered by Pierre Mchain in 1781. The Sombrero Galaxy (also known as Messier Object 104, M104 or NGC 4594) is a peculiar galaxy of unclear classification in the constellation borders of Virgo and Corvus, being about 9.55 megaparsecs (31.1 million light-years) from the Milky Way galaxy. It is a member of the Virgo II Groups, a series of galaxies and galaxy clusters strung out from the southern edge of the Virgo Supercluster. It has an isophotal diameter of approximately 29.09 to 32.32 kiloparsecs (94,900 to 105,000 light-years), making it slightly larger than the Milky Way. Astrophotography notes: Sky position: equatorial sky in Virgo. Target characteristics: brightness around mag 8.0, apparent size 9′ × 4′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_104"
     },
     "M105": {
       "name": "Elliptical Galaxy",
@@ -945,7 +1049,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "MarAprMay",
-      "description": "A bright elliptical with a small companion. It is classified as galaxy. It is located approximately 32,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+      "description": "M105 (Elliptical Galaxy) is a galaxy in the constellation Leo about 30,400–33,600 kly away. It appears around magnitude 9.3, spanning roughly 5.4′ × 4.8′. It was discovered by Pierre Mchain in 1781. Messier 105 or M105, also known as NGC 3379, is an elliptical galaxy 36.6 million light-years away in the equatorial constellation of Leo. It is the biggest elliptical galaxy in the Messier catalogue that is not in the Virgo cluster. It was discovered by Pierre Méchain in 1781, just a few days after he discovered the nearby galaxies Messier 95 and Messier 96. This galaxy is one of a few not object-verified by Messier so omitted in the editions of his Catalogue of his era. Astrophotography notes: Sky position: northern sky in Leo. Target characteristics: brightness around mag 9.3, apparent size 5.4′ × 4.8′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_105"
     },
     "M106": {
       "name": "Spiral Galaxy",
@@ -954,7 +1059,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "MarAprMay",
-      "description": "A Seyfert II galaxy with unusual anomalous arms. It is classified as galaxy. It is located approximately 24,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+      "description": "M106 (Spiral Galaxy) is a galaxy in the constellation Canes Venatici about 22,200–25,200 kly away. It appears around magnitude 8.4, spanning roughly 18.6′ × 7.2′. It was discovered by Pierre Mchain in 1781. Messier 106 (also known as NGC 4258) is an intermediate spiral galaxy in the constellation Canes Venatici. It was discovered by Pierre Méchain in 1781. M106 is at a distance of about 22 to 25 million light-years away from Earth. M106 contains an active nucleus classified as a Type 2 Seyfert, and the presence of a central supermassive black hole has been demonstrated from radio-wavelength observations of the rotation of a disk of molecular gas orbiting within the inner light-year around the black hole. Astrophotography notes: Sky position: northern sky in Canes Venatici. Target characteristics: brightness around mag 8.4, apparent size 18.6′ × 7.2′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_106"
     },
     "M107": {
       "name": "Globular Cluster",
@@ -963,7 +1069,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1782,
       "best_months": "JunJulAug",
-      "description": "A faint sparse globular cluster. It is classified as globular cluster. It is located approximately 20,300 light-years away. It is best observed during Jun, Jul, Aug. It was discovered by Pierre Mchain in 1782."
+      "description": "M107 (Globular Cluster) is a globular cluster in the constellation Ophiuchus about 20.9 kly away. It appears around magnitude 7.9, spanning roughly 10′. It was discovered by Pierre Mchain in 1782. Messier 107 or M107, also known as NGC 6171 or the Crucifix Cluster, is a very loose globular cluster in a very mildly southern part of the sky close to the equator in Ophiuchus, and is the last such object in the Messier Catalogue. == Observational history, namings and guide == It was discovered by Pierre Méchain in April 1782, then independently by William Herschel in 1793. Herschel's son, John, in his 1864 General Catalogue, described it as a \"globular cluster of stars, large, very rich, very much compressed, round, well resolved, clearly consisting of stars\". Astrophotography notes: Sky position: equatorial sky in Ophiuchus. Target characteristics: brightness around mag 7.9, apparent size 10′. No narrowband needed; focus on star color and core resolution.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_107"
     },
     "M108": {
       "name": "Spiral Galaxy",
@@ -972,7 +1079,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1782,
       "best_months": "MarAprMay",
-      "description": "An edge-on spiral galaxy with chaotic dust lanes. It is classified as galaxy. It is located approximately 28,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1782."
+      "description": "M108 (Spiral Galaxy) is a galaxy in the constellation Ursa Major about 46,000 kly away. It appears around magnitude 10.0, spanning roughly 8.7′ × 2.2′. It was discovered by Pierre Mchain in 1782. Messier 108 (also known as NGC 3556, nicknamed the Surfboard Galaxy) is a barred spiral galaxy about 46 million light-years away from Earth in the northern constellation Ursa Major. It was discovered by Pierre Méchain in 1781 or 1782. From the Earth, this galaxy is seen almost edge-on. This galaxy is an isolated member of the Ursa Major Cloud of galaxies in the local supercluster. It has a morphological classification of type SBbc in the de Vaucouleurs system, which means it is a barred spiral galaxy with somewhat loosely wound arms. Astrophotography notes: Sky position: northern sky in Ursa Major. Target characteristics: brightness around mag 10.0, apparent size 8.7′ × 2.2′. Broadband LRGB is typical; Ha can highlight star-forming knots.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_108"
     },
     "M109": {
       "name": "Barred Spiral Galaxy",
@@ -981,7 +1089,8 @@
       "discoverer": "Pierre Mchain",
       "discovery_year": 1781,
       "best_months": "MarAprMay",
-      "description": "A barred spiral with faint extended arms. It is classified as galaxy. It is located approximately 83,000,000 light-years away. It is best observed during Mar, Apr, May. It was discovered by Pierre Mchain in 1781."
+      "description": "M109 (Barred Spiral Galaxy) is a galaxy in the constellation Ursa Major about 59,500–107,500 kly away. It appears around magnitude 9.8, spanning roughly 7.6′ × 4.7′. It was discovered by Pierre Mchain in 1781. Messier 109 (also known as NGC 3992 or the Vacuum Cleaner Galaxy) is a barred spiral galaxy exhibiting a weak inner ring structure around the central bar approximately 67.2 ± 23 million light-years away in the northern constellation Ursa Major. M109 can be seen south-east of the star Phecda (γ UMa, Gamma Ursa Majoris). == History == Messier 109 was discovered by Pierre Méchain in 1781. Two years later Charles Messier catalogued the object, as an appended object to his publication. Astrophotography notes: Sky position: northern sky in Ursa Major. Target characteristics: brightness around mag 9.8, apparent size 7.6′ × 4.7′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_109"
     },
     "M110": {
       "name": "Dwarf Elliptical Galaxy",
@@ -990,7 +1099,8 @@
       "discoverer": "Charles Messier",
       "discovery_year": 1773,
       "best_months": "OctNovDec",
-      "description": "A satellite galaxy of M31 with an elongated shape. It is classified as galaxy. It is located approximately 2,500,000 light-years away. It is best observed during Oct, Nov, Dec. It was discovered by Charles Messier in 1773."
+      "description": "M110 (Dwarf Elliptical Galaxy) is a galaxy in the constellation Andromeda about 2,600–2,780 kly away. It appears around magnitude 8.5, spanning roughly 21.9′ × 11.0′. It was discovered by Charles Messier in 1773. Messier 110, or M110, also known as NGC 205, is a dwarf elliptical galaxy that is a satellite of the Andromeda Galaxy in the Local Group. == Early observational history == Charles Messier never included the galaxy in his list, but it was depicted by him, together with M32, on his drawing of \"Nébuleuse D'Andromède\", later known as the Andromeda Galaxy. A label of the drawing indicates that Messier first saw the object in 1773. Astrophotography notes: Sky position: northern sky in Andromeda. Target characteristics: brightness around mag 8.5, apparent size 21.9′ × 11.0′. Broadband LRGB is typical; Ha can highlight star-forming knots. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
+      "external_link": "https://en.wikipedia.org/wiki/Messier_110"
     }
   }
 }
