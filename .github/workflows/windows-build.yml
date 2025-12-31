@@ -30,6 +30,7 @@ jobs:
             --icon "build_assets/ACV.ico" `
             --add-data "data;data" `
             --collect-all "PySide6" `
+            --collect-all "tifffile" `
             app/main.py
 
       - name: Package
