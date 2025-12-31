@@ -43,6 +43,7 @@ DEFAULT_CONFIG = {
     "master_image_dir": "",
     "archive_image_dir": "",
     "use_wiki_thumbnails": False,
+    "auto_check_updates": True,
 }
 
 

@@ -21,7 +21,9 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
+APP_VERSION = "1.3.3-beta"
 ORG_NAME = "AstroCatalogueViewer"
+UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SHUTDOWN_EVENT = threading.Event()
 
 
@@ -40,6 +42,12 @@ class MapFetchSignals(QtCore.QObject):
 
 class RemoteThumbnailSignals(QtCore.QObject):
     loaded = QtCore.Signal(str, QtGui.QImage)
+    failed = QtCore.Signal(str)
+
+
+class UpdateSignals(QtCore.QObject):
+    available = QtCore.Signal(str, str)
+    up_to_date = QtCore.Signal(str)
     failed = QtCore.Signal(str)
 
 
@@ -1055,12 +1063,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self._notes_timer.setInterval(600)
         self._notes_timer.timeout.connect(self._flush_notes)
         self._pending_notes: Dict[str, str] = {}
+        self._about_dialog: Optional[AboutDialog] = None
+        self._update_status = "Not checked"
+        self._latest_version: Optional[str] = None
+        self._update_url: Optional[str] = None
 
         self._build_ui()
         self._apply_dark_theme()
         self._apply_saved_window_state()
         self._update_filters()
         self._start_catalog_load()
+        if self.config.get("auto_check_updates", True):
+            QtCore.QTimer.singleShot(250, self._check_updates_silent)
 
     def _cache_dir(self) -> Path:
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.CacheLocation)
@@ -1120,6 +1134,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.refresh_button.clicked.connect(self._refresh_catalog)
         self.settings_button = QtWidgets.QPushButton("Settings")
         self.settings_button.clicked.connect(self._open_settings)
+        self.about_button = QtWidgets.QPushButton("About")
+        self.about_button.clicked.connect(self._open_about)
 
         toolbar.addWidget(self.search)
         toolbar.addStretch(1)
@@ -1139,6 +1155,7 @@ class MainWindow(QtWidgets.QMainWindow):
         toolbar.addWidget(self.wiki_thumbs)
         toolbar.addWidget(self.refresh_button)
         toolbar.addWidget(self.settings_button)
+        toolbar.addWidget(self.about_button)
 
         self.status_label = QtWidgets.QLabel("")
         self.status_label.setObjectName("statusLabel")
@@ -1201,6 +1218,10 @@ class MainWindow(QtWidgets.QMainWindow):
             QLabel#detailTitle { font-size: 20px; font-weight: 600; }
             QLabel#catalogTitle { font-size: 18px; font-weight: 600; color: #d9a441; }
             QLabel#welcomeTitle { font-size: 20px; font-weight: 600; }
+            QLabel#aboutTitle { font-size: 22px; font-weight: 600; }
+            QLabel#aboutVersion { color: #bcbcbc; }
+            QLabel#aboutSectionTitle { font-size: 16px; font-weight: 600; }
+            QLabel#aboutUpdateStatus a { color: #d9a441; text-decoration: none; }
             QTextBrowser#welcomeBody { background: #101010; border: 1px solid #2a2a2a; }
             QLabel#statusLabel { color: #d9a441; padding: 4px 0; }
             QLabel#coordLabel { color: #bcbcbc; padding: 4px 0; }
@@ -1512,6 +1533,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.wiki_thumbs.setEnabled(enabled)
         self.refresh_button.setEnabled(enabled)
         self.settings_button.setEnabled(enabled)
+        self.about_button.setEnabled(enabled)
 
     def _preview_settings_changed(self, config: Dict) -> None:
         self._preview_active = True
@@ -1544,6 +1566,66 @@ class MainWindow(QtWidgets.QMainWindow):
         if current and not current.image_paths and not enabled:
             self.detail.update_item(current)
         self._schedule_view_refresh()
+
+    def _open_about(self) -> None:
+        if self._about_dialog and self._about_dialog.isVisible():
+            self._about_dialog.raise_()
+            self._about_dialog.activateWindow()
+            return
+        dialog = AboutDialog(self.config, self)
+        dialog.check_updates_requested.connect(self._check_updates_user)
+        dialog.auto_check_toggled.connect(self._set_auto_check_updates)
+        dialog.set_update_status(self._update_status, self._latest_version, self._update_url)
+        self._about_dialog = dialog
+        dialog.finished.connect(lambda _result: self._clear_about_dialog())
+        dialog.show()
+
+    def _clear_about_dialog(self) -> None:
+        self._about_dialog = None
+
+    def _set_auto_check_updates(self, enabled: bool) -> None:
+        self.config["auto_check_updates"] = bool(enabled)
+        save_config(self.config_path, self.config)
+
+    def _check_updates_silent(self) -> None:
+        self._start_update_check(silent=True)
+
+    def _check_updates_user(self) -> None:
+        self._start_update_check(silent=False)
+
+    def _start_update_check(self, silent: bool) -> None:
+        task = UpdateCheckTask(APP_VERSION)
+        task.signals.available.connect(lambda tag, url: self._on_update_available(tag, url, silent))
+        task.signals.up_to_date.connect(lambda tag: self._on_update_uptodate(tag, silent))
+        task.signals.failed.connect(lambda message: self._on_update_failed(message, silent))
+        self._thread_pool.start(task)
+
+    def _on_update_available(self, tag: str, url: str, silent: bool) -> None:
+        self._update_status = f"Update available: {tag}"
+        self._latest_version = tag
+        self._update_url = url
+        if self._about_dialog:
+            self._about_dialog.set_update_status(self._update_status, self._latest_version, self._update_url)
+        elif not silent:
+            QtWidgets.QMessageBox.information(self, "Update available", f"New version available: {tag}")
+
+    def _on_update_uptodate(self, tag: str, silent: bool) -> None:
+        self._update_status = f"Up to date ({tag})"
+        self._latest_version = tag
+        self._update_url = None
+        if self._about_dialog:
+            self._about_dialog.set_update_status(self._update_status, self._latest_version, self._update_url)
+        elif not silent:
+            QtWidgets.QMessageBox.information(self, "Up to date", f"You're on the latest version ({tag}).")
+
+    def _on_update_failed(self, message: str, silent: bool) -> None:
+        self._update_status = message
+        self._latest_version = None
+        self._update_url = None
+        if self._about_dialog:
+            self._about_dialog.set_update_status(self._update_status, self._latest_version, self._update_url)
+        elif not silent:
+            QtWidgets.QMessageBox.warning(self, "Update check failed", message)
 
     def _on_wiki_thumbnail_loaded(self, item_key: str, pixmap: QtGui.QPixmap) -> None:
         current = self.detail.current_item()
@@ -2083,6 +2165,166 @@ class WelcomeDialog(QtWidgets.QDialog):
 
     def skip_requested(self) -> bool:
         return self.skip_checkbox.isChecked()
+
+
+class AboutDialog(QtWidgets.QDialog):
+    check_updates_requested = QtCore.Signal()
+    auto_check_toggled = QtCore.Signal(bool)
+
+    def __init__(self, config: Dict, parent: Optional[QtWidgets.QWidget] = None) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("About")
+        self.setMinimumWidth(760)
+        self._config = config
+
+        title = QtWidgets.QLabel("Astro Catalogue Viewer")
+        title.setObjectName("aboutTitle")
+        version = QtWidgets.QLabel(f"Version {APP_VERSION}")
+        version.setObjectName("aboutVersion")
+
+        about = QtWidgets.QLabel(
+            "Astro Catalogue Viewer helps you organize deep-sky catalogs with your own imagery, "
+            "track capture progress, and plan what to shoot next."
+        )
+        about.setWordWrap(True)
+
+        links = QtWidgets.QLabel(
+            'Website: <a href="https://astro-catalogue-viewer.com/">astro-catalogue-viewer.com</a><br>'
+            'Support: <a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a><br>'
+            f'Repo: <a href="https://github.com/{UPDATE_REPO}">github.com/{UPDATE_REPO}</a>'
+        )
+        links.setOpenExternalLinks(True)
+        links.setObjectName("aboutLinks")
+
+        sponsor_box = QtWidgets.QGroupBox("Sponsors")
+        sponsor_layout = QtWidgets.QVBoxLayout(sponsor_box)
+        sponsor_hint = QtWidgets.QLabel("Your name here. Sponsor slots are available.")
+        sponsor_hint.setWordWrap(True)
+        sponsor_layout.addWidget(sponsor_hint)
+
+        left = QtWidgets.QWidget()
+        left_layout = QtWidgets.QVBoxLayout(left)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.addWidget(title)
+        left_layout.addWidget(version)
+        left_layout.addSpacing(8)
+        left_layout.addWidget(about)
+        left_layout.addSpacing(10)
+        left_layout.addWidget(links)
+        left_layout.addSpacing(10)
+        left_layout.addWidget(sponsor_box)
+        left_layout.addStretch(1)
+
+        quick_title = QtWidgets.QLabel("Quick start")
+        quick_title.setObjectName("aboutSectionTitle")
+        quick_list = QtWidgets.QLabel(
+            "1. Open Settings to set catalog image folders.\n"
+            "2. Set your observer location for accurate visibility hints.\n"
+            "3. Use filters and search to find targets fast.\n"
+            "4. Open an object to view metadata and add notes."
+        )
+        quick_list.setWordWrap(True)
+
+        updates_title = QtWidgets.QLabel("Updates")
+        updates_title.setObjectName("aboutSectionTitle")
+        self.update_status = QtWidgets.QLabel("Not checked")
+        self.update_status.setObjectName("aboutUpdateStatus")
+        self.update_status.setWordWrap(True)
+        self.auto_check = QtWidgets.QCheckBox("Check for updates automatically")
+        self.auto_check.setChecked(bool(config.get("auto_check_updates", True)))
+        self.auto_check.toggled.connect(self.auto_check_toggled.emit)
+        self.check_updates = QtWidgets.QPushButton("Check for updates")
+        self.check_updates.clicked.connect(self.check_updates_requested.emit)
+
+        right = QtWidgets.QWidget()
+        right_layout = QtWidgets.QVBoxLayout(right)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.addWidget(quick_title)
+        right_layout.addWidget(quick_list)
+        right_layout.addSpacing(16)
+        right_layout.addWidget(updates_title)
+        right_layout.addWidget(self.update_status)
+        right_layout.addWidget(self.auto_check)
+        right_layout.addWidget(self.check_updates)
+        right_layout.addStretch(1)
+
+        content = QtWidgets.QHBoxLayout()
+        content.addWidget(left, stretch=3)
+        content.addWidget(right, stretch=2)
+        content.setSpacing(24)
+
+        close_button = QtWidgets.QPushButton("Close")
+        close_button.clicked.connect(self.accept)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addLayout(content)
+        layout.addWidget(close_button, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
+
+    def set_update_status(self, status: str, latest: Optional[str], url: Optional[str]) -> None:
+        if url:
+            self.update_status.setText(f'{status} <a href="{url}">View release</a>')
+            self.update_status.setOpenExternalLinks(True)
+        else:
+            self.update_status.setText(status)
+            self.update_status.setOpenExternalLinks(False)
+
+
+class UpdateCheckTask(QtCore.QRunnable):
+    def __init__(self, current_version: str) -> None:
+        super().__init__()
+        self.current_version = current_version
+        self.signals = UpdateSignals()
+
+    def run(self) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
+        try:
+            payload = self._fetch_latest_release()
+            tag = (payload.get("tag_name") or "").strip()
+            html_url = (payload.get("html_url") or "").strip()
+            latest = self._normalize_version(tag)
+            current = self._normalize_version(self.current_version)
+            if not latest:
+                self.signals.failed.emit("No release tag found.")
+                return
+            if latest != current:
+                self.signals.available.emit(tag, html_url)
+            else:
+                self.signals.up_to_date.emit(tag)
+        except Exception:
+            self.signals.failed.emit("Update check failed.")
+
+    @staticmethod
+    def _normalize_version(value: str) -> str:
+        return value.strip().lstrip("vV")
+
+    @staticmethod
+    def _fetch_latest_release() -> Dict:
+        if SHUTDOWN_EVENT.is_set():
+            return {}
+        creationflags = 0
+        if sys.platform.startswith("win"):
+            creationflags = subprocess.CREATE_NO_WINDOW
+        url = f"https://api.github.com/repos/{UPDATE_REPO}/releases/latest"
+        result = subprocess.run(
+            [
+                "curl",
+                "-sL",
+                "--max-time",
+                "8",
+                "--retry",
+                "2",
+                "--retry-delay",
+                "1",
+                "-H",
+                "User-Agent: AstroCatalogueViewer/1.0",
+                url,
+            ],
+            check=True,
+            capture_output=True,
+            creationflags=creationflags,
+        )
+        return json.loads(result.stdout or "{}")
 
 
 def main() -> None:
