@@ -13,7 +13,6 @@ python3 -m PyInstaller \
   --name "$APP_NAME" \
   --icon "build_assets/ACV.icns" \
   --add-data "data:data" \
-  --add-data "images:images" \
   "app/main.py"
 
 ditto -c -k --sequesterRsrc --keepParent \

@@ -18,9 +18,7 @@ DEFAULT_CONFIG = {
         {
             "name": "Messier",
             "metadata_file": "data/object_metadata.json",
-            "image_dirs": [
-                "images",
-            ],
+            "image_dirs": [],
         },
         {
             "name": "NGC",

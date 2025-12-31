@@ -10,7 +10,6 @@ set ZIPNAME=AstroCatalogueViewer-Windows.zip
 %PYTHON% -m PyInstaller --clean --noconfirm --windowed --name "%APPNAME%" ^
   --icon "build_assets\\ACV.ico" ^
   --add-data "data;data" ^
-  --add-data "images;images" ^
   --collect-all "PySide6" ^
   "app\\main.py"
 

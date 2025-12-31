@@ -16,7 +16,6 @@ $ErrorActionPreference = "Stop"
   --name $Name `
   --icon "build_assets/ACV.ico" `
   --add-data "data;data" `
-  --add-data "images;images" `
   --collect-all "PySide6" `
   "app/main.py"
 
