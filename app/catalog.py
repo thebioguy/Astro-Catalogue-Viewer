@@ -59,6 +59,7 @@ class CatalogItem:
     best_months: Optional[str]
     description: Optional[str]
     notes: Optional[str]
+    image_notes: Dict[str, str]
     external_link: Optional[str]
     ra_hours: Optional[float]
     dec_deg: Optional[float]
@@ -190,6 +191,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     best_months=best_months,
                     description=_normalize_text(meta.get("description")),
                     notes=_normalize_text(meta.get("notes")),
+                    image_notes=_normalize_image_notes(meta.get("image_notes")),
                     external_link=_normalize_text(
                         meta.get("external_link")
                     ) or _default_external_link(object_id, meta.get("name")),
@@ -219,6 +221,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     best_months=None,
                     description=None,
                     notes=None,
+                    image_notes={},
                     external_link=_default_external_link(object_id, None),
                     ra_hours=None,
                     dec_deg=None,
@@ -273,7 +276,34 @@ def save_note(metadata_path: Path, catalog_name: str, object_id: str, notes: str
     data = _load_catalog_metadata(metadata_path)
     catalog = data.setdefault(catalog_name, {})
     entry = catalog.setdefault(object_id, {})
-    entry["notes"] = notes
+    if notes.strip():
+        entry["notes"] = notes
+    else:
+        entry.pop("notes", None)
+    with metadata_path.open("w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2, ensure_ascii=False)
+
+
+def save_image_note(
+    metadata_path: Path,
+    catalog_name: str,
+    object_id: str,
+    image_name: str,
+    notes: str,
+) -> None:
+    if not metadata_path.exists():
+        return
+    data = _load_catalog_metadata(metadata_path)
+    catalog = data.setdefault(catalog_name, {})
+    entry = catalog.setdefault(object_id, {})
+    image_notes = entry.setdefault("image_notes", {})
+    if not isinstance(image_notes, dict):
+        image_notes = {}
+        entry["image_notes"] = image_notes
+    if notes.strip():
+        image_notes[image_name] = notes
+    else:
+        image_notes.pop(image_name, None)
     with metadata_path.open("w", encoding="utf-8") as handle:
         json.dump(data, handle, indent=2, ensure_ascii=False)
 
@@ -347,6 +377,19 @@ def _normalize_text(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
     return value.replace("M\u008echain", "M\u00e9chain")
+
+
+def _normalize_image_notes(value: Optional[Dict]) -> Dict[str, str]:
+    if not isinstance(value, dict):
+        return {}
+    normalized: Dict[str, str] = {}
+    for key, note in value.items():
+        if not isinstance(key, str):
+            continue
+        if not isinstance(note, str):
+            continue
+        normalized[key] = _normalize_text(note) or ""
+    return normalized
 
 
 def _default_external_link(object_id: str, name: Optional[str]) -> str:

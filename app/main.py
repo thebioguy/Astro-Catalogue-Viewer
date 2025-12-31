@@ -12,17 +12,18 @@ import threading
 from urllib.parse import urlparse, unquote
 import datetime
 import array
+from dataclasses import replace
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from shiboken6 import isValid
 
-from catalog import CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note, save_thumbnail
+from catalog import CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note, save_thumbnail, save_image_note
 from catalog import PROJECT_ROOT
 from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.3.3-beta"
+APP_VERSION = "1.3.5-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SHUTDOWN_EVENT = threading.Event()
@@ -440,6 +441,12 @@ class CatalogModel(QtCore.QAbstractListModel):
         if self._items:
             self.dataChanged.emit(self.index(0), self.index(len(self._items) - 1))
 
+    def index_for_key(self, item_key: str) -> Optional[QtCore.QModelIndex]:
+        row = self._row_lookup.get(item_key)
+        if row is None:
+            return None
+        return self.index(row)
+
     def get_wiki_pixmap(self, item_key: str) -> Optional[QtGui.QPixmap]:
         return self._remote_pixmaps.get(item_key)
 
@@ -459,6 +466,39 @@ class CatalogModel(QtCore.QAbstractListModel):
             best_months=item.best_months,
             description=item.description,
             notes=notes,
+            image_notes=item.image_notes,
+            external_link=item.external_link,
+            ra_hours=item.ra_hours,
+            dec_deg=item.dec_deg,
+            image_paths=item.image_paths,
+            thumbnail_path=item.thumbnail_path,
+        )
+        self._items[row] = updated
+        index = self.index(row)
+        self.dataChanged.emit(index, index, [QtCore.Qt.ItemDataRole.DisplayRole])
+
+    def update_item_image_note(self, item_key: str, image_name: str, notes: str) -> None:
+        row = self._row_lookup.get(item_key)
+        if row is None:
+            return
+        item = self._items[row]
+        image_notes = dict(item.image_notes)
+        if notes.strip():
+            image_notes[image_name] = notes
+        else:
+            image_notes.pop(image_name, None)
+        updated = CatalogItem(
+            object_id=item.object_id,
+            catalog=item.catalog,
+            name=item.name,
+            object_type=item.object_type,
+            distance_ly=item.distance_ly,
+            discoverer=item.discoverer,
+            discovery_year=item.discovery_year,
+            best_months=item.best_months,
+            description=item.description,
+            notes=item.notes,
+            image_notes=image_notes,
             external_link=item.external_link,
             ra_hours=item.ra_hours,
             dec_deg=item.dec_deg,
@@ -489,6 +529,7 @@ class CatalogModel(QtCore.QAbstractListModel):
             best_months=item.best_months,
             description=item.description,
             notes=item.notes,
+            image_notes=item.image_notes,
             external_link=item.external_link,
             ra_hours=item.ra_hours,
             dec_deg=item.dec_deg,
@@ -552,7 +593,7 @@ class CatalogItemDelegate(QtWidgets.QStyledItemDelegate):
                     QtCore.Qt.AlignmentFlag.AlignCenter,
                     str(len(item.image_paths)),
                 )
-            if item.notes:
+            if item.notes or any(note for note in item.image_notes.values()):
                 info_rect = QtCore.QRect(
                     icon_rect.right() - badge_size - margin,
                     icon_rect.top() + margin,
@@ -919,6 +960,7 @@ class LightboxDialog(QtWidgets.QDialog):
 class DetailPanel(QtWidgets.QWidget):
     thumbnail_selected = QtCore.Signal(str, str, str)
     archive_requested = QtCore.Signal(str)
+    image_changed = QtCore.Signal(str)
 
     def __init__(self) -> None:
         super().__init__()
@@ -1054,7 +1096,6 @@ class DetailPanel(QtWidgets.QWidget):
             )
         self.metadata.setText("\n".join(metadata_lines))
         self.description.setPlainText(item.description or "")
-        self.notes.setPlainText(item.notes or "")
         if item.external_link:
             self.external_link.setText(f'<a href="{item.external_link}">More info</a>')
             self.external_link.show()
@@ -1067,6 +1108,7 @@ class DetailPanel(QtWidgets.QWidget):
             except ValueError:
                 self._image_index = 0
         self._update_image_view()
+        self._apply_notes_for_current_image()
         self._notes_block = False
 
     @staticmethod
@@ -1081,6 +1123,15 @@ class DetailPanel(QtWidgets.QWidget):
 
     def current_notes(self) -> str:
         return self.notes.toPlainText()
+
+    def current_image_name(self) -> Optional[str]:
+        if not self._current_item or not self._current_item.image_paths:
+            return None
+        paths = self._current_item.image_paths
+        if not paths:
+            return None
+        index = max(0, min(self._image_index, len(paths) - 1))
+        return paths[index].name
 
     def current_item(self) -> Optional[CatalogItem]:
         return self._current_item
@@ -1169,12 +1220,18 @@ class DetailPanel(QtWidgets.QWidget):
             return
         self._image_index = (self._image_index - 1) % len(self._current_item.image_paths)
         self._update_image_view()
+        self._apply_notes_for_current_image()
+        current_name = self.current_image_name() or ""
+        self.image_changed.emit(current_name)
 
     def _show_next_image(self) -> None:
         if not self._current_item or not self._current_item.image_paths:
             return
         self._image_index = (self._image_index + 1) % len(self._current_item.image_paths)
         self._update_image_view()
+        self._apply_notes_for_current_image()
+        current_name = self.current_image_name() or ""
+        self.image_changed.emit(current_name)
 
     def _set_thumbnail(self) -> None:
         if not self._current_item or not self._current_item.image_paths:
@@ -1191,6 +1248,48 @@ class DetailPanel(QtWidgets.QWidget):
             return
         path = self._current_item.image_paths[self._image_index]
         self.archive_requested.emit(str(path))
+
+    def set_current_image_by_name(self, image_name: str) -> None:
+        if not self._current_item or not self._current_item.image_paths:
+            return
+        for index, path in enumerate(self._current_item.image_paths):
+            if path.name == image_name:
+                if index != self._image_index:
+                    self._image_index = index
+                    self._update_image_view()
+                    self._apply_notes_for_current_image()
+                return
+
+    def update_current_item_notes(self, image_name: Optional[str], notes: Optional[str], object_notes: Optional[str] = None) -> None:
+        if not self._current_item:
+            return
+        image_notes = dict(self._current_item.image_notes)
+        if image_name:
+            if notes and notes.strip():
+                image_notes[image_name] = notes
+            else:
+                image_notes.pop(image_name, None)
+        updated_notes = self._current_item.notes if object_notes is None else object_notes
+        self._current_item = replace(
+            self._current_item,
+            notes=updated_notes,
+            image_notes=image_notes,
+        )
+
+    def _apply_notes_for_current_image(self) -> None:
+        self._notes_block = True
+        note_text = ""
+        if self._current_item:
+            image_name = self.current_image_name()
+            if image_name:
+                if self._current_item.image_notes:
+                    note_text = self._current_item.image_notes.get(image_name, "")
+                else:
+                    note_text = self._current_item.notes or ""
+            else:
+                note_text = self._current_item.notes or ""
+        self.notes.setPlainText(note_text)
+        self._notes_block = False
 
     def _open_lightbox(self) -> None:
         pixmap = self.image_view._pixmap
@@ -1251,7 +1350,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._notes_timer.setSingleShot(True)
         self._notes_timer.setInterval(600)
         self._notes_timer.timeout.connect(self._flush_notes)
-        self._pending_notes: Dict[str, str] = {}
+        self._pending_notes: Dict[str, Tuple[str, str, Optional[str], str]] = {}
+        self._pending_selection_key: Optional[str] = None
+        self._pending_image_name: Optional[str] = None
         self._about_dialog: Optional[AboutDialog] = None
         self._update_status = "Not checked"
         self._latest_version: Optional[str] = None
@@ -1371,6 +1472,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.detail = DetailPanel()
         self.detail.connect_notes_changed(self._on_notes_changed)
         self.detail.thumbnail_selected.connect(self._on_thumbnail_selected)
+        self.detail.image_changed.connect(self._on_image_changed)
         self.detail.archive_requested.connect(self._on_archive_requested)
         self.model.wiki_thumbnail_loaded.connect(self._on_wiki_thumbnail_loaded)
 
@@ -1482,6 +1584,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._start_catalog_load()
 
     def _on_selection_changed(self) -> None:
+        self._flush_notes()
         indexes = self.grid.selectionModel().selectedIndexes()
         if not indexes:
             self.detail.update_item(None)
@@ -1495,6 +1598,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.detail.set_wiki_pixmap(pixmap)
         if item:
             self._notes_timer.start()
+
+    def _on_image_changed(self, _image_name: str) -> None:
+        self._flush_notes()
 
     def _on_catalog_changed(self, value: str) -> None:
         if value == "All":
@@ -1691,7 +1797,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_label.setText("")
         self._loading = False
         self._set_ui_enabled(True)
-        QtCore.QTimer.singleShot(150, self._select_first_item)
+        if self._pending_selection_key:
+            QtCore.QTimer.singleShot(150, self._restore_pending_selection)
+        else:
+            QtCore.QTimer.singleShot(150, self._select_first_item)
         if self._pending_reload:
             pending = self._pending_config
             self._pending_reload = False
@@ -1710,6 +1819,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grid.selectionModel().select(
             index, QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect
         )
+
+    def _restore_pending_selection(self) -> None:
+        key = self._pending_selection_key
+        image_name = self._pending_image_name
+        self._pending_selection_key = None
+        self._pending_image_name = None
+        if not key:
+            self._select_first_item()
+            return
+        source_index = self.model.index_for_key(key)
+        if source_index is None or not source_index.isValid():
+            self._select_first_item()
+            return
+        proxy_index = self.proxy.mapFromSource(source_index)
+        if not proxy_index.isValid():
+            self._select_first_item()
+            return
+        self.grid.setCurrentIndex(proxy_index)
+        self.grid.selectionModel().select(
+            proxy_index, QtCore.QItemSelectionModel.SelectionFlag.ClearAndSelect
+        )
+        if image_name:
+            QtCore.QTimer.singleShot(0, lambda: self.detail.set_current_image_by_name(image_name))
 
     def _update_grid_metrics(self, size: int) -> None:
         self.grid.setIconSize(QtCore.QSize(size, size))
@@ -1737,8 +1869,9 @@ class MainWindow(QtWidgets.QMainWindow):
         item = self.detail.current_item()
         if item is None:
             return
-        key = item.unique_key
-        self._pending_notes[key] = self.detail.current_notes()
+        image_name = self.detail.current_image_name()
+        note_key = f"{item.unique_key}::{image_name or ''}"
+        self._pending_notes[note_key] = (item.catalog, item.object_id, image_name, self.detail.current_notes())
         self._notes_timer.start()
 
     def _on_thumbnail_selected(self, catalog: str, object_id: str, thumbnail_name: str) -> None:
@@ -1839,7 +1972,24 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self.detail.set_wiki_pixmap(pixmap)
 
+    @staticmethod
+    def _next_image_name(item: CatalogItem, current_name: Optional[str]) -> Optional[str]:
+        if not current_name or not item.image_paths:
+            return None
+        names = [path.name for path in item.image_paths]
+        if current_name not in names:
+            return None
+        if len(names) == 1:
+            return None
+        index = names.index(current_name)
+        if index + 1 < len(names):
+            return names[index + 1]
+        if index > 0:
+            return names[index - 1]
+        return None
+
     def _on_archive_requested(self, path_value: str) -> None:
+        self._flush_notes()
         archive_dir = (self.config.get("archive_image_dir") or "").strip()
         if not archive_dir:
             choice = QtWidgets.QMessageBox.question(
@@ -1898,23 +2048,34 @@ class MainWindow(QtWidgets.QMainWindow):
             return
 
         self.status_label.setText(f"Archived {path.name}")
+        current_item = self.detail.current_item()
+        if current_item:
+            current_image = self.detail.current_image_name()
+            self._pending_selection_key = current_item.unique_key
+            self._pending_image_name = self._next_image_name(current_item, current_image)
         self._start_catalog_load()
 
     def _flush_notes(self) -> None:
         if not self._pending_notes:
             return
+        pending = list(self._pending_notes.values())
+        self._pending_notes.clear()
         current = self.detail.current_item()
-        if current is None:
-            return
-        key = current.unique_key
-        notes = self._pending_notes.get(key)
-        if notes is None:
-            return
-        metadata_path = resolve_metadata_path(self.config, current.catalog)
-        if metadata_path is None:
-            return
-        save_note(metadata_path, current.catalog, current.object_id, notes)
-        self.model.update_item_notes(key, notes)
+        for catalog, object_id, image_name, notes in pending:
+            metadata_path = resolve_metadata_path(self.config, catalog)
+            if metadata_path is None:
+                continue
+            item_key = f"{catalog}:{object_id}"
+            if image_name:
+                save_image_note(metadata_path, catalog, object_id, image_name, notes)
+                self.model.update_item_image_note(item_key, image_name, notes)
+                if current and current.unique_key == item_key:
+                    self.detail.update_current_item_notes(image_name, notes)
+            else:
+                save_note(metadata_path, catalog, object_id, notes)
+                self.model.update_item_notes(item_key, notes)
+                if current and current.unique_key == item_key:
+                    self.detail.update_current_item_notes(None, None, notes)
 
     def _apply_saved_filters(self) -> None:
         state = self._saved_state or {}
