@@ -11,6 +11,7 @@ import json
 import threading
 from urllib.parse import urlparse, unquote
 import datetime
+import array
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from shiboken6 import isValid
@@ -709,6 +710,166 @@ class ImageView(QtWidgets.QGraphicsView):
         event.accept()
 
 
+def _tone_map_high_bit_image(image: QtGui.QImage) -> QtGui.QImage:
+    fmt = image.format()
+    if fmt == QtGui.QImage.Format.Format_Grayscale16:
+        return _tone_map_grayscale16(image)
+    if fmt in (
+        QtGui.QImage.Format.Format_RGBX64,
+        QtGui.QImage.Format.Format_RGBA64,
+        QtGui.QImage.Format.Format_RGBA64_Premultiplied,
+    ):
+        return _tone_map_rgba64(image)
+    if image.depth() > 32:
+        converted = image.convertToFormat(QtGui.QImage.Format.Format_RGBA64)
+        return _tone_map_rgba64(converted)
+    return image
+
+
+def _tone_map_grayscale16(image: QtGui.QImage) -> QtGui.QImage:
+    width = image.width()
+    height = image.height()
+    buf = image.bits()
+    buf.setsize(image.sizeInBytes())
+    data = array.array("H")
+    data.frombytes(buf.tobytes())
+    if not data:
+        return image.convertToFormat(QtGui.QImage.Format.Format_Grayscale8)
+    step = max(1, len(data) // 100000)
+    sample = data[::step]
+    min_val = min(sample)
+    max_val = max(sample)
+    if max_val == min_val:
+        max_val = min_val + 1
+    scale = 255.0 / (max_val - min_val)
+    out = bytearray(len(data))
+    for i, value in enumerate(data):
+        mapped = int((value - min_val) * scale)
+        if mapped < 0:
+            mapped = 0
+        elif mapped > 255:
+            mapped = 255
+        out[i] = mapped
+    out_image = QtGui.QImage(out, width, height, width, QtGui.QImage.Format.Format_Grayscale8)
+    return out_image.copy()
+
+
+def _tone_map_rgba64(image: QtGui.QImage) -> QtGui.QImage:
+    width = image.width()
+    height = image.height()
+    buf = image.bits()
+    buf.setsize(image.sizeInBytes())
+    data = array.array("H")
+    data.frombytes(buf.tobytes())
+    if not data:
+        return image.convertToFormat(QtGui.QImage.Format.Format_RGB888)
+    step = max(1, (len(data) // 4) // 100000)
+    if step < 1:
+        step = 1
+    min_val = 65535
+    max_val = 0
+    for i in range(0, len(data), 4 * step):
+        r = data[i]
+        g = data[i + 1]
+        b = data[i + 2]
+        if r < min_val:
+            min_val = r
+        if g < min_val:
+            min_val = g
+        if b < min_val:
+            min_val = b
+        if r > max_val:
+            max_val = r
+        if g > max_val:
+            max_val = g
+        if b > max_val:
+            max_val = b
+    if max_val == min_val:
+        max_val = min_val + 1
+    scale = 255.0 / (max_val - min_val)
+    out = bytearray(width * height * 3)
+    out_i = 0
+    for i in range(0, len(data), 4):
+        r = int((data[i] - min_val) * scale)
+        g = int((data[i + 1] - min_val) * scale)
+        b = int((data[i + 2] - min_val) * scale)
+        if r < 0:
+            r = 0
+        elif r > 255:
+            r = 255
+        if g < 0:
+            g = 0
+        elif g > 255:
+            g = 255
+        if b < 0:
+            b = 0
+        elif b > 255:
+            b = 255
+        out[out_i] = r
+        out[out_i + 1] = g
+        out[out_i + 2] = b
+        out_i += 3
+    out_image = QtGui.QImage(out, width, height, width * 3, QtGui.QImage.Format.Format_RGB888)
+    return out_image.copy()
+
+
+def _load_tiff_with_tifffile(path: Path) -> Optional[QtGui.QImage]:
+    try:
+        import numpy as np
+        import tifffile
+    except Exception:
+        return None
+
+    try:
+        data = tifffile.imread(str(path))
+    except Exception:
+        return None
+
+    if data is None:
+        return None
+    if data.ndim == 2:
+        return _tone_map_numpy_to_qimage(data, "L")
+    if data.ndim == 3 and data.shape[2] in (3, 4):
+        mode = "RGB" if data.shape[2] == 3 else "RGBA"
+        return _tone_map_numpy_to_qimage(data, mode)
+    return None
+
+
+def _tone_map_numpy_to_qimage(data, mode: str) -> Optional[QtGui.QImage]:
+    import numpy as np
+
+    if data.size == 0:
+        return None
+    array_data = np.asarray(data)
+    array_data = np.nan_to_num(array_data, nan=0.0, posinf=0.0, neginf=0.0)
+    if array_data.dtype.kind in ("f", "i", "u"):
+        low = np.percentile(array_data, 1.0)
+        high = np.percentile(array_data, 99.0)
+        if high <= low:
+            high = low + 1.0
+        scaled = (array_data - low) * (255.0 / (high - low))
+        scaled = np.clip(scaled, 0, 255).astype(np.uint8)
+    else:
+        scaled = array_data.astype(np.uint8)
+
+    if mode == "L":
+        height, width = scaled.shape
+        stride = width
+        image = QtGui.QImage(scaled.tobytes(), width, height, stride, QtGui.QImage.Format.Format_Grayscale8)
+        return image.copy()
+    if mode == "RGB":
+        height, width, _ = scaled.shape
+        stride = width * 3
+        image = QtGui.QImage(scaled.tobytes(), width, height, stride, QtGui.QImage.Format.Format_RGB888)
+        return image.copy()
+    if mode == "RGBA":
+        height, width, _ = scaled.shape
+        stride = width * 4
+        image = QtGui.QImage(scaled.tobytes(), width, height, stride, QtGui.QImage.Format.Format_RGBA8888)
+        return image.copy()
+    return None
+
+
 class LightboxDialog(QtWidgets.QDialog):
     def __init__(self, pixmap: QtGui.QPixmap, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
@@ -944,11 +1105,18 @@ class DetailPanel(QtWidgets.QWidget):
         paths = self._current_item.image_paths
         self._image_index = max(0, min(self._image_index, len(paths) - 1))
         path = paths[self._image_index]
-        pixmap = QtGui.QPixmap(str(path))
+        pixmap = self._load_display_pixmap(path)
         self.image_view.set_pixmap(pixmap)
         size_info = ""
         if pixmap and not pixmap.isNull():
             size_info = f"{pixmap.width()}x{pixmap.height()}"
+        else:
+            self.image_info.setText("Unable to load image (unsupported TIFF bit depth)")
+            self.prev_button.setEnabled(len(paths) > 1)
+            self.next_button.setEnabled(len(paths) > 1)
+            self.thumb_button.setEnabled(False)
+            self.archive_button.setEnabled(False)
+            return
         self.image_info.setText(
             f"Image {self._image_index + 1}/{len(paths)} | File: {path.name}"
             + (f" | {size_info}" if size_info else "")
@@ -957,6 +1125,26 @@ class DetailPanel(QtWidgets.QWidget):
         self.next_button.setEnabled(len(paths) > 1)
         self.thumb_button.setEnabled(True)
         self.archive_button.setEnabled(True)
+
+    @staticmethod
+    def _load_display_pixmap(path: Path) -> QtGui.QPixmap:
+        reader = QtGui.QImageReader(str(path))
+        if reader.canRead():
+            reader.setAutoTransform(True)
+            image = reader.read()
+            if not image.isNull():
+                if image.depth() > 32 or image.format() in (
+                    QtGui.QImage.Format.Format_Grayscale16,
+                    QtGui.QImage.Format.Format_RGBX64,
+                    QtGui.QImage.Format.Format_RGBA64,
+                    QtGui.QImage.Format.Format_RGBA64_Premultiplied,
+                ):
+                    image = _tone_map_high_bit_image(image)
+                return QtGui.QPixmap.fromImage(image)
+        tif_image = _load_tiff_with_tifffile(path)
+        if tif_image is not None:
+            return QtGui.QPixmap.fromImage(tif_image)
+        return QtGui.QPixmap(str(path))
 
     def _apply_initial_sizes(self) -> None:
         if self._initial_detail_sized:

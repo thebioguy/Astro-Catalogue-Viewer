@@ -1,1 +1,3 @@
 PySide6
+numpy
+tifffile
