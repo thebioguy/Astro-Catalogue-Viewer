@@ -49,6 +49,7 @@ class UpdateSignals(QtCore.QObject):
     available = QtCore.Signal(str, str)
     up_to_date = QtCore.Signal(str)
     failed = QtCore.Signal(str)
+    finished = QtCore.Signal()
 
 
 class ThumbnailTask(QtCore.QRunnable):
@@ -1067,6 +1068,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._update_status = "Not checked"
         self._latest_version: Optional[str] = None
         self._update_url: Optional[str] = None
+        self._update_tasks: List[UpdateCheckTask] = []
+        self._closing = False
 
         self._build_ui()
         self._apply_dark_theme()
@@ -1461,6 +1464,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._preview_active = False
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self._closing = True
         SHUTDOWN_EVENT.set()
         self._thread_pool.clear()
         self._thread_pool.waitForDone(1500)
@@ -1595,12 +1599,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _start_update_check(self, silent: bool) -> None:
         task = UpdateCheckTask(APP_VERSION)
+        self._update_tasks.append(task)
         task.signals.available.connect(lambda tag, url: self._on_update_available(tag, url, silent))
         task.signals.up_to_date.connect(lambda tag: self._on_update_uptodate(tag, silent))
         task.signals.failed.connect(lambda message: self._on_update_failed(message, silent))
+        task.signals.finished.connect(lambda: self._discard_update_task(task))
         self._thread_pool.start(task)
 
+    def _discard_update_task(self, task: UpdateCheckTask) -> None:
+        if task in self._update_tasks:
+            self._update_tasks.remove(task)
+
     def _on_update_available(self, tag: str, url: str, silent: bool) -> None:
+        if self._closing:
+            return
         self._update_status = f"Update available: {tag}"
         self._latest_version = tag
         self._update_url = url
@@ -1610,6 +1622,8 @@ class MainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.information(self, "Update available", f"New version available: {tag}")
 
     def _on_update_uptodate(self, tag: str, silent: bool) -> None:
+        if self._closing:
+            return
         self._update_status = f"Up to date ({tag})"
         self._latest_version = tag
         self._update_url = None
@@ -1619,6 +1633,8 @@ class MainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.information(self, "Up to date", f"You're on the latest version ({tag}).")
 
     def _on_update_failed(self, message: str, silent: bool) -> None:
+        if self._closing:
+            return
         self._update_status = message
         self._latest_version = None
         self._update_url = None
@@ -2285,18 +2301,52 @@ class UpdateCheckTask(QtCore.QRunnable):
             latest = self._normalize_version(tag)
             current = self._normalize_version(self.current_version)
             if not latest:
-                self.signals.failed.emit("No release tag found.")
+                self._emit_failed("No release tag found.")
                 return
             if latest != current:
-                self.signals.available.emit(tag, html_url)
+                self._emit_available(tag, html_url)
             else:
-                self.signals.up_to_date.emit(tag)
+                self._emit_up_to_date(tag)
         except Exception:
-            self.signals.failed.emit("Update check failed.")
+            self._emit_failed("Update check failed.")
+        finally:
+            self._emit_finished()
 
     @staticmethod
     def _normalize_version(value: str) -> str:
         return value.strip().lstrip("vV")
+
+    def _emit_available(self, tag: str, url: str) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.available.emit(tag, url)
+        except RuntimeError:
+            return
+
+    def _emit_up_to_date(self, tag: str) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.up_to_date.emit(tag)
+        except RuntimeError:
+            return
+
+    def _emit_failed(self, message: str) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.failed.emit(message)
+        except RuntimeError:
+            return
+
+    def _emit_finished(self) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.finished.emit()
+        except RuntimeError:
+            return
 
     @staticmethod
     def _fetch_latest_release() -> Dict:
