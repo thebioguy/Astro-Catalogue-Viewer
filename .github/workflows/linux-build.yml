@@ -29,7 +29,6 @@ jobs:
           python -m PyInstaller --clean --noconfirm --windowed \
             --name "Astro Catalogue Viewer" \
             --add-data "data:data" \
-            --add-data "images:images" \
             app/main.py
 
       - name: Package
