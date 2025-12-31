@@ -2054,8 +2054,8 @@ class WelcomeDialog(QtWidgets.QDialog):
             </ul>
             <p><b>Image naming</b></p>
             <p>Filenames should include the standard object ID, such as <b>M31</b>, <b>NGC2088</b>, <b>IC5070</b>, or <b>C14</b>.</p>
-            <p><b>Replace the sample images</b></p>
-            <p>The app ships with a small Messier image set so you can try it right away. Replace or clear the images in the repo's <b>images/</b> folder to use your own.</p>
+            <p><b>Missing images</b></p>
+            <p>Enable <b>Wiki thumbnails</b> in the toolbar to preview missing targets while you build your library.</p>
             <p><b>Support development</b></p>
             <p>This project takes time and money to develop. If you find it useful, please consider supporting:</p>
             <p><a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a></p>
@@ -2063,6 +2063,10 @@ class WelcomeDialog(QtWidgets.QDialog):
             <p>Please share suggestions and bug reports via the GitHub repo issues page.</p>
             """
         )
+        body.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        body.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        body.document().setTextWidth(520)
+        body.setMinimumHeight(int(body.document().size().height()) + 16)
 
         self.skip_checkbox = QtWidgets.QCheckBox("Don't show again")
 
