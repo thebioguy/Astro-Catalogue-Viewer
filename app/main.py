@@ -1490,7 +1490,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         footer = QtWidgets.QHBoxLayout()
         support = QtWidgets.QLabel(
-            'Support development: <a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a>'
+            'Support development: <a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a> | '
+            '<a href="https://www.paypal.com/donate/?hosted_button_id=9GDUBHS78MH52">paypal.com/donate</a>'
         )
         support.setOpenExternalLinks(True)
         support.setObjectName("supportLink")
@@ -2505,7 +2506,8 @@ class WelcomeDialog(QtWidgets.QDialog):
             <p>Enable <b>Wiki thumbnails</b> in the toolbar to preview missing targets while you build your library.</p>
             <p><b>Support development</b></p>
             <p>This project takes time and money to develop. If you find it useful, please consider supporting:</p>
-            <p><a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a></p>
+            <p><a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a><br>
+               <a href="https://www.paypal.com/donate/?hosted_button_id=9GDUBHS78MH52">paypal.com/donate</a></p>
             <p><b>Feedback</b></p>
             <p>Please share suggestions and bug reports via the GitHub repo issues page.</p>
             """
@@ -2556,6 +2558,7 @@ class AboutDialog(QtWidgets.QDialog):
         links = QtWidgets.QLabel(
             'Website: <a href="https://astro-catalogue-viewer.com/">astro-catalogue-viewer.com</a><br>'
             'Support: <a href="https://buymeacoffee.com/PaulSpinelli">buymeacoffee.com/PaulSpinelli</a><br>'
+            'PayPal: <a href="https://www.paypal.com/donate/?hosted_button_id=9GDUBHS78MH52">paypal.com/donate</a><br>'
             f'Repo: <a href="https://github.com/{UPDATE_REPO}">github.com/{UPDATE_REPO}</a>'
         )
         links.setOpenExternalLinks(True)

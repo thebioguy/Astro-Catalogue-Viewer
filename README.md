@@ -126,6 +126,7 @@ If the app has a bad image path or filter state saved, delete the config file:
 ## Support
 If this helps your astrophotography workflow, consider supporting ongoing development:
 - https://buymeacoffee.com/PaulSpinelli
+- https://www.paypal.com/donate/?hosted_button_id=9GDUBHS78MH52
 
 Sponsor pitch text lives in `SPONSORS.md`.
 
