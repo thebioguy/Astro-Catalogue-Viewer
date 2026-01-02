@@ -23,7 +23,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.3.7-beta"
+APP_VERSION = "1.3.8-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SHUTDOWN_EVENT = threading.Event()
