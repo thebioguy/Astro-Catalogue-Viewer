@@ -9,7 +9,7 @@ a = Analysis(
     [str(project_root / "app" / "main.py")],
     pathex=[str(project_root)],
     binaries=[],
-    datas=[("data", "data")],
+    datas=[(str(project_root / "data"), "data")],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
