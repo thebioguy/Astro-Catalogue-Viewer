@@ -367,7 +367,7 @@ def _normalize_catalog_paths(config: Dict) -> None:
 
 def _extract_object_ids(stem: str) -> List[str]:
     ids = []
-    pattern = re.compile(r"(NGC|IC|M|(?<!I)(?<!NG)C)[\\s_-]*0*(\\d{1,5})(?!\\d)")
+    pattern = re.compile(r"(NGC|IC|M|(?<!I)(?<!NG)C)[\s_-]*0*(\d{1,5})(?!\d)")
     for match in pattern.finditer(stem):
         prefix, number = match.groups()
         ids.append(f"{prefix}{int(number)}")

@@ -1696,23 +1696,26 @@ class MainWindow(QtWidgets.QMainWindow):
         if width <= 0 or height <= 0:
             return
         spacing = self.grid.spacing()
-        min_size, max_size = 60, 320
-
-        def fits(size: int) -> bool:
-            columns = max(1, (width + spacing) // (size + spacing))
-            rows = (item_count + columns - 1) // columns
-            total_height = rows * (size + spacing) - spacing
-            return total_height <= height
-
-        lo, hi = min_size, max_size
+        min_size = 60
+        max_size = max(min(width, height), min_size)
         best = min_size
-        while lo <= hi:
-            mid = (lo + hi) // 2
-            if fits(mid):
-                best = mid
-                lo = mid + 1
-            else:
-                hi = mid - 1
+        best_gap = width
+
+        max_columns = min(item_count, max(1, width // min_size))
+        for columns in range(1, max_columns + 1):
+            rows = (item_count + columns - 1) // columns
+            size_w = (width + spacing) // columns - spacing
+            size_h = (height + spacing) // rows - spacing
+            size = min(size_w, size_h)
+            if size < min_size:
+                continue
+            if size > max_size:
+                size = max_size
+            used_width = max(0, columns * (size + spacing) - spacing)
+            gap = max(0, width - used_width)
+            if size > best or (size == best and gap < best_gap):
+                best = size
+                best_gap = gap
         self.grid.setIconSize(QtCore.QSize(best, best))
         self._update_grid_metrics(best)
         self.zoom_slider.blockSignals(True)
