@@ -32,12 +32,12 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
-    icon="build_assets/ACV.icns",
+    icon=str(project_root / "build_assets" / "ACV.icns"),
 )
 
 app = BUNDLE(
     exe,
     name="Astro Catalogue Viewer.app",
-    icon="build_assets/ACV.icns",
+    icon=str(project_root / "build_assets" / "ACV.icns"),
     bundle_identifier=None,
 )
