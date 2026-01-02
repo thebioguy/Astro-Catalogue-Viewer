@@ -23,7 +23,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.3.6-beta"
+APP_VERSION = "1.3.7-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SHUTDOWN_EVENT = threading.Event()
@@ -771,7 +771,8 @@ def _tone_map_grayscale16(image: QtGui.QImage) -> QtGui.QImage:
     width = image.width()
     height = image.height()
     buf = image.bits()
-    buf.setsize(image.sizeInBytes())
+    if hasattr(buf, "setsize"):
+        buf.setsize(image.sizeInBytes())
     data = array.array("H")
     data.frombytes(buf.tobytes())
     if not data:
@@ -799,7 +800,8 @@ def _tone_map_rgba64(image: QtGui.QImage) -> QtGui.QImage:
     width = image.width()
     height = image.height()
     buf = image.bits()
-    buf.setsize(image.sizeInBytes())
+    if hasattr(buf, "setsize"):
+        buf.setsize(image.sizeInBytes())
     data = array.array("H")
     data.frombytes(buf.tobytes())
     if not data:
