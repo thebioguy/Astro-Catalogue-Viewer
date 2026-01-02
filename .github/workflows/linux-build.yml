@@ -26,7 +26,7 @@ jobs:
 
       - name: Build
         run: |
-          python -m PyInstaller --clean --noconfirm AstroCatalogueViewer-linux.spec
+          python -m PyInstaller --clean --noconfirm spec/AstroCatalogueViewer-linux.spec
 
       - name: Package
         run: |

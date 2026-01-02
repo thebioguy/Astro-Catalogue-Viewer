@@ -5,7 +5,7 @@ ZIP_NAME="AstroCatalogueViewer-Linux.zip"
 
 python3 -m pip install --upgrade pyinstaller
 
-python3 -m PyInstaller --clean --noconfirm AstroCatalogueViewer-linux.spec
+python3 -m PyInstaller --clean --noconfirm spec/AstroCatalogueViewer-linux.spec
 
 if [ -f "$ZIP_NAME" ]; then
   rm "$ZIP_NAME"

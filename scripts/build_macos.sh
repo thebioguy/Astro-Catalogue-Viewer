@@ -6,7 +6,7 @@ ZIP_NAME="AstroCatalogueViewer-macOS.zip"
 
 python3 -m pip install --upgrade pyinstaller
 
-python3 -m PyInstaller --clean --noconfirm AstroCatalogueViewer-macos.spec
+python3 -m PyInstaller --clean --noconfirm spec/AstroCatalogueViewer-macos.spec
 
 ditto -c -k --sequesterRsrc --keepParent \
   "dist/$APP_NAME.app" \

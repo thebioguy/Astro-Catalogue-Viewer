@@ -26,7 +26,7 @@ jobs:
 
       - name: Build
         run: |
-          python -m PyInstaller --clean --noconfirm AstroCatalogueViewer-macos.spec
+          python -m PyInstaller --clean --noconfirm spec/AstroCatalogueViewer-macos.spec
 
       - name: Package
         run: |
