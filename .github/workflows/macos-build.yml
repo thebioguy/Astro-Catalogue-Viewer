@@ -28,8 +28,14 @@ jobs:
         run: |
           python -m PyInstaller --clean --noconfirm spec/AstroCatalogueViewer-macos.spec
 
+      - name: Package
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            "dist/Astro Catalogue Viewer.app" \
+            "AstroCatalogueViewer-macOS.zip"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: AstroCatalogueViewer-macOS
-          path: dist/Astro Catalogue Viewer.app
+          path: AstroCatalogueViewer-macOS.zip
