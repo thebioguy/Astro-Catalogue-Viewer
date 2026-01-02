@@ -3,7 +3,7 @@
 from pathlib import Path
 
 block_cipher = None
-project_root = Path(__file__).resolve().parents[1]
+project_root = Path.cwd()
 
 a = Analysis(
     [str(project_root / "app" / "main.py")],

@@ -4,7 +4,7 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
-project_root = Path(__file__).resolve().parents[1]
+project_root = Path.cwd()
 
 tiff_datas, tiff_binaries, tiff_hidden = collect_all("tifffile")
 
