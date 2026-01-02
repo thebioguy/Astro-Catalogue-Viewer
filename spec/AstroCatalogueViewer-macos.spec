@@ -35,8 +35,18 @@ exe = EXE(
     icon=str(project_root / "build_assets" / "ACV.icns"),
 )
 
-app = BUNDLE(
+coll = COLLECT(
     exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name="Astro Catalogue Viewer",
+)
+
+app = BUNDLE(
+    coll,
     name="Astro Catalogue Viewer.app",
     icon=str(project_root / "build_assets" / "ACV.icns"),
     bundle_identifier=None,
