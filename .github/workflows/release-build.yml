@@ -21,11 +21,33 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate release summary
+        id: notes
+        run: |
+          git fetch --tags --force
+          tag="${RELEASE_TAG}"
+          previous="$(git tag --sort=-creatordate | grep -Fv "$tag" | head -n 1 || true)"
+          if [ -n "$previous" ]; then
+            range="${previous}..${tag}"
+          else
+            range="${tag}"
+          fi
+          notes="Changes"
+          while IFS= read -r line; do
+            notes="${notes}\n- ${line}"
+          done < <(git log --oneline "${range}")
+          printf "body<<EOF\n%s\nEOF\n" "$notes" >> "$GITHUB_OUTPUT"
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          generate_release_notes: true
+          name: Astro Catalogue Viewer ${{ env.RELEASE_TAG }}
+          body: ${{ steps.notes.outputs.body }}
+          generate_release_notes: false
           prerelease: true
 
   build-windows:

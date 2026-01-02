@@ -2709,7 +2709,7 @@ class UpdateCheckTask(QtCore.QRunnable):
         creationflags = 0
         if sys.platform.startswith("win"):
             creationflags = subprocess.CREATE_NO_WINDOW
-        url = f"https://api.github.com/repos/{UPDATE_REPO}/releases/latest"
+        url = f"https://api.github.com/repos/{UPDATE_REPO}/releases"
         result = subprocess.run(
             [
                 "curl",
@@ -2728,7 +2728,15 @@ class UpdateCheckTask(QtCore.QRunnable):
             capture_output=True,
             creationflags=creationflags,
         )
-        return json.loads(result.stdout or "{}")
+        payload = json.loads(result.stdout or "{}")
+        if isinstance(payload, list) and payload:
+            for entry in payload:
+                if isinstance(entry, dict) and entry.get("tag_name"):
+                    return entry
+            return {}
+        if isinstance(payload, dict):
+            return payload
+        return {}
 
 
 def main() -> None:
