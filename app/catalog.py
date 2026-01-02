@@ -367,8 +367,12 @@ def _normalize_catalog_paths(config: Dict) -> None:
 
 def _extract_object_ids(stem: str) -> List[str]:
     ids = []
-    for match in re.findall(r"\b(M|NGC|IC|C)\s*0*(\d{1,5})\b", stem):
-        prefix, number = match
+    # Match first occurrence of catalog prefix followed by optional space/underscore, 
+    # optional leading zeros, and 1-5 digits (with word boundary before prefix and
+    # negative lookahead to prevent matching partial numbers or when followed by letters)
+    match = re.search(r"\b(M|NGC|IC|C)[\s_]*0*(\d{1,5})(?!\d)(?![A-Z])", stem)
+    if match:
+        prefix, number = match.groups()
         ids.append(f"{prefix}{int(number)}")
     return ids
 
