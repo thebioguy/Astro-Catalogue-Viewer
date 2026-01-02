@@ -1,4 +1,4 @@
-name: Build Windows
+name: Build macOS
 
 on:
   workflow_dispatch:
@@ -7,8 +7,8 @@ on:
       - "v*"
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  build-macos:
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,14 +26,16 @@ jobs:
 
       - name: Build
         run: |
-          python -m PyInstaller --clean --noconfirm AstroCatalogueViewer-windows.spec
+          python -m PyInstaller --clean --noconfirm AstroCatalogueViewer-macos.spec
 
       - name: Package
         run: |
-          Compress-Archive -Path "dist/Astro Catalogue Viewer/*" -DestinationPath "AstroCatalogueViewer-Windows.zip"
+          ditto -c -k --sequesterRsrc --keepParent \
+            "dist/Astro Catalogue Viewer.app" \
+            "AstroCatalogueViewer-macOS.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AstroCatalogueViewer-Windows
-          path: AstroCatalogueViewer-Windows.zip
+          name: AstroCatalogueViewer-macOS
+          path: AstroCatalogueViewer-macOS.zip

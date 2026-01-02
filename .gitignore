@@ -1,6 +1,8 @@
 build/
 dist/
 *.spec
+*.spec.bak
+!AstroCatalogueViewer-*.spec
 __pycache__/
 .DS_Store
 *.zip

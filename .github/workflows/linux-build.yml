@@ -26,11 +26,7 @@ jobs:
 
       - name: Build
         run: |
-          python -m PyInstaller --clean --noconfirm --windowed \
-            --name "Astro Catalogue Viewer" \
-            --add-data "data:data" \
-            --collect-all "tifffile" \
-            app/main.py
+          python -m PyInstaller --clean --noconfirm AstroCatalogueViewer-linux.spec
 
       - name: Package
         run: |
