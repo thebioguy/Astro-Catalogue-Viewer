@@ -1,14 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from pathlib import Path
 from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
+project_root = Path(__file__).resolve().parents[1]
 
 tiff_datas, tiff_binaries, tiff_hidden = collect_all("tifffile")
 
 a = Analysis(
-    ["app/main.py"],
-    pathex=[],
+    [str(project_root / "app" / "main.py")],
+    pathex=[str(project_root)],
     binaries=tiff_binaries,
     datas=[("data", "data")] + tiff_datas,
     hiddenimports=tiff_hidden,

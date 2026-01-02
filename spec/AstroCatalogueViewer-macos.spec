@@ -1,10 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from pathlib import Path
+
 block_cipher = None
+project_root = Path(__file__).resolve().parents[1]
 
 a = Analysis(
-    ["app/main.py"],
-    pathex=[],
+    [str(project_root / "app" / "main.py")],
+    pathex=[str(project_root)],
     binaries=[],
     datas=[("data", "data")],
     hiddenimports=[],
