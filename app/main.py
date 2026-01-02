@@ -574,10 +574,10 @@ class CatalogItemDelegate(QtWidgets.QStyledItemDelegate):
             painter.setPen(QtGui.QPen(QtGui.QColor("#d94a4a"), 2))
             painter.drawRect(icon_rect.adjusted(1, 1, -1, -1))
 
+        badge_size = 18
+        margin = 4
         item: CatalogItem = index.data(QtCore.Qt.ItemDataRole.UserRole)
         if item:
-            badge_size = 18
-            margin = 4
             if len(item.image_paths) > 1:
                 count_rect = QtCore.QRect(
                     icon_rect.left() + margin,
