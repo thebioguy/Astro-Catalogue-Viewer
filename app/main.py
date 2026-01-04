@@ -2748,7 +2748,7 @@ class AboutDialog(QtWidgets.QDialog):
         if not supporters:
             self.supporters_status.setText("No supporters listed yet.")
             return
-        self.supporters_status.setText("\n".join(supporters))
+        self.supporters_status.setText("<br>".join(supporters))
 
     def _supporters_failed(self, message: str) -> None:
         self.supporters_status.setText(message)
