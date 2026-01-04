@@ -2660,7 +2660,11 @@ class AboutDialog(QtWidgets.QDialog):
         self.supporters_status = QtWidgets.QLabel("Loading supporters…")
         self.supporters_status.setWordWrap(True)
         self.supporters_status.setOpenExternalLinks(True)
-        sponsor_layout.addWidget(self.supporters_status)
+        sponsor_scroll = QtWidgets.QScrollArea()
+        sponsor_scroll.setWidgetResizable(True)
+        sponsor_scroll.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
+        sponsor_scroll.setWidget(self.supporters_status)
+        sponsor_layout.addWidget(sponsor_scroll)
 
         left = QtWidgets.QWidget()
         left_layout = QtWidgets.QVBoxLayout(left)
@@ -2932,8 +2936,10 @@ class SupportersFetchTask(QtCore.QRunnable):
                     url = str(entry.get("url") or "").strip()
                     if not name:
                         continue
-                    display_name = f'<a href="{url}">{name}</a>' if url else name
-                    supporters.append(f"{display_name} — {tier}" if tier else display_name)
+                    line = f"{name} — {tier}" if tier else name
+                    if url:
+                        line = f'{line} — <a href="{url}">YouTube</a>'
+                    supporters.append(line)
             return supporters
         return []
 
