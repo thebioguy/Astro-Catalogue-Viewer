@@ -1,0 +1,17 @@
+{
+  "supporters": [
+    {
+      "name": "Artur Jarosz",
+      "tier": "supporter"
+    },
+    {
+      "name": "Jeff Fishman",
+      "tier": "supporter"
+    },
+    {
+      "name": "Mitch Arsenault",
+      "tier": "Stargazer",
+      "url": "https://www.youtube.com/@AstroDude-Mitch"
+    }
+  ]
+}

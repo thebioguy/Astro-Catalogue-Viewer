@@ -10,6 +10,7 @@ import http.server
 import json
 import threading
 from urllib.parse import urlparse, unquote
+import urllib.request
 import datetime
 import array
 from dataclasses import replace
@@ -23,9 +24,10 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.3.9-beta"
+APP_VERSION = "1.4.0-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
+SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
 SHUTDOWN_EVENT = threading.Event()
 
 
@@ -47,11 +49,21 @@ class RemoteThumbnailSignals(QtCore.QObject):
     failed = QtCore.Signal(str)
 
 
+class ImageLoadSignals(QtCore.QObject):
+    loaded = QtCore.Signal(int, str, QtGui.QImage)
+    failed = QtCore.Signal(int, str)
+
+
 class UpdateSignals(QtCore.QObject):
     available = QtCore.Signal(str, str)
     up_to_date = QtCore.Signal(str)
     failed = QtCore.Signal(str)
     finished = QtCore.Signal()
+
+
+class SupportersSignals(QtCore.QObject):
+    loaded = QtCore.Signal(list)
+    failed = QtCore.Signal(str)
 
 
 class ThumbnailTask(QtCore.QRunnable):
@@ -175,6 +187,33 @@ class WikiThumbnailTask(QtCore.QRunnable):
             creationflags=creationflags,
         )
         return result.stdout
+
+
+class ImageLoadTask(QtCore.QRunnable):
+    def __init__(self, request_id: int, image_path: Path) -> None:
+        super().__init__()
+        self.request_id = request_id
+        self.image_path = image_path
+        self.signals = ImageLoadSignals()
+
+    def run(self) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
+        image = _load_display_image(self.image_path)
+        if image is None or image.isNull():
+            if not isValid(self.signals):
+                return
+            try:
+                self.signals.failed.emit(self.request_id, str(self.image_path))
+            except RuntimeError:
+                return
+            return
+        if not isValid(self.signals):
+            return
+        try:
+            self.signals.loaded.emit(self.request_id, str(self.image_path), image)
+        except RuntimeError:
+            return
 
 
 class CatalogLoadTask(QtCore.QRunnable):
@@ -654,8 +693,9 @@ class CatalogFilterProxy(QtCore.QSortFilterProxyModel):
         item: CatalogItem = model.data(index, QtCore.Qt.ItemDataRole.UserRole)
         if item is None:
             return False
-        if self.catalog_filter and item.catalog != self.catalog_filter:
-            return False
+        if self.catalog_filter and not self.search_text:
+            if item.catalog != self.catalog_filter:
+                return False
         if self.type_filter and item.object_type != self.type_filter:
             return False
         if self.status_filter:
@@ -913,6 +953,27 @@ def _tone_map_numpy_to_qimage(data, mode: str) -> Optional[QtGui.QImage]:
     return None
 
 
+def _load_display_image(path: Path) -> Optional[QtGui.QImage]:
+    reader = QtGui.QImageReader(str(path))
+    if reader.canRead():
+        reader.setAutoTransform(True)
+        image = reader.read()
+        if not image.isNull():
+            if image.depth() > 32 or image.format() in (
+                QtGui.QImage.Format.Format_Grayscale16,
+                QtGui.QImage.Format.Format_RGBX64,
+                QtGui.QImage.Format.Format_RGBA64,
+                QtGui.QImage.Format.Format_RGBA64_Premultiplied,
+            ):
+                image = _tone_map_high_bit_image(image)
+            return image
+    tif_image = _load_tiff_with_tifffile(path)
+    if tif_image is not None:
+        return tif_image
+    fallback = QtGui.QImage(str(path))
+    return fallback if not fallback.isNull() else None
+
+
 class LightboxDialog(QtWidgets.QDialog):
     def __init__(self, pixmap: QtGui.QPixmap, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
@@ -1006,6 +1067,9 @@ class DetailPanel(QtWidgets.QWidget):
         self._image_index = 0
         self._wiki_pixmap: Optional[QtGui.QPixmap] = None
         self._lightbox: Optional[LightboxDialog] = None
+        self._image_load_id = 0
+        self._image_thread_pool = QtCore.QThreadPool.globalInstance()
+        self._image_cache: Dict[str, QtGui.QPixmap] = {}
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.title)
@@ -1067,6 +1131,7 @@ class DetailPanel(QtWidgets.QWidget):
         self._current_item = item
         self._notes_block = True
         self._wiki_pixmap = None
+        self._image_load_id += 1
         if item is None:
             self.title.setText("Select an object")
             self.metadata.setText("")
@@ -1158,46 +1223,66 @@ class DetailPanel(QtWidgets.QWidget):
         paths = self._current_item.image_paths
         self._image_index = max(0, min(self._image_index, len(paths) - 1))
         path = paths[self._image_index]
-        pixmap = self._load_display_pixmap(path)
-        self.image_view.set_pixmap(pixmap)
-        size_info = ""
-        if pixmap and not pixmap.isNull():
-            size_info = f"{pixmap.width()}x{pixmap.height()}"
-        else:
-            self.image_info.setText("Unable to load image (unsupported TIFF bit depth)")
+        cache_key = str(path)
+        cached = self._image_cache.get(cache_key)
+        if cached and not cached.isNull():
+            self.image_view.set_pixmap(cached)
+            size_info = f"{cached.width()}x{cached.height()}"
+            self.image_info.setText(
+                f"Image {self._image_index + 1}/{len(paths)} | File: {path.name}"
+                + (f" | {size_info}" if size_info else "")
+            )
             self.prev_button.setEnabled(len(paths) > 1)
             self.next_button.setEnabled(len(paths) > 1)
-            self.thumb_button.setEnabled(False)
-            self.archive_button.setEnabled(False)
+            self.thumb_button.setEnabled(True)
+            self.archive_button.setEnabled(True)
             return
-        self.image_info.setText(
-            f"Image {self._image_index + 1}/{len(paths)} | File: {path.name}"
-            + (f" | {size_info}" if size_info else "")
-        )
+        self.image_view.set_pixmap(None)
+        self.image_info.setText(f"Loading image... | File: {path.name}")
         self.prev_button.setEnabled(len(paths) > 1)
         self.next_button.setEnabled(len(paths) > 1)
         self.thumb_button.setEnabled(True)
         self.archive_button.setEnabled(True)
+        self._start_image_load(path)
 
-    @staticmethod
-    def _load_display_pixmap(path: Path) -> QtGui.QPixmap:
-        reader = QtGui.QImageReader(str(path))
-        if reader.canRead():
-            reader.setAutoTransform(True)
-            image = reader.read()
-            if not image.isNull():
-                if image.depth() > 32 or image.format() in (
-                    QtGui.QImage.Format.Format_Grayscale16,
-                    QtGui.QImage.Format.Format_RGBX64,
-                    QtGui.QImage.Format.Format_RGBA64,
-                    QtGui.QImage.Format.Format_RGBA64_Premultiplied,
-                ):
-                    image = _tone_map_high_bit_image(image)
-                return QtGui.QPixmap.fromImage(image)
-        tif_image = _load_tiff_with_tifffile(path)
-        if tif_image is not None:
-            return QtGui.QPixmap.fromImage(tif_image)
-        return QtGui.QPixmap(str(path))
+    def _start_image_load(self, path: Path) -> None:
+        self._image_load_id += 1
+        request_id = self._image_load_id
+        task = ImageLoadTask(request_id, path)
+        task.signals.loaded.connect(self._on_image_loaded)
+        task.signals.failed.connect(self._on_image_failed)
+        self._image_thread_pool.start(task)
+
+    def _on_image_loaded(self, request_id: int, path_value: str, image: QtGui.QImage) -> None:
+        if request_id != self._image_load_id:
+            return
+        if not self._current_item or not self._current_item.image_paths:
+            return
+        current_path = self._current_item.image_paths[self._image_index]
+        if str(current_path) != path_value:
+            return
+        pixmap = QtGui.QPixmap.fromImage(image)
+        if pixmap.isNull():
+            self._on_image_failed(request_id, path_value)
+            return
+        cache_key = str(current_path)
+        self._image_cache[cache_key] = pixmap
+        self.image_view.set_pixmap(pixmap)
+        size_info = f"{pixmap.width()}x{pixmap.height()}"
+        self.image_info.setText(
+            f"Image {self._image_index + 1}/{len(self._current_item.image_paths)} | File: {current_path.name}"
+            + (f" | {size_info}" if size_info else "")
+        )
+        self.thumb_button.setEnabled(True)
+        self.archive_button.setEnabled(True)
+
+    def _on_image_failed(self, request_id: int, path_value: str) -> None:
+        if request_id != self._image_load_id:
+            return
+        self.image_view.set_pixmap(None)
+        self.image_info.setText("Unable to load image (unsupported TIFF bit depth)")
+        self.thumb_button.setEnabled(False)
+        self.archive_button.setEnabled(False)
 
     def _apply_initial_sizes(self) -> None:
         if self._initial_detail_sized:
@@ -1385,7 +1470,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.search = QtWidgets.QLineEdit()
         self.search.setPlaceholderText("Search by object ID or name")
         self.search.textChanged.connect(self._on_search_changed)
-        self.search.setMaximumWidth(520)
+        self.search.setMinimumWidth(280)
+        self.search.setMaximumWidth(700)
+        self.search.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
         self.catalog_title = QtWidgets.QLabel("")
         self.catalog_title.setObjectName("catalogTitle")
         self.catalog_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
@@ -2571,9 +2658,10 @@ class AboutDialog(QtWidgets.QDialog):
 
         sponsor_box = QtWidgets.QGroupBox("Sponsors")
         sponsor_layout = QtWidgets.QVBoxLayout(sponsor_box)
-        sponsor_hint = QtWidgets.QLabel("Your name here. Sponsor slots are available.")
-        sponsor_hint.setWordWrap(True)
-        sponsor_layout.addWidget(sponsor_hint)
+        self.supporters_status = QtWidgets.QLabel("Loading supporters…")
+        self.supporters_status.setWordWrap(True)
+        self.supporters_status.setOpenExternalLinks(True)
+        sponsor_layout.addWidget(self.supporters_status)
 
         left = QtWidgets.QWidget()
         left_layout = QtWidgets.QVBoxLayout(left)
@@ -2633,6 +2721,10 @@ class AboutDialog(QtWidgets.QDialog):
         layout.addLayout(content)
         layout.addWidget(close_button, alignment=QtCore.Qt.AlignmentFlag.AlignRight)
 
+        self._supporters_task: Optional[SupportersFetchTask] = None
+        self._supporters_thread_pool = QtCore.QThreadPool.globalInstance()
+        self._start_supporters_fetch()
+
     def set_update_status(self, status: str, latest: Optional[str], url: Optional[str]) -> None:
         if url:
             self.update_status.setText(f'{status} <a href="{url}">View release</a>')
@@ -2640,6 +2732,22 @@ class AboutDialog(QtWidgets.QDialog):
         else:
             self.update_status.setText(status)
             self.update_status.setOpenExternalLinks(False)
+
+    def _start_supporters_fetch(self) -> None:
+        task = SupportersFetchTask(SUPPORTERS_URL)
+        task.signals.loaded.connect(self._apply_supporters)
+        task.signals.failed.connect(self._supporters_failed)
+        self._supporters_task = task
+        self._supporters_thread_pool.start(task)
+
+    def _apply_supporters(self, supporters: List[str]) -> None:
+        if not supporters:
+            self.supporters_status.setText("No supporters listed yet.")
+            return
+        self.supporters_status.setText("\n".join(supporters))
+
+    def _supporters_failed(self, message: str) -> None:
+        self.supporters_status.setText(message)
 
 
 class UpdateCheckTask(QtCore.QRunnable):
@@ -2740,6 +2848,71 @@ class UpdateCheckTask(QtCore.QRunnable):
         if isinstance(payload, dict):
             return payload
         return {}
+
+
+class SupportersFetchTask(QtCore.QRunnable):
+    def __init__(self, url: str) -> None:
+        super().__init__()
+        self.url = url
+        self.signals = SupportersSignals()
+
+    def run(self) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
+        try:
+            payload = self._fetch_payload()
+            supporters = self._normalize_supporters(payload)
+            self._emit_loaded(supporters)
+        except Exception:
+            self._emit_failed("Unable to load supporters.")
+
+    def _emit_loaded(self, supporters: List[str]) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.loaded.emit(supporters)
+        except RuntimeError:
+            return
+
+    def _emit_failed(self, message: str) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.failed.emit(message)
+        except RuntimeError:
+            return
+
+    def _fetch_payload(self) -> Dict:
+        request = urllib.request.Request(
+            self.url,
+            headers={
+                "User-Agent": f"{APP_NAME}/{APP_VERSION}",
+                "Accept": "application/json",
+            },
+        )
+        with urllib.request.urlopen(request, timeout=6) as response:
+            return json.loads(response.read().decode("utf-8"))
+
+    @staticmethod
+    def _normalize_supporters(payload) -> List[str]:
+        if isinstance(payload, dict):
+            payload = payload.get("supporters", payload.get("supporter", []))
+        if isinstance(payload, list):
+            supporters: List[str] = []
+            for entry in payload:
+                if isinstance(entry, str):
+                    supporters.append(entry)
+                    continue
+                if isinstance(entry, dict):
+                    name = str(entry.get("name") or "").strip()
+                    tier = str(entry.get("tier") or "").strip()
+                    url = str(entry.get("url") or "").strip()
+                    if not name:
+                        continue
+                    display_name = f'<a href="{url}">{name}</a>' if url else name
+                    supporters.append(f"{display_name} — {tier}" if tier else display_name)
+            return supporters
+        return []
 
 
 def main() -> None:
