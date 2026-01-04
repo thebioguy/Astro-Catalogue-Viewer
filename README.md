@@ -53,7 +53,9 @@ python3 -m pip install -r requirements.txt
 ./scripts/build_macos.sh
 ```
 
-The packaged app will be in `dist/`, and `AstroCatalogueViewer-macOS.zip` is created in the repo root.
+The packaged app will be in `dist/`. GitHub releases include separate macOS builds:
+- Apple Silicon: `AstroCatalogueViewer-macOS-AppleSilicon.zip`
+- Intel: `AstroCatalogueViewer-macOS-Intel.zip`
 
 ## Windows Build
 Clone this repo on Windows and run one of the build scripts (requires Python 3.10+):
