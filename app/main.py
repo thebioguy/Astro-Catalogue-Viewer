@@ -10,7 +10,6 @@ import http.server
 import json
 import threading
 from urllib.parse import urlparse, unquote
-import urllib.request
 import datetime
 import array
 from dataclasses import replace
@@ -2883,15 +2882,39 @@ class SupportersFetchTask(QtCore.QRunnable):
             return
 
     def _fetch_payload(self) -> Dict:
-        request = urllib.request.Request(
-            self.url,
-            headers={
-                "User-Agent": f"{APP_NAME}/{APP_VERSION}",
-                "Accept": "application/json",
-            },
-        )
-        with urllib.request.urlopen(request, timeout=6) as response:
-            return json.loads(response.read().decode("utf-8"))
+        creationflags = 0
+        if sys.platform.startswith("win"):
+            creationflags = subprocess.CREATE_NO_WINDOW
+        for url in self._candidate_urls():
+            result = subprocess.run(
+                [
+                    "curl",
+                    "-sL",
+                    "--max-time",
+                    "6",
+                    "--retry",
+                    "2",
+                    "--retry-delay",
+                    "1",
+                    "-H",
+                    f"User-Agent: {APP_NAME}/{APP_VERSION}",
+                    url,
+                ],
+                check=False,
+                capture_output=True,
+                creationflags=creationflags,
+            )
+            if result.returncode != 0:
+                continue
+            payload = json.loads(result.stdout or "{}")
+            if payload:
+                return payload
+        return {}
+
+    def _candidate_urls(self) -> List[str]:
+        if "/main/" in self.url:
+            return [self.url, self.url.replace("/main/", "/master/")]
+        return [self.url]
 
     @staticmethod
     def _normalize_supporters(payload) -> List[str]:
