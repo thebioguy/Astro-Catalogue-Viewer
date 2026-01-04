@@ -2659,6 +2659,7 @@ class AboutDialog(QtWidgets.QDialog):
         sponsor_layout = QtWidgets.QVBoxLayout(sponsor_box)
         self.supporters_status = QtWidgets.QLabel("Loading supporters…")
         self.supporters_status.setWordWrap(True)
+        self.supporters_status.setTextFormat(QtCore.Qt.TextFormat.RichText)
         self.supporters_status.setOpenExternalLinks(True)
         sponsor_scroll = QtWidgets.QScrollArea()
         sponsor_scroll.setWidgetResizable(True)
