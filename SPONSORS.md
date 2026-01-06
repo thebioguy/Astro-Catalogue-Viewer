@@ -17,3 +17,6 @@ If the app saves you time or helps you plan better sessions, consider supporting
 - Buy Me a Coffee: https://buymeacoffee.com/PaulSpinelli
 
 Thank you for keeping this project moving.
+
+## Supporters
+- roelb
