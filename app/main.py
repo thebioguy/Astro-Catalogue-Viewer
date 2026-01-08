@@ -1426,6 +1426,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.config_path = config_path
         self.config = load_config(self.config_path)
+        self._ensure_user_metadata_files()
         if not self.config_path.exists():
             save_config(self.config_path, self.config)
         self._saved_state = self.config.get("ui_state", {})
@@ -1484,6 +1485,35 @@ class MainWindow(QtWidgets.QMainWindow):
     def _cache_dir(self) -> Path:
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.CacheLocation)
         return Path(location)
+
+    def _ensure_user_metadata_files(self) -> None:
+        if not hasattr(sys, "_MEIPASS"):
+            return
+        location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.AppConfigLocation)
+        if not location:
+            return
+        metadata_dir = Path(location) / "metadata"
+        metadata_dir.mkdir(parents=True, exist_ok=True)
+        updated = False
+        for catalog in self.config.get("catalogs", []):
+            meta_value = catalog.get("metadata_file")
+            if not meta_value:
+                continue
+            meta_path = Path(meta_value)
+            if not meta_path.is_absolute():
+                meta_path = (PROJECT_ROOT / meta_path).resolve()
+            if metadata_dir in meta_path.parents:
+                continue
+            target = metadata_dir / meta_path.name
+            if not target.exists():
+                try:
+                    shutil.copy2(meta_path, target)
+                except OSError:
+                    continue
+            catalog["metadata_file"] = str(target)
+            updated = True
+        if updated:
+            save_config(self.config_path, self.config)
 
     def clear_thumbnail_cache(self) -> bool:
         try:
