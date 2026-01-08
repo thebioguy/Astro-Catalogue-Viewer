@@ -2148,9 +2148,50 @@ class MainWindow(QtWidgets.QMainWindow):
             )
             return
 
-        archive_root = Path(archive_dir)
+        archive_root = Path(archive_dir).expanduser()
         if not archive_root.is_absolute():
             archive_root = (PROJECT_ROOT / archive_root).resolve()
+        else:
+            archive_root = archive_root.resolve()
+        source_dir = path.parent.resolve()
+        if archive_root == source_dir:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Archive folder invalid",
+                "The archive folder is the same as the image folder.",
+            )
+            return
+        archive_inside_scanned = []
+        master_dir = (self.config.get("master_image_dir") or "").strip()
+        if master_dir:
+            master_path = Path(master_dir).expanduser()
+            if not master_path.is_absolute():
+                master_path = (PROJECT_ROOT / master_path).resolve()
+            else:
+                master_path = master_path.resolve()
+            if archive_root == master_path or archive_root.is_relative_to(master_path):
+                archive_inside_scanned.append(str(master_path))
+        for catalog in self.config.get("catalogs", []):
+            for image_dir in catalog.get("image_dirs", []):
+                if not image_dir:
+                    continue
+                image_path = Path(image_dir).expanduser()
+                if not image_path.is_absolute():
+                    image_path = (PROJECT_ROOT / image_path).resolve()
+                else:
+                    image_path = image_path.resolve()
+                if archive_root == image_path or archive_root.is_relative_to(image_path):
+                    archive_inside_scanned.append(str(image_path))
+        if archive_inside_scanned:
+            choice = QtWidgets.QMessageBox.question(
+                self,
+                "Archive folder inside image library",
+                "The archive folder is inside a scanned image folder, so archived files may still appear.\n\n"
+                "Continue anyway?",
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.Cancel,
+            )
+            if choice != QtWidgets.QMessageBox.StandardButton.Yes:
+                return
         archive_root.mkdir(parents=True, exist_ok=True)
 
         stat = path.stat()
@@ -2183,6 +2224,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 f"Unable to move the image.\n\n{exc}",
             )
             return
+        if path.exists():
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Archive incomplete",
+                "The file still exists at the original location after moving.",
+            )
 
         self.status_label.setText(f"Archived {path.name}")
         current_item = self.detail.current_item()
