@@ -1,4 +1,4 @@
-name: Build macOS
+name: Build macOS Intel
 
 on:
   workflow_dispatch:
@@ -7,39 +7,6 @@ on:
       - "v*"
 
 jobs:
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install pyinstaller
-
-      - name: Build
-        run: |
-          python -m PyInstaller --clean --noconfirm spec/AstroCatalogueViewer-macos.spec
-
-      - name: Package
-        run: |
-          ditto -c -k --sequesterRsrc --keepParent \
-            "dist/Astro Catalogue Viewer.app" \
-            "AstroCatalogueViewer-macOS-AppleSilicon.zip"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: AstroCatalogueViewer-macOS-AppleSilicon
-          path: AstroCatalogueViewer-macOS-AppleSilicon.zip
-
   build-macos-intel:
     runs-on: macos-15-intel
     steps:
