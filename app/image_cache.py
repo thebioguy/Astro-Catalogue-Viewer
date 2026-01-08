@@ -52,6 +52,10 @@ class ThumbnailCache:
                 self._memory[key] = CacheEntry(pixmap=pixmap, last_access=time.time())
                 self._prune()
                 return pixmap
+            try:
+                disk_path.unlink()
+            except OSError:
+                pass
         return None
 
     def store_thumbnail(self, image_path: Path, pixmap: QtGui.QPixmap) -> None:
@@ -59,15 +63,20 @@ class ThumbnailCache:
         self._memory[key] = CacheEntry(pixmap=pixmap, last_access=time.time())
         self._prune()
         disk_path = self._cache_path(key)
-        pixmap.save(str(disk_path), "PNG")
+        temp_path = disk_path.with_suffix(".tmp")
+        pixmap.save(str(temp_path), "PNG")
+        temp_path.replace(disk_path)
 
     def store_thumbnail_image(self, image_path: Path, image: QtGui.QImage) -> QtGui.QPixmap:
         key = self._cache_key(image_path)
-        pixmap = QtGui.QPixmap.fromImage(image)
+        squared = self._scale_to_square(image)
+        pixmap = QtGui.QPixmap.fromImage(squared)
         self._memory[key] = CacheEntry(pixmap=pixmap, last_access=time.time())
         self._prune()
         disk_path = self._cache_path(key)
-        image.save(str(disk_path), "PNG")
+        temp_path = disk_path.with_suffix(".tmp")
+        squared.save(str(temp_path), "PNG")
+        temp_path.replace(disk_path)
         return pixmap
 
     def create_thumbnail(self, image_path: Path) -> Optional[QtGui.QImage]:
@@ -75,8 +84,54 @@ class ThumbnailCache:
         if not reader.canRead():
             return None
         reader.setAutoTransform(True)
-        reader.setScaledSize(QtCore.QSize(self.thumb_size, self.thumb_size))
         image = reader.read()
         if image.isNull():
             return None
-        return image
+        if "saturn" in image_path.stem.lower():
+            image = self._center_square_crop(image)
+        return self._scale_to_square(image)
+
+    def _scale_to_square(self, image: QtGui.QImage) -> QtGui.QImage:
+        scaled = image.scaled(
+            self.thumb_size,
+            self.thumb_size,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            QtCore.Qt.TransformationMode.SmoothTransformation,
+        )
+        canvas = QtGui.QImage(
+            self.thumb_size,
+            self.thumb_size,
+            QtGui.QImage.Format.Format_ARGB32,
+        )
+        canvas.fill(QtGui.QColor("#1c1c1c"))
+        painter = QtGui.QPainter(canvas)
+        x = (self.thumb_size - scaled.width()) // 2
+        y = (self.thumb_size - scaled.height()) // 2
+        painter.drawImage(x, y, scaled)
+        painter.end()
+        return canvas
+
+    @staticmethod
+    def _center_square_crop(image: QtGui.QImage) -> QtGui.QImage:
+        width = image.width()
+        height = image.height()
+        side = min(width, height)
+        x = (width - side) // 2
+        y = (height - side) // 2
+        return image.copy(x, y, side, side)
+
+    def clear(self) -> None:
+        self._memory.clear()
+        if not self.cache_dir.exists():
+            return
+        for entry in self.cache_dir.iterdir():
+            try:
+                if entry.is_dir():
+                    for sub in entry.rglob("*"):
+                        if sub.is_file():
+                            sub.unlink()
+                    entry.rmdir()
+                else:
+                    entry.unlink()
+            except OSError:
+                continue

@@ -35,6 +35,11 @@ DEFAULT_CONFIG = {
             "metadata_file": "data/caldwell_metadata.json",
             "image_dirs": [],
         },
+        {
+            "name": "Solar system",
+            "metadata_file": "data/solar_system_metadata.json",
+            "image_dirs": [],
+        },
     ],
     "image_extensions": [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp", ".bmp"],
     "thumb_size": 240,
@@ -68,7 +73,7 @@ class CatalogItem:
 
     @property
     def display_name(self) -> str:
-        if self.name:
+        if self.name and self.name.strip().lower() != self.object_id.strip().lower():
             return f"{self.object_id} - {self.name}"
         return self.object_id
 
@@ -204,7 +209,9 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
 
         # Add image-only entries that are not in metadata.
         for object_id, image_paths in image_index.items():
-            if catalog_prefix and not object_id.upper().startswith(catalog_prefix):
+            if not catalog_prefix:
+                continue
+            if not object_id.upper().startswith(catalog_prefix):
                 continue
             if object_id in catalog_entries:
                 continue
@@ -365,13 +372,107 @@ def _normalize_catalog_paths(config: Dict) -> None:
         config["master_image_dir"] = ""
 
 
+SOLAR_OBJECTS = [
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Mars",
+    "Phobos",
+    "Deimos",
+    "Jupiter",
+    "Io",
+    "Europa",
+    "Ganymede",
+    "Callisto",
+    "Saturn",
+    "Titan",
+    "Enceladus",
+    "Rhea",
+    "Iapetus",
+    "Dione",
+    "Tethys",
+    "Mimas",
+    "Uranus",
+    "Miranda",
+    "Ariel",
+    "Umbriel",
+    "Titania",
+    "Oberon",
+    "Neptune",
+    "Triton",
+    "Nereid",
+    "Proteus",
+    "Pluto",
+    "Charon",
+    "Ceres",
+    "Vesta",
+    "Pallas",
+    "Hygiea",
+    "Haumea",
+    "Makemake",
+    "Eris",
+    "Sedna",
+    "Orcus",
+    "Quaoar",
+    "Gonggong",
+    "Chiron",
+    "Chariklo",
+    "Halley",
+    "Encke",
+    "Tempel 1",
+    "Borrelly",
+    "67P Churyumov-Gerasimenko",
+    "Hartley 2",
+    "Swift-Tuttle",
+    "Hale-Bopp",
+]
+
+SOLAR_ALIAS_EXTRAS = {
+    "Sun": ["solar"],
+    "Moon": ["luna", "lunar"],
+    "Halley": ["halleycomet", "halley's"],
+    "67P Churyumov-Gerasimenko": ["67p", "churyumov", "gerasimenko", "churyumov-gerasimenko"],
+    "Tempel 1": ["tempel1", "tempel-1", "9p", "9p-tempel", "9p-tempel-1"],
+    "Borrelly": ["19p", "19p-borrelly"],
+    "Hartley 2": ["hartley2", "hartley-2", "103p", "103p-hartley", "103p-hartley-2"],
+    "Swift-Tuttle": ["swifttuttle", "swift_tuttle", "109p", "109p-swift", "109p-swift-tuttle"],
+    "Hale-Bopp": ["halebopp", "hale bopp"],
+}
+
+def _solar_aliases(name: str) -> List[str]:
+    base = name.lower()
+    variants = {
+        base,
+        base.replace(" ", ""),
+        base.replace(" ", "-"),
+        base.replace(" ", "_"),
+        base.replace("'", ""),
+    }
+    variants |= {v.replace("-", "") for v in variants}
+    variants |= {v.replace("_", "") for v in variants}
+    extras = SOLAR_ALIAS_EXTRAS.get(name, [])
+    return sorted(set(variants) | set(extras))
+
+def _alias_matches(stem: str, alias: str) -> bool:
+    if len(alias) <= 2:
+        pattern = rf"(?<![a-z0-9]){re.escape(alias)}(?![a-z0-9])"
+        return re.search(pattern, stem) is not None
+    return alias in stem
+
+
 def _extract_object_ids(stem: str) -> List[str]:
-    ids = []
+    ids: List[str] = []
+    lower_stem = stem.lower()
+    for object_id in SOLAR_OBJECTS:
+        if any(_alias_matches(lower_stem, alias) for alias in _solar_aliases(object_id)):
+            ids.append(object_id.upper())
     pattern = re.compile(r"(NGC|IC|M|(?<!I)(?<!NG)C)[\s_-]*0*(\d{1,5})(?!\d)")
     for match in pattern.finditer(stem):
         prefix, number = match.groups()
         ids.append(f"{prefix}{int(number)}")
-    return ids
+    return list(dict.fromkeys(ids))
 
 
 def _normalize_text(value: Optional[str]) -> Optional[str]:

@@ -14,6 +14,9 @@ This roadmap is directional and will adjust based on user feedback.
 - Advanced filters (equipment, focal length, capture year)
 - Optional thumbnails cache to speed large libraries
 
+## V2.0 (first release)
+- Dynamic solar system ephemerides (closest approach, sky position per observer, Saturn ring tilt, lunar phase, conjunctions, sunspot activity)
+
 ## Later
 - Cross-device sync (opt-in)
 - Curated catalog packs and guided capture lists

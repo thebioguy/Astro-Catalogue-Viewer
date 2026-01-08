@@ -23,7 +23,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.4.0-beta"
+APP_VERSION = "1.6.0-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -129,11 +129,9 @@ class WikiThumbnailTask(QtCore.QRunnable):
                 self._emit_failed()
                 return
             image = image.convertToFormat(QtGui.QImage.Format.Format_ARGB32)
-            image = image.scaled(
-                QtCore.QSize(self.thumb_size, self.thumb_size),
-                QtCore.Qt.AspectRatioMode.KeepAspectRatio,
-                QtCore.Qt.TransformationMode.SmoothTransformation,
-            )
+            if self.page_title.strip().lower() == "saturn":
+                image = self._center_square_crop(image)
+            image = self._scale_to_square(image)
             self.cache_path.parent.mkdir(parents=True, exist_ok=True)
             image.save(str(self.cache_path), "PNG")
             self._emit_loaded(image)
@@ -159,6 +157,35 @@ class WikiThumbnailTask(QtCore.QRunnable):
             self.signals.failed.emit(self.item_key)
         except RuntimeError:
             return
+
+    def _scale_to_square(self, image: QtGui.QImage) -> QtGui.QImage:
+        scaled = image.scaled(
+            self.thumb_size,
+            self.thumb_size,
+            QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+            QtCore.Qt.TransformationMode.SmoothTransformation,
+        )
+        canvas = QtGui.QImage(
+            self.thumb_size,
+            self.thumb_size,
+            QtGui.QImage.Format.Format_ARGB32,
+        )
+        canvas.fill(QtGui.QColor("#1c1c1c"))
+        painter = QtGui.QPainter(canvas)
+        x = (self.thumb_size - scaled.width()) // 2
+        y = (self.thumb_size - scaled.height()) // 2
+        painter.drawImage(x, y, scaled)
+        painter.end()
+        return canvas
+
+    @staticmethod
+    def _center_square_crop(image: QtGui.QImage) -> QtGui.QImage:
+        width = image.width()
+        height = image.height()
+        side = min(width, height)
+        x = (width - side) // 2
+        y = (height - side) // 2
+        return image.copy(x, y, side, side)
 
     @staticmethod
     def _fetch_bytes(url: str) -> bytes:
@@ -373,7 +400,7 @@ class CatalogModel(QtCore.QAbstractListModel):
         self._thread_pool.start(task)
 
     def _queue_wiki_thumbnail(self, item: CatalogItem) -> None:
-        if item.catalog != "Messier":
+        if item.catalog not in {"Messier", "Solar system"}:
             return
         if item.unique_key in self._remote_loading or item.unique_key in self._remote_failed:
             return
@@ -1458,6 +1485,15 @@ class MainWindow(QtWidgets.QMainWindow):
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.CacheLocation)
         return Path(location)
 
+    def clear_thumbnail_cache(self) -> bool:
+        try:
+            self.thumbnail_cache.clear()
+            self.model.update_cache(self.thumbnail_cache)
+            self._refresh_catalog()
+            return True
+        except Exception:
+            return False
+
     def _build_ui(self) -> None:
         central = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout(central)
@@ -1644,16 +1680,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.catalog_filter.blockSignals(False)
         self.catalog_filter.view().setMinimumWidth(160)
 
-        types = collect_object_types(self.items)
-        current_type = self.type_filter.currentText() if self.type_filter.count() else ""
-        self.type_filter.blockSignals(True)
-        self.type_filter.clear()
-        self.type_filter.addItem("All")
-        self.type_filter.addItems(types)
-        if current_type:
-            self.type_filter.setCurrentText(current_type)
-        self.type_filter.blockSignals(False)
-        self.type_filter.view().setMinimumWidth(220)
+        self._update_type_filter(current_catalog)
 
         current_status = self.status_filter.currentText() if self.status_filter.count() else ""
         self.status_filter.blockSignals(True)
@@ -1696,6 +1723,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.proxy.set_catalog_filter("")
         else:
             self.proxy.set_catalog_filter(self._catalog_internal_name(value))
+        self._update_type_filter(value)
         self._update_catalog_summary()
         self._schedule_auto_fit()
 
@@ -1751,6 +1779,23 @@ class MainWindow(QtWidgets.QMainWindow):
     @staticmethod
     def _catalog_internal_name(display_name: str) -> str:
         return display_name.replace(" (In progress)", "")
+
+    def _update_type_filter(self, catalog_value: str) -> None:
+        current_type = self.type_filter.currentText() if self.type_filter.count() else ""
+        internal = self._catalog_internal_name(catalog_value) if catalog_value else ""
+        if internal and internal != "All":
+            filtered = [item for item in self.items if item.catalog == internal]
+            types = collect_object_types(filtered)
+        else:
+            types = collect_object_types(self.items)
+        self.type_filter.blockSignals(True)
+        self.type_filter.clear()
+        self.type_filter.addItem("All")
+        self.type_filter.addItems(types)
+        if current_type and current_type in {"All", *types}:
+            self.type_filter.setCurrentText(current_type)
+        self.type_filter.blockSignals(False)
+        self.type_filter.view().setMinimumWidth(220)
 
     def _on_zoom_changed(self, value: int) -> None:
         self._auto_fit_enabled = False
@@ -2299,6 +2344,10 @@ class SettingsDialog(QtWidgets.QDialog):
         archive_row.addWidget(browse_archive)
         form.addRow("Archive Image Folder", archive_row)
 
+        clear_cache = QtWidgets.QPushButton("Clear thumbnail cache")
+        clear_cache.clicked.connect(self._clear_thumbnail_cache)
+        form.addRow("Thumbnail Cache", clear_cache)
+
 
         self.catalog_fields: Dict[str, QtWidgets.QLineEdit] = {}
         catalogs = config.get("catalogs", [])
@@ -2375,6 +2424,16 @@ class SettingsDialog(QtWidgets.QDialog):
             return
         self.archive_folder.setText(directory)
         self._emit_preview()
+
+    def _clear_thumbnail_cache(self) -> None:
+        parent = self.parent()
+        if parent is None or not hasattr(parent, "clear_thumbnail_cache"):
+            QtWidgets.QMessageBox.warning(self, "Thumbnail Cache", "Unable to clear thumbnail cache.")
+            return
+        if parent.clear_thumbnail_cache():
+            QtWidgets.QMessageBox.information(self, "Thumbnail Cache", "Thumbnail cache cleared.")
+            return
+        QtWidgets.QMessageBox.warning(self, "Thumbnail Cache", "Unable to clear thumbnail cache.")
 
     def _open_map_picker(self) -> None:
         if self._map_server is None:
