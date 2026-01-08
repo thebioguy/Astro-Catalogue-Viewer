@@ -39,6 +39,7 @@ jobs:
           while IFS= read -r line; do
             notes="${notes}\n- ${line}"
           done < <(git log --oneline "${range}")
+          notes="${notes}\n\nMigration note: If you lost notes after updating, you can migrate from an older app bundle:\n- python3 scripts/migrate_metadata_notes.py --app-bundle \"/path/to/old/Astro Catalogue Viewer.app\""
           printf "body<<EOF\n%s\nEOF\n" "$notes" >> "$GITHUB_OUTPUT"
 
       - name: Create release
