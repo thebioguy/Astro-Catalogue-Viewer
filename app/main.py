@@ -23,7 +23,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.6.0-beta"
+APP_VERSION = "1.6.5-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -1080,6 +1080,8 @@ class DetailPanel(QtWidgets.QWidget):
         self.fit_button = QtWidgets.QPushButton("Fit to Window")
         self.fit_button.clicked.connect(self.image_view.fit_to_window)
         self.image_view.fullscreen_requested.connect(self._open_lightbox)
+        self.image_view.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+        self.image_view.customContextMenuRequested.connect(self._show_image_context_menu)
         self.prev_button = QtWidgets.QPushButton("◀")
         self.next_button = QtWidgets.QPushButton("▶")
         self.thumb_button = QtWidgets.QPushButton("Set as thumbnail")
@@ -1226,6 +1228,12 @@ class DetailPanel(QtWidgets.QWidget):
         index = max(0, min(self._image_index, len(paths) - 1))
         return paths[index].name
 
+    def current_image_path(self) -> Optional[Path]:
+        if not self._current_item or not self._current_item.image_paths:
+            return None
+        index = max(0, min(self._image_index, len(self._current_item.image_paths) - 1))
+        return self._current_item.image_paths[index]
+
     def current_item(self) -> Optional[CatalogItem]:
         return self._current_item
 
@@ -1361,6 +1369,27 @@ class DetailPanel(QtWidgets.QWidget):
             return
         path = self._current_item.image_paths[self._image_index]
         self.archive_requested.emit(str(path))
+
+    def _show_image_context_menu(self, position: QtCore.QPoint) -> None:
+        path = self.current_image_path()
+        menu = QtWidgets.QMenu(self)
+        if path is None:
+            empty = QtGui.QAction("No image file selected", menu)
+            empty.setEnabled(False)
+            menu.addAction(empty)
+            menu.exec(self.image_view.mapToGlobal(position))
+            return
+        path_action = QtGui.QAction(str(path), menu)
+        path_action.setEnabled(False)
+        menu.addAction(path_action)
+        menu.addSeparator()
+        open_action = QtGui.QAction("Open containing folder", menu)
+        open_action.triggered.connect(lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(str(path.parent))))
+        menu.addAction(open_action)
+        copy_action = QtGui.QAction("Copy file path", menu)
+        copy_action.triggered.connect(lambda: QtWidgets.QApplication.clipboard().setText(str(path)))
+        menu.addAction(copy_action)
+        menu.exec(self.image_view.mapToGlobal(position))
 
     def set_current_image_by_name(self, image_name: str) -> None:
         if not self._current_item or not self._current_item.image_paths:
@@ -1678,6 +1707,9 @@ class MainWindow(QtWidgets.QMainWindow):
             QLabel#externalLink a { color: #8ab4f8; text-decoration: none; }
             QTextEdit#descriptionBox { background: #0f0f0f; }
             QTextEdit#notesBox { background: #101417; }
+            QMenu { background: #1b1b1b; border: 1px solid #333; }
+            QMenu::item { padding: 6px 14px; }
+            QMenu::item:selected { background: #2f2f2f; color: #ffffff; }
             QPushButton { background: #2c2c2c; border: 1px solid #3b3b3b; padding: 6px 12px; }
             QPushButton:hover { background: #3a3a3a; }
             QSlider::groove:horizontal { height: 6px; background: #2a2a2a; }
