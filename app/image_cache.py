@@ -24,7 +24,10 @@ class ThumbnailCache:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     def _cache_key(self, image_path: Path) -> str:
-        stat = image_path.stat()
+        try:
+            stat = image_path.stat()
+        except FileNotFoundError:
+            return ""
         payload = f"{image_path.resolve()}:{stat.st_mtime_ns}:{self.thumb_size}"
         return hashlib.sha1(payload.encode("utf-8")).hexdigest()
 
@@ -40,6 +43,8 @@ class ThumbnailCache:
 
     def get_thumbnail(self, image_path: Path) -> Optional[QtGui.QPixmap]:
         key = self._cache_key(image_path)
+        if not key:
+            return None
         entry = self._memory.get(key)
         if entry:
             entry.last_access = time.time()

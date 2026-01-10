@@ -211,7 +211,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
         for object_id, image_paths in image_index.items():
             if not catalog_prefix:
                 continue
-            if not object_id.upper().startswith(catalog_prefix):
+            if not _matches_catalog_object_id(catalog_name, object_id):
                 continue
             if object_id in catalog_entries:
                 continue
@@ -515,6 +515,20 @@ def _catalog_prefix(catalog_name: str) -> str:
     if name == "caldwell":
         return "C"
     return ""
+
+
+def _matches_catalog_object_id(catalog_name: str, object_id: str) -> bool:
+    name = (catalog_name or "").strip().lower()
+    value = (object_id or "").strip().upper()
+    if name == "messier":
+        return re.match(r"^M\\d+$", value) is not None
+    if name == "caldwell":
+        return re.match(r"^C\\d+$", value) is not None
+    if name == "ngc":
+        return re.match(r"^NGC\\d+$", value) is not None
+    if name == "ic":
+        return re.match(r"^IC\\d+$", value) is not None
+    return True
 
 
 def _adjust_best_months(best_months: Optional[str], latitude: Optional[float]) -> Optional[str]:

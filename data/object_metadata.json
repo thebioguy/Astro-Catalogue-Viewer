@@ -309,7 +309,10 @@
       "best_months": "OctNovDec",
       "description": "M31 (Andromeda Galaxy) is a galaxy in the constellation Andromeda about 2,430–2,650 kly away. It appears around magnitude 3.4, spanning roughly 3.17° × 1°. It was discovered by Al-Sufi in 964. The Andromeda Galaxy is a barred spiral galaxy and is the nearest major galaxy to the Milky Way. It was originally named the Andromeda Nebula and is cataloged as Messier 31, M31, and NGC 224. Andromeda has a D25 isophotal diameter of about 46.56 kiloparsecs (152,000 light-years) and is approximately 765 kpc (2.5 million light-years) from Earth. The galaxy's name stems from the area of Earth's sky in which it appears, the constellation of Andromeda, which itself is named after the princess who was the wife of Perseus in Greek mythology. Astrophotography notes: Sky position: northern sky in Andromeda. Target characteristics: brightness around mag 3.4, apparent size 3.17° × 1°. Broadband LRGB is typical; Ha can highlight star-forming knots.",
       "thumbnail": "M31 SAS final.jpg",
-      "external_link": "https://en.wikipedia.org/wiki/Messier_31"
+      "external_link": "https://en.wikipedia.org/wiki/Messier_31",
+      "image_notes": {
+        "M31 LRGB.tif": "From Frank from SetiAstro"
+      }
     },
     "M32": {
       "name": "Dwarf Elliptical Galaxy",
@@ -419,7 +422,10 @@
       "discovery_year": 1610,
       "best_months": "DecJanFeb",
       "description": "M42 (Orion Nebula) is a emission nebula in the constellation Orion about 1.324–1.364 kly away. It appears around magnitude 4.0, spanning roughly 65′ × 60′. It was discovered by Nicolas-Claude de Peiresc in 1610. The Orion Nebula (also known as Messier 42, M42, or NGC 1976) is a diffuse nebula in the Milky Way situated south of Orion's Belt in the constellation of Orion, and is known as the middle \"star\" in the \"sword\" of Orion. It is one of the brightest nebulae and is visible to the naked eye in the night sky with an apparent magnitude of 4.0. It is 1,344 ± 20 light-years (412.1 ± 6.1 pc) away and is the closest region of massive star formation to Earth. Astrophotography notes: Sky position: equatorial sky in Orion. Target characteristics: brightness around mag 4.0, apparent size 65′ × 60′. Ha, OIII, and SII reveal structure and make moonlit sessions viable. Dark skies (Bortle 4 or better) or narrowband help tease out faint detail.",
-      "external_link": "https://en.wikipedia.org/wiki/Messier_42"
+      "external_link": "https://en.wikipedia.org/wiki/Messier_42",
+      "image_notes": {
+        "M42 Orion Nebula.jpg": "Too bright"
+      }
     },
     "M43": {
       "name": "De MairanÕs Nebula",
