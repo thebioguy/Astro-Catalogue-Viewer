@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import hashlib
+import re
 import subprocess
 import shutil
 from pathlib import Path
@@ -23,7 +24,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.6.5-beta"
+APP_VERSION = "1.7.3-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -63,6 +64,63 @@ class UpdateSignals(QtCore.QObject):
 class SupportersSignals(QtCore.QObject):
     loaded = QtCore.Signal(list)
     failed = QtCore.Signal(str)
+
+
+class DuplicateScanSignals(QtCore.QObject):
+    finished = QtCore.Signal(str, str)
+
+
+class DuplicateScanTask(QtCore.QRunnable):
+    def __init__(
+        self,
+        config_path: Path,
+        extensions: List[str],
+        report_path: Path,
+    ) -> None:
+        super().__init__()
+        self.config_path = config_path
+        self.extensions = extensions
+        self.report_path = report_path
+        self.signals = DuplicateScanSignals()
+
+    def run(self) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
+        error = ""
+        try:
+            sort_command = [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "sort_master_images.py"),
+                "--config",
+                str(self.config_path),
+                "--extensions",
+                ",".join(self.extensions),
+            ]
+            scan_command = [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "find_duplicate_images_by_catalog.py"),
+                "--config",
+                str(self.config_path),
+                "--extensions",
+                ",".join(self.extensions),
+                "--output",
+                str(self.report_path),
+            ]
+            result = subprocess.run(sort_command, check=False, capture_output=True, text=True)
+            if result.returncode != 0:
+                error = result.stderr.strip() or result.stdout.strip()
+            if not error:
+                result = subprocess.run(scan_command, check=False, capture_output=True, text=True)
+                if result.returncode != 0:
+                    error = result.stderr.strip() or result.stdout.strip()
+        except Exception as exc:
+            error = str(exc)
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.finished.emit(str(self.report_path), error)
+        except RuntimeError:
+            return
 
 
 class ThumbnailTask(QtCore.QRunnable):
@@ -1456,6 +1514,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.config_path = config_path
         self.config = load_config(self.config_path)
         self._ensure_user_metadata_files()
+        if not self.config.get("cleanup_invalid_image_only_entries_done", False):
+            self._cleanup_invalid_image_only_entries()
+            self.config["cleanup_invalid_image_only_entries_done"] = True
+            save_config(self.config_path, self.config)
         if not self.config_path.exists():
             save_config(self.config_path, self.config)
         self._saved_state = self.config.get("ui_state", {})
@@ -1541,6 +1603,57 @@ class MainWindow(QtWidgets.QMainWindow):
                     continue
             catalog["metadata_file"] = str(target)
             updated = True
+        if updated:
+            save_config(self.config_path, self.config)
+
+    def _cleanup_invalid_image_only_entries(self) -> None:
+        catalog_rules = {
+            "Messier": re.compile(r"^M\\d+$", re.IGNORECASE),
+            "Caldwell": re.compile(r"^C\\d+$", re.IGNORECASE),
+            "NGC": re.compile(r"^NGC\\d+$", re.IGNORECASE),
+            "IC": re.compile(r"^IC\\d+$", re.IGNORECASE),
+        }
+        updated = False
+        for catalog in self.config.get("catalogs", []):
+            name = catalog.get("name")
+            rule = catalog_rules.get(name)
+            if rule is None:
+                continue
+            metadata_value = catalog.get("metadata_file")
+            if not metadata_value:
+                continue
+            metadata_path = Path(metadata_value)
+            if not metadata_path.is_absolute():
+                metadata_path = (PROJECT_ROOT / metadata_path).resolve()
+            if not metadata_path.exists():
+                continue
+            try:
+                data = json.loads(metadata_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            catalog_data = data.get(name, {})
+            if not isinstance(catalog_data, dict):
+                continue
+            to_remove = []
+            for object_id, entry in catalog_data.items():
+                if not isinstance(entry, dict):
+                    continue
+                if rule.match(str(object_id)):
+                    continue
+                if entry.get("description") or entry.get("type") or entry.get("distance_ly"):
+                    continue
+                if entry.get("notes") or entry.get("image_notes") or entry.get("thumbnail"):
+                    to_remove.append(object_id)
+            if not to_remove:
+                continue
+            for object_id in to_remove:
+                catalog_data.pop(object_id, None)
+            data[name] = catalog_data
+            try:
+                metadata_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+                updated = True
+            except OSError:
+                continue
         if updated:
             save_config(self.config_path, self.config)
 
@@ -2408,6 +2521,9 @@ class SettingsDialog(QtWidgets.QDialog):
         self._map_server: Optional[_MapHttpServer] = None
         self._map_url: Optional[str] = None
         self._map_open_timer: Optional[QtCore.QTimer] = None
+        self._scan_thread_pool = QtCore.QThreadPool.globalInstance()
+        self._scan_task: Optional[DuplicateScanTask] = None
+        self._report_path: Optional[Path] = None
 
         observer = config.get("observer", {})
         self.latitude = QtWidgets.QDoubleSpinBox()
@@ -2443,6 +2559,13 @@ class SettingsDialog(QtWidgets.QDialog):
         master_row.addWidget(self.master_folder)
         master_row.addWidget(browse_master)
         form.addRow("Master Image Folder", master_row)
+        master_note = QtWidgets.QLabel(
+            "Images placed in the Master Image Folder will be automatically sorted into "
+            "catalog folders when running a duplicate scan."
+        )
+        master_note.setWordWrap(True)
+        master_note.setStyleSheet("color: #bcbcbc;")
+        form.addRow("", master_note)
 
         self.archive_folder = QtWidgets.QLineEdit()
         self.archive_folder.setText(config.get("archive_image_dir", ""))
@@ -2457,10 +2580,25 @@ class SettingsDialog(QtWidgets.QDialog):
         clear_cache.clicked.connect(self._clear_thumbnail_cache)
         form.addRow("Thumbnail Cache", clear_cache)
 
+        scan_row = QtWidgets.QHBoxLayout()
+        self.scan_button = QtWidgets.QPushButton("Scan")
+        self.scan_button.clicked.connect(self._scan_duplicate_images)
+        scan_row.addWidget(self.scan_button)
+        self.report_label = QtWidgets.QLabel("")
+        self.report_label.setOpenExternalLinks(False)
+        self.report_label.linkActivated.connect(self._open_duplicate_report)
+        self.report_label.hide()
+        scan_row.addWidget(self.report_label, stretch=1)
+        form.addRow("Duplicate Scan", scan_row)
+
+        self.cleanup_button = QtWidgets.QPushButton("Clean invalid entries")
+        self.cleanup_button.clicked.connect(self._run_cleanup_now)
+        form.addRow("Cleanup", self.cleanup_button)
+
 
         self.catalog_fields: Dict[str, QtWidgets.QLineEdit] = {}
         catalogs = config.get("catalogs", [])
-        catalog_group = QtWidgets.QGroupBox("Image folder per catalog")
+        catalog_group = QtWidgets.QGroupBox("")
         catalog_layout = QtWidgets.QFormLayout(catalog_group)
         for catalog in catalogs:
             name = catalog.get("name", "Unknown")
@@ -2543,6 +2681,178 @@ class SettingsDialog(QtWidgets.QDialog):
             QtWidgets.QMessageBox.information(self, "Thumbnail Cache", "Thumbnail cache cleared.")
             return
         QtWidgets.QMessageBox.warning(self, "Thumbnail Cache", "Unable to clear thumbnail cache.")
+
+    def _scan_duplicate_images(self) -> None:
+        config = self._build_preview_config()
+        config_dir = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.AppConfigLocation)
+        output_dir = Path(config_dir) if config_dir else PROJECT_ROOT
+        output_dir.mkdir(parents=True, exist_ok=True)
+        config_path = output_dir / "duplicate_scan_config.json"
+        config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+        report_path = output_dir / "duplicate_image_report.txt"
+        extensions = config.get(
+            "image_extensions",
+            [".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp", ".bmp"],
+        )
+        self.scan_button.setEnabled(False)
+        self.scan_button.setText("Scanning...")
+        self.report_label.hide()
+        self.report_label.setText("")
+        task = DuplicateScanTask(config_path, extensions, report_path)
+        task.signals.finished.connect(self._on_duplicate_scan_finished)
+        self._scan_task = task
+        self._scan_thread_pool.start(task)
+
+    def _on_duplicate_scan_finished(self, report_path: str, error: str) -> None:
+        self.scan_button.setEnabled(True)
+        self.scan_button.setText("Scan")
+        if error:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Duplicate Scan",
+                f"Unable to complete duplicate scan.\n\n{error}",
+            )
+            return
+        self._report_path = Path(report_path)
+        self.report_label.setText(f'<a href="{report_path}">Duplicate report available</a>')
+        self.report_label.show()
+        groups = self._load_duplicate_groups(self._report_path)
+        if not groups:
+            QtWidgets.QMessageBox.information(
+                self,
+                "Duplicate Scan",
+                "Duplicate scan complete. No duplicates found.",
+            )
+            return
+        choice = QtWidgets.QMessageBox.question(
+            self,
+            "Duplicate Scan",
+            f"Duplicate scan complete. {len(groups)} duplicate group(s) found.\n\n"
+            "Move duplicate files to the archive folder?",
+            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No,
+        )
+        if choice != QtWidgets.QMessageBox.StandardButton.Yes:
+            return
+        self._move_duplicate_groups(groups)
+
+    def _open_duplicate_report(self, link: str) -> None:
+        if link:
+            QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(link))
+
+    def _load_duplicate_groups(self, report_path: Path) -> List[Dict[str, object]]:
+        json_path = report_path.with_suffix(".json")
+        if not json_path.exists():
+            return []
+        try:
+            payload = json.loads(json_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+        groups = payload.get("groups", [])
+        return groups if isinstance(groups, list) else []
+
+    def _move_duplicate_groups(self, groups: List[Dict[str, object]]) -> None:
+        archive_dir = self.archive_folder.text().strip()
+        if not archive_dir:
+            object_name = self._describe_duplicate_object(groups)
+            QtWidgets.QMessageBox.information(
+                self,
+                "Archive folder required",
+                f"You have duplicate images of '{object_name}'. "
+                "Choose an archive folder to safely store your duplicate images.",
+            )
+            self._browse_archive_folder()
+            archive_dir = self.archive_folder.text().strip()
+            if not archive_dir:
+                return
+        archive_root = Path(archive_dir).expanduser()
+        if not archive_root.is_absolute():
+            archive_root = (PROJECT_ROOT / archive_root).resolve()
+        archive_root.mkdir(parents=True, exist_ok=True)
+        moved = 0
+        for group in groups:
+            files = group.get("files", [])
+            if not isinstance(files, list) or len(files) <= 1:
+                continue
+            file_paths = [Path(item.get("path", "")) for item in files if isinstance(item, dict)]
+            file_paths = [path for path in file_paths if path.exists()]
+            if len(file_paths) <= 1:
+                continue
+            file_paths = sorted(file_paths, key=lambda p: p.name.lower())
+            for path in file_paths[1:]:
+                target = self._next_available_path(archive_root / path.name)
+                try:
+                    shutil.move(str(path), str(target))
+                    moved += 1
+                except OSError:
+                    continue
+        QtWidgets.QMessageBox.information(
+            self,
+            "Duplicate Scan",
+            f"Moved {moved} duplicate file(s) to the archive folder.",
+        )
+
+    def _run_cleanup_now(self) -> None:
+        parent = self.parent()
+        if parent is None or not hasattr(parent, "_cleanup_invalid_image_only_entries"):
+            QtWidgets.QMessageBox.warning(self, "Cleanup", "Unable to run cleanup.")
+            return
+        parent._cleanup_invalid_image_only_entries()
+        parent.config["cleanup_invalid_image_only_entries_done"] = True
+        save_config(parent.config_path, parent.config)
+        QtWidgets.QMessageBox.information(self, "Cleanup", "Cleanup complete.")
+
+    def _describe_duplicate_object(self, groups: List[Dict[str, object]]) -> str:
+        for group in groups:
+            catalog = group.get("catalog")
+            common_ids = group.get("common_ids", [])
+            if not isinstance(common_ids, list) or not common_ids:
+                continue
+            object_id = str(common_ids[0])
+            name = self._lookup_object_name(catalog, object_id)
+            return f"{object_id} ({name})" if name else object_id
+        return "this object"
+
+    def _lookup_object_name(self, catalog: object, object_id: str) -> str:
+        if not isinstance(catalog, str):
+            return ""
+        config = self._build_preview_config()
+        for entry in config.get("catalogs", []):
+            if entry.get("name") != catalog:
+                continue
+            metadata_value = entry.get("metadata_file")
+            if not metadata_value:
+                return ""
+            metadata_path = Path(metadata_value)
+            if not metadata_path.is_absolute():
+                metadata_path = (PROJECT_ROOT / metadata_path).resolve()
+            if not metadata_path.exists():
+                return ""
+            try:
+                data = json.loads(metadata_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                return ""
+            catalog_data = data.get(catalog, {})
+            if not isinstance(catalog_data, dict):
+                return ""
+            entry_data = catalog_data.get(object_id, {})
+            if not isinstance(entry_data, dict):
+                return ""
+            return str(entry_data.get("name") or "").strip()
+        return ""
+
+    @staticmethod
+    def _next_available_path(path: Path) -> Path:
+        if not path.exists():
+            return path
+        stem = path.stem
+        suffix = path.suffix
+        parent = path.parent
+        counter = 1
+        while True:
+            candidate = parent / f"{stem}-{counter}{suffix}"
+            if not candidate.exists():
+                return candidate
+            counter += 1
 
     def _open_map_picker(self) -> None:
         if self._map_server is None:
