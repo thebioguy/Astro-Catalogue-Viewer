@@ -16,12 +16,14 @@ Status: beta
 - Catalog-aware image matching by filename (e.g., M31, NGC7000, IC5070, C14)
 - Master image folder support (if all images live in one place)
 - Optional catalog-specific image folders
+- Offline-safe location picker (browser-based map)
+
+## New in 1.7.x
 - Solar system catalog with wiki thumbnails
 - Duplicate scan for exact matches (SHA-256) with report link and optional archive move
 - Master image auto-sorting into catalog folders during duplicate scans
 - Clear thumbnail cache tool
 - Right-click image menu to open containing folder or copy path
-- Offline-safe location picker (browser-based map)
 
 ## Quick start (dev)
 ```bash
