@@ -1834,12 +1834,28 @@ class MainWindow(QtWidgets.QMainWindow):
         state = self._saved_state or {}
         size = state.get("window_size")
         if isinstance(size, list) and len(size) == 2:
-            self.resize(int(size[0]), int(size[1]))
+            width = int(size[0])
+            height = int(size[1])
         else:
-            self.resize(1400, 900)
+            width = 1400
+            height = 900
+        available = self._available_window_geometry()
+        if available is not None:
+            max_width = max(available.width() - 40, 600)
+            max_height = max(available.height() - 40, 500)
+            width = min(width, max_width)
+            height = min(height, max_height)
+        self.resize(width, height)
         splitter_sizes = state.get("splitter_sizes")
         if isinstance(splitter_sizes, list) and splitter_sizes:
             self.splitter.setSizes([int(value) for value in splitter_sizes])
+
+    @staticmethod
+    def _available_window_geometry() -> Optional[QtCore.QRect]:
+        screen = QtWidgets.QApplication.primaryScreen()
+        if screen is None:
+            return None
+        return screen.availableGeometry()
 
     def _update_filters(self) -> None:
         catalogs = {item.catalog for item in self.items}
