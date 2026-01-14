@@ -6,7 +6,7 @@ import re
 import subprocess
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 import http.server
 import json
 import threading
@@ -24,7 +24,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.7.3-beta"
+APP_VERSION = "1.7.4-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -1564,10 +1564,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self._update_url: Optional[str] = None
         self._update_tasks: List[UpdateCheckTask] = []
         self._closing = False
+        self._compact_toolbar = False
+        self._syncing_compact = False
+        self._toolbar_full_width = 0
 
         self._build_ui()
         self._apply_dark_theme()
         self._apply_saved_window_state()
+        self._update_toolbar_compact_mode()
         self._update_filters()
         self._start_catalog_load()
         if self.config.get("auto_check_updates", True):
@@ -1670,8 +1674,10 @@ class MainWindow(QtWidgets.QMainWindow):
         central = QtWidgets.QWidget()
         layout = QtWidgets.QVBoxLayout(central)
         layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(0)
 
-        toolbar = QtWidgets.QHBoxLayout()
+        self.toolbar_container = QtWidgets.QWidget()
+        toolbar = QtWidgets.QHBoxLayout(self.toolbar_container)
         toolbar.setContentsMargins(0, 0, 0, 0)
         toolbar.setSpacing(10)
         self.search = QtWidgets.QLineEdit()
@@ -1680,6 +1686,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.search.setMinimumWidth(280)
         self.search.setMaximumWidth(700)
         self.search.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        self._search_min_width = self.search.minimumWidth()
+        self._search_max_width = self.search.maximumWidth()
         self.catalog_title = QtWidgets.QLabel("")
         self.catalog_title.setObjectName("catalogTitle")
         self.catalog_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
@@ -1694,6 +1702,11 @@ class MainWindow(QtWidgets.QMainWindow):
         summary_layout.setSpacing(0)
         summary_layout.addWidget(self.catalog_title)
         summary_layout.addWidget(self.catalog_count)
+
+        self.controls_container = QtWidgets.QWidget()
+        controls_layout = QtWidgets.QHBoxLayout(self.controls_container)
+        controls_layout.setContentsMargins(0, 0, 0, 0)
+        controls_layout.setSpacing(10)
 
         self.catalog_filter = QtWidgets.QComboBox()
         self.catalog_filter.currentTextChanged.connect(self._on_catalog_changed)
@@ -1725,31 +1738,102 @@ class MainWindow(QtWidgets.QMainWindow):
         self.about_button = QtWidgets.QPushButton("About")
         self.about_button.clicked.connect(self._open_about)
 
+        self.compact_filters_container = QtWidgets.QWidget()
+        compact_filters_layout = QtWidgets.QHBoxLayout(self.compact_filters_container)
+        compact_filters_layout.setContentsMargins(0, 0, 0, 0)
+        compact_filters_layout.setSpacing(8)
+
+        self.compact_toolbar_catalog_button = QtWidgets.QToolButton()
+        self.compact_toolbar_catalog_button.setText("Catalogue")
+        self.compact_toolbar_catalog_button.setToolTip("Catalogue")
+        self.compact_toolbar_catalog_button.setPopupMode(
+            QtWidgets.QToolButton.ToolButtonPopupMode.InstantPopup
+        )
+        self.compact_toolbar_catalog_button.setProperty("compactPill", True)
+        self.compact_toolbar_catalog_menu = QtWidgets.QMenu(self)
+        self.compact_toolbar_catalog_button.setMenu(self.compact_toolbar_catalog_menu)
+
+        self.compact_toolbar_type_button = QtWidgets.QToolButton()
+        self.compact_toolbar_type_button.setText("Object Type")
+        self.compact_toolbar_type_button.setToolTip("Object Type")
+        self.compact_toolbar_type_button.setPopupMode(
+            QtWidgets.QToolButton.ToolButtonPopupMode.InstantPopup
+        )
+        self.compact_toolbar_type_button.setProperty("compactPill", True)
+        self.compact_toolbar_type_menu = QtWidgets.QMenu(self)
+        self.compact_toolbar_type_button.setMenu(self.compact_toolbar_type_menu)
+
+        self.compact_toolbar_status_button = QtWidgets.QToolButton()
+        self.compact_toolbar_status_button.setText("Status")
+        self.compact_toolbar_status_button.setToolTip("Status")
+        self.compact_toolbar_status_button.setPopupMode(
+            QtWidgets.QToolButton.ToolButtonPopupMode.InstantPopup
+        )
+        self.compact_toolbar_status_button.setProperty("compactPill", True)
+        self.compact_toolbar_status_menu = QtWidgets.QMenu(self)
+        self.compact_toolbar_status_button.setMenu(self.compact_toolbar_status_menu)
+
+        pill_label = "Object Type"
+        pill_width = QtGui.QFontMetrics(self.compact_toolbar_type_button.font()).horizontalAdvance(
+            pill_label
+        ) + 32
+        for button in (
+            self.compact_toolbar_catalog_button,
+            self.compact_toolbar_type_button,
+            self.compact_toolbar_status_button,
+        ):
+            button.setFixedWidth(pill_width)
+            button.setFixedHeight(32)
+
+        compact_filters_layout.addWidget(self.compact_toolbar_catalog_button)
+        compact_filters_layout.addWidget(self.compact_toolbar_type_button)
+        compact_filters_layout.addWidget(self.compact_toolbar_status_button)
+        self.compact_filters_container.setVisible(False)
+
+        self.toolbar_right_container = QtWidgets.QWidget()
+        right_layout = QtWidgets.QHBoxLayout(self.toolbar_right_container)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(10)
+
         toolbar.addWidget(self.search)
         toolbar.addStretch(1)
         toolbar.addWidget(self.catalog_summary_container)
         toolbar.addStretch(1)
-        toolbar.addWidget(QtWidgets.QLabel("Catalog"))
-        toolbar.addWidget(self.catalog_filter)
-        toolbar.addSpacing(6)
-        toolbar.addWidget(QtWidgets.QLabel("Object Type"))
-        toolbar.addWidget(self.type_filter)
-        toolbar.addSpacing(6)
-        toolbar.addWidget(QtWidgets.QLabel("Status"))
-        toolbar.addWidget(self.status_filter)
-        toolbar.addSpacing(6)
-        toolbar.addWidget(QtWidgets.QLabel("Zoom"))
-        toolbar.addWidget(self.zoom_slider)
-        toolbar.addWidget(self.wiki_thumbs)
-        toolbar.addWidget(self.refresh_button)
-        toolbar.addWidget(self.settings_button)
-        toolbar.addWidget(self.about_button)
+        self.catalog_label = QtWidgets.QLabel("Catalog")
+        self.type_label = QtWidgets.QLabel("Object Type")
+        self.status_filter_label = QtWidgets.QLabel("Status")
+        controls_layout.addWidget(self.catalog_label)
+        controls_layout.addWidget(self.catalog_filter)
+        controls_layout.addSpacing(6)
+        controls_layout.addWidget(self.type_label)
+        controls_layout.addWidget(self.type_filter)
+        controls_layout.addSpacing(6)
+        controls_layout.addWidget(self.status_filter_label)
+        controls_layout.addWidget(self.status_filter)
+        controls_layout.addWidget(self.settings_button)
+        controls_layout.addWidget(self.about_button)
+        right_layout.addWidget(self.controls_container)
+        right_layout.addWidget(self.compact_filters_container)
+        toolbar.addWidget(self.toolbar_right_container)
 
+        self.grid_controls_container = QtWidgets.QWidget()
+        grid_controls_layout = QtWidgets.QHBoxLayout(self.grid_controls_container)
+        grid_controls_layout.setContentsMargins(0, 0, 0, 0)
+        grid_controls_layout.setSpacing(10)
+        self.zoom_label = QtWidgets.QLabel("Zoom")
+        grid_controls_layout.addWidget(self.zoom_label)
+        grid_controls_layout.addWidget(self.zoom_slider)
+        grid_controls_layout.addWidget(self.wiki_thumbs)
+        grid_controls_layout.addWidget(self.refresh_button)
         self.status_label = QtWidgets.QLabel("")
         self.status_label.setObjectName("statusLabel")
 
-        layout.addLayout(toolbar)
+        layout.addWidget(self.toolbar_container)
+        layout.addSpacing(3)
+        layout.addWidget(self.grid_controls_container)
+        layout.addSpacing(6)
         layout.addWidget(self.status_label)
+        layout.addSpacing(6)
 
         self.grid = QtWidgets.QListView()
         self.grid.setViewMode(QtWidgets.QListView.ViewMode.IconMode)
@@ -1795,12 +1879,17 @@ class MainWindow(QtWidgets.QMainWindow):
         footer.addStretch(1)
         layout.addLayout(footer)
         self.setCentralWidget(central)
+        self._toolbar_full_width = self.toolbar_container.sizeHint().width()
+        self._sync_grid_controls_width()
 
     def _apply_dark_theme(self) -> None:
         self.setStyleSheet(
             """
             QWidget { background: #141414; color: #e5e5e5; font-family: 'Avenir Next', 'Helvetica Neue', Arial; }
             QLineEdit, QComboBox, QTextEdit { background: #1d1d1d; border: 1px solid #333; padding: 6px; }
+            QToolButton[compactPill="true"] { background: #212121; border: 1px solid #3b3b3b; border-radius: 16px; padding: 4px 22px 4px 12px; }
+            QToolButton[compactPill="true"]:hover { background: #2a2a2a; }
+            QToolButton[compactPill="true"]::menu-indicator { image: none; }
             QListView { background: #101010; border: 1px solid #2a2a2a; }
             QSplitter::handle { background: #1f1f1f; }
             QSplitter::handle:horizontal { width: 6px; }
@@ -1829,6 +1918,105 @@ class MainWindow(QtWidgets.QMainWindow):
             QSlider::handle:horizontal { width: 14px; background: #d9a441; margin: -4px 0; border-radius: 7px; }
             """
         )
+
+    def _sync_compact_combo_items(self, source: QtWidgets.QComboBox, target: QtWidgets.QComboBox) -> None:
+        target.blockSignals(True)
+        target.clear()
+        for index in range(source.count()):
+            target.addItem(source.itemText(index))
+        target.setCurrentText(source.currentText())
+        target.blockSignals(False)
+
+    def _sync_compact_toolbar_menu(
+        self,
+        source: QtWidgets.QComboBox,
+        menu: QtWidgets.QMenu,
+        current_value: str,
+        handler: Callable[[str], None],
+    ) -> None:
+        menu.clear()
+        for index in range(source.count()):
+            text = source.itemText(index)
+            action = QtGui.QAction(text, menu)
+            action.setCheckable(True)
+            action.setChecked(text == current_value)
+            action.triggered.connect(lambda _checked=False, value=text: handler(value))
+            menu.addAction(action)
+
+    def _sync_compact_filters(self) -> None:
+        if self._syncing_compact:
+            return
+        if hasattr(self, "compact_catalog_filter"):
+            self._sync_compact_combo_items(self.catalog_filter, self.compact_catalog_filter)
+            self._sync_compact_combo_items(self.type_filter, self.compact_type_filter)
+            self._sync_compact_combo_items(self.status_filter, self.compact_status_filter)
+        if hasattr(self, "compact_toolbar_catalog_button"):
+            self._sync_compact_toolbar_menu(
+                self.catalog_filter,
+                self.compact_toolbar_catalog_menu,
+                self.catalog_filter.currentText(),
+                self._on_compact_toolbar_catalog_changed,
+            )
+            self._sync_compact_toolbar_menu(
+                self.type_filter,
+                self.compact_toolbar_type_menu,
+                self.type_filter.currentText(),
+                self._on_compact_toolbar_type_changed,
+            )
+            self._sync_compact_toolbar_menu(
+                self.status_filter,
+                self.compact_toolbar_status_menu,
+                self.status_filter.currentText(),
+                self._on_compact_toolbar_status_changed,
+            )
+        self._sync_compact_state()
+        self._sync_compact_toolbar_spacing()
+
+    def _sync_compact_state(self) -> None:
+        if not hasattr(self, "compact_zoom_slider"):
+            return
+        self.compact_zoom_slider.blockSignals(True)
+        self.compact_zoom_slider.setValue(self.zoom_slider.value())
+        self.compact_zoom_slider.blockSignals(False)
+        self.compact_wiki_thumbs.blockSignals(True)
+        self.compact_wiki_thumbs.setChecked(self.wiki_thumbs.isChecked())
+        self.compact_wiki_thumbs.blockSignals(False)
+
+    def _set_toolbar_compact(self, compact: bool) -> None:
+        if compact == self._compact_toolbar:
+            return
+        self._compact_toolbar = compact
+        self.controls_container.setVisible(not compact)
+        if hasattr(self, "compact_filters_container"):
+            self.compact_filters_container.setVisible(compact)
+        if compact:
+            self._sync_compact_filters()
+
+    def _sync_compact_toolbar_spacing(self) -> None:
+        if not hasattr(self, "toolbar_right_container"):
+            return
+        if self._compact_toolbar:
+            search_width = self.search.width() or self.search.sizeHint().width()
+            right_width = self.toolbar_right_container.sizeHint().width()
+            target_width = min(search_width, right_width) if right_width else search_width
+            if target_width:
+                self.search.setMinimumWidth(target_width)
+                self.search.setMaximumWidth(target_width)
+                self.toolbar_right_container.setFixedWidth(target_width)
+        else:
+            self.search.setMinimumWidth(self._search_min_width)
+            self.search.setMaximumWidth(self._search_max_width)
+            self.toolbar_right_container.setMinimumWidth(0)
+            self.toolbar_right_container.setMaximumWidth(16777215)
+
+    def _update_toolbar_compact_mode(self) -> None:
+        if not self._toolbar_full_width:
+            self._toolbar_full_width = self.toolbar_container.sizeHint().width()
+        if self.toolbar_container.width() == 0:
+            return
+        should_compact = self.toolbar_container.width() < self._toolbar_full_width
+        self._set_toolbar_compact(should_compact)
+        self._sync_compact_toolbar_spacing()
 
     def _apply_saved_window_state(self) -> None:
         state = self._saved_state or {}
@@ -1867,6 +2055,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_filter.blockSignals(False)
         self.status_filter.view().setMinimumWidth(160)
         self._update_catalog_summary()
+        self._sync_compact_filters()
 
     def _refresh_catalog(self) -> None:
         self.config = load_config(self.config_path)
@@ -1901,6 +2090,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._update_type_filter(value)
         self._update_catalog_summary()
         self._schedule_auto_fit()
+        if not self._syncing_compact:
+            self._sync_compact_filters()
 
     def _on_type_changed(self, value: str) -> None:
         if value == "All":
@@ -1908,6 +2099,8 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.proxy.set_type_filter(value)
         self._schedule_auto_fit()
+        if not self._syncing_compact:
+            self._sync_compact_filters()
 
     def _on_status_changed(self, value: str) -> None:
         if value == "All":
@@ -1915,10 +2108,84 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.proxy.set_status_filter(value)
         self._schedule_auto_fit()
+        if not self._syncing_compact:
+            self._sync_compact_filters()
 
     def _on_search_changed(self, text: str) -> None:
         self.proxy.set_search_text(text)
         self._schedule_auto_fit()
+
+    def _on_compact_catalog_changed(self, value: str) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.catalog_filter.setCurrentText(value)
+        finally:
+            self._syncing_compact = False
+
+    def _on_compact_toolbar_catalog_changed(self, value: str) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.catalog_filter.setCurrentText(value)
+        finally:
+            self._syncing_compact = False
+
+    def _on_compact_type_changed(self, value: str) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.type_filter.setCurrentText(value)
+        finally:
+            self._syncing_compact = False
+
+    def _on_compact_toolbar_type_changed(self, value: str) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.type_filter.setCurrentText(value)
+        finally:
+            self._syncing_compact = False
+
+    def _on_compact_status_changed(self, value: str) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.status_filter.setCurrentText(value)
+        finally:
+            self._syncing_compact = False
+
+    def _on_compact_toolbar_status_changed(self, value: str) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.status_filter.setCurrentText(value)
+        finally:
+            self._syncing_compact = False
+
+    def _on_compact_zoom_changed(self, value: int) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.zoom_slider.setValue(value)
+        finally:
+            self._syncing_compact = False
+
+    def _on_compact_wiki_toggled(self, enabled: bool) -> None:
+        if self._syncing_compact:
+            return
+        self._syncing_compact = True
+        try:
+            self.wiki_thumbs.setChecked(enabled)
+        finally:
+            self._syncing_compact = False
 
     def _update_catalog_summary(self) -> None:
         current = self.catalog_filter.currentText()
@@ -1971,11 +2238,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.type_filter.setCurrentText(current_type)
         self.type_filter.blockSignals(False)
         self.type_filter.view().setMinimumWidth(220)
+        self._sync_compact_filters()
 
     def _on_zoom_changed(self, value: int) -> None:
         self._auto_fit_enabled = False
         self._pending_zoom = value
         self._zoom_timer.start()
+        if not self._syncing_compact:
+            self._sync_compact_state()
 
     def _apply_zoom(self) -> None:
         value = self._pending_zoom
@@ -2034,7 +2304,26 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         super().resizeEvent(event)
+        self._update_toolbar_compact_mode()
+        self._sync_grid_controls_width()
         self._schedule_auto_fit()
+
+    def showEvent(self, event: QtGui.QShowEvent) -> None:
+        super().showEvent(event)
+        self._update_toolbar_compact_mode()
+        self._sync_grid_controls_width()
+        QtCore.QTimer.singleShot(0, self._sync_grid_controls_width)
+
+    def _sync_grid_controls_width(self) -> None:
+        if not hasattr(self, "grid_controls_container"):
+            return
+        if not hasattr(self, "search"):
+            return
+        target_width = self.search.width()
+        if not target_width:
+            target_width = self.search.sizeHint().width()
+        if target_width:
+            self.grid_controls_container.setFixedWidth(target_width)
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent) -> bool:
         if obj is self.grid.viewport() and event.type() == QtCore.QEvent.Type.Resize:
@@ -2170,6 +2459,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.refresh_button.setEnabled(enabled)
         self.settings_button.setEnabled(enabled)
         self.about_button.setEnabled(enabled)
+        if hasattr(self, "compact_catalog_filter"):
+            self.compact_catalog_filter.setEnabled(enabled)
+            self.compact_type_filter.setEnabled(enabled)
+            self.compact_status_filter.setEnabled(enabled)
+            self.compact_zoom_slider.setEnabled(enabled)
+            self.compact_wiki_thumbs.setEnabled(enabled)
+            self.compact_refresh_button.setEnabled(enabled)
+            self.compact_settings_button.setEnabled(enabled)
+            self.compact_about_button.setEnabled(enabled)
+        if hasattr(self, "compact_toolbar_catalog_button"):
+            self.compact_toolbar_catalog_button.setEnabled(enabled)
+            self.compact_toolbar_type_button.setEnabled(enabled)
+            self.compact_toolbar_status_button.setEnabled(enabled)
 
     def _preview_settings_changed(self, config: Dict) -> None:
         self._preview_active = True
@@ -2203,6 +2505,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if current and not current.image_paths and not enabled:
             self.detail.update_item(current)
         self._schedule_view_refresh()
+        if not self._syncing_compact:
+            self._sync_compact_state()
 
     def _open_about(self) -> None:
         if self._about_dialog and self._about_dialog.isVisible():
