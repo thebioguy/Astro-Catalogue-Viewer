@@ -24,7 +24,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.7.4-beta"
+APP_VERSION = "1.7.5-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -1537,6 +1537,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.proxy = CatalogFilterProxy(self)
         self.proxy.setSourceModel(self.model)
         self._auto_fit_enabled = True
+        self._suppress_auto_fit = True
         self._thread_pool = QtCore.QThreadPool.globalInstance()
         self._loading = False
         self._pending_reload = False
@@ -1840,6 +1841,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grid.setResizeMode(QtWidgets.QListView.ResizeMode.Adjust)
         self.grid.setUniformItemSizes(True)
         self.grid.setSpacing(0)
+        self.grid.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         self._update_grid_metrics(self.thumbnail_cache.thumb_size)
         self.grid.setItemDelegate(CatalogItemDelegate(self.grid))
         self.grid.setStyleSheet(
@@ -2251,11 +2253,15 @@ class MainWindow(QtWidgets.QMainWindow):
         value = self._pending_zoom
         self._update_grid_metrics(value)
         self.config["thumb_size"] = value
+        save_config(self.config_path, self.config)
         self.thumbnail_cache = ThumbnailCache(self._cache_dir(), value)
         self.model.update_cache(self.thumbnail_cache)
         self._schedule_view_refresh()
 
     def _schedule_auto_fit(self) -> None:
+        if self._suppress_auto_fit:
+            self._schedule_view_refresh()
+            return
         if self._auto_fit_enabled:
             self._auto_fit_timer.start()
         else:
@@ -2272,6 +2278,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if width <= 0 or height <= 0:
             return
         spacing = self.grid.spacing()
+        grid_extra = 2
         min_size = 60
         max_size = max(min(width, height), min_size)
         best = min_size
@@ -2280,16 +2287,18 @@ class MainWindow(QtWidgets.QMainWindow):
         max_columns = min(item_count, max(1, width // min_size))
         for columns in range(1, max_columns + 1):
             rows = (item_count + columns - 1) // columns
-            size_w = (width + spacing) // columns - spacing
-            size_h = (height + spacing) // rows - spacing
-            size = min(size_w, size_h)
+            grid_size_w = (width + spacing) // columns - spacing
+            grid_size_h = (height + spacing) // rows - spacing
+            grid_size = min(grid_size_w, grid_size_h)
+            size = grid_size - grid_extra
             if size < min_size:
                 continue
             if size > max_size:
                 size = max_size
-            used_width = max(0, columns * (size + spacing) - spacing)
+            grid_size = size + grid_extra
+            used_width = max(0, columns * (grid_size + spacing) - spacing)
             gap = max(0, width - used_width)
-            if size > best or (size == best and gap < best_gap):
+            if gap < best_gap or (gap == best_gap and size > best):
                 best = size
                 best_gap = gap
         self.grid.setIconSize(QtCore.QSize(best, best))
@@ -2298,6 +2307,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.zoom_slider.setValue(best)
         self.zoom_slider.blockSignals(False)
         self.config["thumb_size"] = best
+        save_config(self.config_path, self.config)
         self.thumbnail_cache = ThumbnailCache(self._cache_dir(), best)
         self.model.update_cache(self.thumbnail_cache)
         self._schedule_view_refresh()
@@ -2313,6 +2323,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._update_toolbar_compact_mode()
         self._sync_grid_controls_width()
         QtCore.QTimer.singleShot(0, self._sync_grid_controls_width)
+        if self._suppress_auto_fit:
+            QtCore.QTimer.singleShot(250, self._disable_startup_auto_fit)
+
+    def _disable_startup_auto_fit(self) -> None:
+        self._suppress_auto_fit = False
 
     def _sync_grid_controls_width(self) -> None:
         if not hasattr(self, "grid_controls_container"):
@@ -2363,8 +2378,7 @@ class MainWindow(QtWidgets.QMainWindow):
         SHUTDOWN_EVENT.set()
         self._thread_pool.clear()
         self._thread_pool.waitForDone(1500)
-        self._capture_ui_state()
-        save_config(self.config_path, self.config)
+        self._persist_ui_state()
         super().closeEvent(event)
 
     def _start_catalog_load(self, config_override: Optional[Dict] = None) -> None:
@@ -2392,8 +2406,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self._saved_state_applied:
             self._apply_saved_filters()
             self._saved_state_applied = True
-        self._auto_fit_enabled = True
-        self._schedule_auto_fit()
         self._schedule_view_refresh()
         self.status_label.setText("")
         self._loading = False
@@ -2788,6 +2800,19 @@ class MainWindow(QtWidgets.QMainWindow):
             },
             "search": self.search.text() if self.search else "",
         }
+
+    def _persist_ui_state(self) -> None:
+        if self._zoom_timer.isActive():
+            self._zoom_timer.stop()
+            self._apply_zoom()
+        self._capture_ui_state()
+        if hasattr(self, "grid"):
+            size = self.grid.iconSize().width()
+        else:
+            size = self.zoom_slider.value()
+        if size:
+            self.config["thumb_size"] = size
+        save_config(self.config_path, self.config)
 
     @staticmethod
     def _format_bytes(value: int) -> str:
@@ -3437,6 +3462,12 @@ class AboutDialog(QtWidgets.QDialog):
         links.setOpenExternalLinks(True)
         links.setObjectName("aboutLinks")
 
+        config_path = ""
+        if parent is not None and hasattr(parent, "config_path"):
+            config_path = str(parent.config_path)
+        config_label = QtWidgets.QLabel(f"Config file: {config_path}" if config_path else "Config file: unknown")
+        config_label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+
         sponsor_box = QtWidgets.QGroupBox("Sponsors")
         sponsor_layout = QtWidgets.QVBoxLayout(sponsor_box)
         self.supporters_status = QtWidgets.QLabel("Loading supporters…")
@@ -3458,6 +3489,8 @@ class AboutDialog(QtWidgets.QDialog):
         left_layout.addWidget(about)
         left_layout.addSpacing(10)
         left_layout.addWidget(links)
+        left_layout.addSpacing(6)
+        left_layout.addWidget(config_label)
         left_layout.addSpacing(10)
         left_layout.addWidget(sponsor_box)
         left_layout.addStretch(1)
@@ -3741,6 +3774,7 @@ def main() -> None:
     config_path = config_dir / "config.json"
 
     window = MainWindow(config_path)
+    app.aboutToQuit.connect(window._persist_ui_state)
     if window.config.get("show_welcome", True):
         welcome = WelcomeDialog(window)
         welcome.exec()
