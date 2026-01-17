@@ -26,11 +26,6 @@ DEFAULT_CONFIG = {
             "image_dirs": [],
         },
         {
-            "name": "IC",
-            "metadata_file": "data/ic_metadata.json",
-            "image_dirs": [],
-        },
-        {
             "name": "Caldwell",
             "metadata_file": "data/caldwell_metadata.json",
             "image_dirs": [],
@@ -66,6 +61,7 @@ class CatalogItem:
     notes: Optional[str]
     image_notes: Dict[str, str]
     external_link: Optional[str]
+    wiki_thumbnail: Optional[str]
     ra_hours: Optional[float]
     dec_deg: Optional[float]
     image_paths: List[Path]
@@ -200,6 +196,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     external_link=_normalize_text(
                         meta.get("external_link")
                     ) or _default_external_link(object_id, meta.get("name")),
+                    wiki_thumbnail=_normalize_text(meta.get("wiki_thumbnail")),
                     ra_hours=ra_hours,
                     dec_deg=dec_deg,
                     image_paths=image_paths,
@@ -230,6 +227,7 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
                     notes=None,
                     image_notes={},
                     external_link=_default_external_link(object_id, None),
+                    wiki_thumbnail=None,
                     ra_hours=None,
                     dec_deg=None,
                     image_paths=image_paths,
@@ -333,7 +331,10 @@ def _merge_default_config(loaded: Dict) -> Dict:
     merged.setdefault("image_extensions", DEFAULT_CONFIG["image_extensions"])
     merged.setdefault("thumb_size", DEFAULT_CONFIG["thumb_size"])
 
-    existing_catalogs = {c.get("name"): c for c in loaded.get("catalogs", []) if isinstance(c, dict)}
+    existing_catalogs = {
+        c.get("name"): c for c in loaded.get("catalogs", []) if isinstance(c, dict)
+    }
+    existing_catalogs.pop("IC", None)
     catalogs = []
     for default_catalog in DEFAULT_CONFIG["catalogs"]:
         name = default_catalog.get("name")

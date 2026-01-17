@@ -18,13 +18,13 @@ from dataclasses import replace
 from PySide6 import QtCore, QtGui, QtWidgets
 from shiboken6 import isValid
 
-from catalog import CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note, save_thumbnail, save_image_note
+from catalog import DEFAULT_CONFIG, CatalogItem, collect_object_types, load_config, load_catalog_items, resolve_metadata_path, save_config, save_note, save_thumbnail, save_image_note
 from catalog import PROJECT_ROOT
 from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "1.7.5-beta"
+APP_VERSION = "2.0-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -146,12 +146,20 @@ class ThumbnailTask(QtCore.QRunnable):
 
 
 class WikiThumbnailTask(QtCore.QRunnable):
-    def __init__(self, item_key: str, page_title: str, cache_path: Path, thumb_size: int) -> None:
+    def __init__(
+        self,
+        item_key: str,
+        page_title: str,
+        cache_path: Path,
+        thumb_size: int,
+        image_url: Optional[str] = None,
+    ) -> None:
         super().__init__()
         self.item_key = item_key
         self.page_title = page_title
         self.cache_path = cache_path
         self.thumb_size = thumb_size
+        self.image_url = image_url
         self.signals = RemoteThumbnailSignals()
 
     def run(self) -> None:
@@ -169,17 +177,23 @@ class WikiThumbnailTask(QtCore.QRunnable):
             except OSError:
                 pass
         try:
-            title = urllib.parse.quote(self.page_title.replace(" ", "_"))
-            summary_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
-            summary_payload = self._fetch_bytes(summary_url)
-            if SHUTDOWN_EVENT.is_set():
-                return
-            payload = json.loads(summary_payload.decode("utf-8"))
-            thumb = payload.get("thumbnail", {}).get("source") or payload.get("originalimage", {}).get("source")
-            if not thumb:
-                self._emit_failed()
-                return
-            data = self._fetch_bytes(thumb)
+            if self.image_url:
+                data = self._fetch_bytes(self.image_url)
+            else:
+                title = urllib.parse.quote(self.page_title.replace(" ", "_"))
+                summary_url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
+                summary_payload = self._fetch_bytes(summary_url)
+                if SHUTDOWN_EVENT.is_set():
+                    return
+                payload = json.loads(summary_payload.decode("utf-8"))
+                thumb = payload.get("thumbnail", {}).get("source") or payload.get("originalimage", {}).get("source")
+                if not thumb:
+                    self._emit_failed()
+                    return
+                if CatalogModel._is_bad_wiki_thumbnail(thumb):
+                    self._emit_failed()
+                    return
+                data = self._fetch_bytes(thumb)
             if SHUTDOWN_EVENT.is_set():
                 return
             image = QtGui.QImage.fromData(data)
@@ -399,6 +413,13 @@ class MapTileFetchTask(QtCore.QRunnable):
 
 class CatalogModel(QtCore.QAbstractListModel):
     wiki_thumbnail_loaded = QtCore.Signal(str, QtGui.QPixmap)
+    _wiki_thumbnail_blocklist = {
+        "Caldwell": {"C64"},
+        "NGC": {"NGC146", "NGC771", "NGC1502"},
+    }
+    _wiki_thumbnail_refresh = {
+        "Solar system": {"CHARIKLO", "SWIFT-TUTTLE"},
+    }
 
     def __init__(self, items: List[CatalogItem], cache: ThumbnailCache, parent: Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
@@ -409,9 +430,12 @@ class CatalogModel(QtCore.QAbstractListModel):
         self._remote_pixmaps: Dict[str, QtGui.QPixmap] = {}
         self._remote_loading = set()
         self._remote_failed = set()
+        self._wiki_refresh_done = set()
         self._wiki_enabled = False
         self._row_lookup = {item.unique_key: row for row, item in enumerate(items)}
         self._thread_pool = QtCore.QThreadPool.globalInstance()
+        self._wiki_pool = QtCore.QThreadPool(self)
+        self._wiki_pool.setMaxThreadCount(4)
         self._placeholder = self._create_placeholder()
 
     def rowCount(self, parent: QtCore.QModelIndex = QtCore.QModelIndex()) -> int:
@@ -458,15 +482,21 @@ class CatalogModel(QtCore.QAbstractListModel):
         self._thread_pool.start(task)
 
     def _queue_wiki_thumbnail(self, item: CatalogItem) -> None:
-        if item.catalog not in {"Messier", "Solar system"}:
-            return
         if item.unique_key in self._remote_loading or item.unique_key in self._remote_failed:
             return
-        title = self._wiki_title_for_item(item)
-        if not title:
+        if self._should_skip_wiki_thumbnail(item):
             self._remote_failed.add(item.unique_key)
             return
-        cache_path = self._wiki_cache_path(title)
+        title = self._wiki_title_for_item(item)
+        image_url = item.wiki_thumbnail
+        if image_url and self._is_bad_wiki_thumbnail(image_url):
+            image_url = None
+        if not title and not image_url:
+            self._remote_failed.add(item.unique_key)
+            return
+        cache_key = title or item.object_id.replace(" ", "_")
+        cache_path = self._wiki_cache_path(cache_key)
+        self._maybe_refresh_wiki_thumbnail(item, cache_path)
         if cache_path.exists():
             image = QtGui.QImage(str(cache_path))
             if not image.isNull():
@@ -482,10 +512,42 @@ class CatalogModel(QtCore.QAbstractListModel):
             except OSError:
                 pass
         self._remote_loading.add(item.unique_key)
-        task = WikiThumbnailTask(item.unique_key, title, cache_path, self._cache.thumb_size)
+        task = WikiThumbnailTask(item.unique_key, cache_key, cache_path, self._cache.thumb_size, image_url=image_url)
         task.signals.loaded.connect(self._on_wiki_thumbnail_loaded)
         task.signals.failed.connect(self._on_wiki_thumbnail_failed)
-        self._thread_pool.start(task)
+        self._wiki_pool.start(task)
+
+    @staticmethod
+    def _is_bad_wiki_thumbnail(url: str) -> bool:
+        if not url:
+            return False
+        parsed = urlparse(url)
+        name = Path(parsed.path).name.lower()
+        bad_tokens = ("map", "chart", "finder", "locator", "diagram", "orbit", "orbital", "trajectory")
+        return any(token in name for token in bad_tokens)
+
+    def _should_skip_wiki_thumbnail(self, item: CatalogItem) -> bool:
+        blocklist = self._wiki_thumbnail_blocklist.get(item.catalog)
+        if not blocklist:
+            return False
+        normalized = item.object_id.replace(" ", "").upper()
+        return normalized in blocklist
+
+    def _maybe_refresh_wiki_thumbnail(self, item: CatalogItem, cache_path: Path) -> None:
+        refresh_list = self._wiki_thumbnail_refresh.get(item.catalog)
+        if not refresh_list:
+            return
+        normalized = item.object_id.replace(" ", "").upper()
+        if normalized not in refresh_list:
+            return
+        if item.unique_key in self._wiki_refresh_done:
+            return
+        self._wiki_refresh_done.add(item.unique_key)
+        if cache_path.exists():
+            try:
+                cache_path.unlink()
+            except OSError:
+                pass
 
     def _on_wiki_thumbnail_loaded(self, item_key: str, image: QtGui.QImage) -> None:
         pixmap = QtGui.QPixmap.fromImage(image)
@@ -544,6 +606,7 @@ class CatalogModel(QtCore.QAbstractListModel):
         self._remote_loading.clear()
         self._remote_failed.clear()
         self._loading.clear()
+        self._wiki_refresh_done.clear()
         self._row_lookup = {item.unique_key: row for row, item in enumerate(items)}
         self.endResetModel()
 
@@ -591,6 +654,7 @@ class CatalogModel(QtCore.QAbstractListModel):
             notes=notes,
             image_notes=item.image_notes,
             external_link=item.external_link,
+            wiki_thumbnail=item.wiki_thumbnail,
             ra_hours=item.ra_hours,
             dec_deg=item.dec_deg,
             image_paths=item.image_paths,
@@ -623,6 +687,7 @@ class CatalogModel(QtCore.QAbstractListModel):
             notes=item.notes,
             image_notes=image_notes,
             external_link=item.external_link,
+            wiki_thumbnail=item.wiki_thumbnail,
             ra_hours=item.ra_hours,
             dec_deg=item.dec_deg,
             image_paths=item.image_paths,
@@ -654,6 +719,7 @@ class CatalogModel(QtCore.QAbstractListModel):
             notes=item.notes,
             image_notes=item.image_notes,
             external_link=item.external_link,
+            wiki_thumbnail=item.wiki_thumbnail,
             ra_hours=item.ra_hours,
             dec_deg=item.dec_deg,
             image_paths=item.image_paths,
@@ -1539,6 +1605,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._auto_fit_enabled = True
         self._suppress_auto_fit = True
         self._thread_pool = QtCore.QThreadPool.globalInstance()
+        self._catalog_pool = QtCore.QThreadPool(self)
+        self._catalog_pool.setMaxThreadCount(1)
         self._loading = False
         self._pending_reload = False
         self._pending_config: Optional[Dict] = None
@@ -1583,14 +1651,13 @@ class MainWindow(QtWidgets.QMainWindow):
         return Path(location)
 
     def _ensure_user_metadata_files(self) -> None:
-        if not hasattr(sys, "_MEIPASS"):
-            return
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.AppConfigLocation)
         if not location:
             return
         metadata_dir = Path(location) / "metadata"
         metadata_dir.mkdir(parents=True, exist_ok=True)
         updated = False
+        is_frozen = hasattr(sys, "_MEIPASS")
         for catalog in self.config.get("catalogs", []):
             meta_value = catalog.get("metadata_file")
             if not meta_value:
@@ -1598,18 +1665,102 @@ class MainWindow(QtWidgets.QMainWindow):
             meta_path = Path(meta_value)
             if not meta_path.is_absolute():
                 meta_path = (PROJECT_ROOT / meta_path).resolve()
-            if metadata_dir in meta_path.parents:
-                continue
-            target = metadata_dir / meta_path.name
-            if not target.exists():
-                try:
-                    shutil.copy2(meta_path, target)
-                except OSError:
-                    continue
-            catalog["metadata_file"] = str(target)
-            updated = True
+            source_path = self._bundled_metadata_path(catalog.get("name", ""))
+            if not source_path:
+                source_path = meta_path
+            if is_frozen:
+                target = metadata_dir / meta_path.name
+                if not target.exists() and meta_path.exists():
+                    try:
+                        shutil.copy2(meta_path, target)
+                        updated = True
+                    except OSError:
+                        continue
+                if source_path and target.exists():
+                    if self._merge_metadata_updates(source_path, target, catalog.get("name", "")):
+                        updated = True
+                if metadata_dir not in meta_path.parents:
+                    catalog["metadata_file"] = str(target)
+                    updated = True
+            elif metadata_dir in meta_path.parents:
+                if not meta_path.exists() and source_path and source_path.exists():
+                    try:
+                        shutil.copy2(source_path, meta_path)
+                        updated = True
+                    except OSError:
+                        continue
+                if source_path and meta_path.exists():
+                    if self._merge_metadata_updates(source_path, meta_path, catalog.get("name", "")):
+                        updated = True
         if updated:
             save_config(self.config_path, self.config)
+
+    def _bundled_metadata_path(self, catalog_name: str) -> Optional[Path]:
+        name = (catalog_name or "").strip().lower()
+        for catalog in DEFAULT_CONFIG.get("catalogs", []):
+            if (catalog.get("name") or "").strip().lower() == name:
+                meta_value = catalog.get("metadata_file")
+                if not meta_value:
+                    return None
+                return (PROJECT_ROOT / meta_value).resolve()
+        return None
+
+    def _merge_metadata_updates(self, source_path: Path, target_path: Path, catalog_name: str) -> bool:
+        try:
+            source_data = json.loads(source_path.read_text(encoding="utf-8"))
+            target_data = json.loads(target_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+        source_entries = source_data.get(catalog_name, {})
+        target_entries = target_data.get(catalog_name, {})
+        if not isinstance(source_entries, dict) or not isinstance(target_entries, dict):
+            return False
+        updated = False
+        fields = {
+            "name",
+            "type",
+            "distance_ly",
+            "discoverer",
+            "discovery_year",
+            "best_months",
+            "description",
+            "external_link",
+            "ra_hours",
+            "dec_deg",
+            "wiki_thumbnail",
+        }
+        force_fields = {"description", "external_link", "wiki_thumbnail"}
+        for object_id, source_meta in source_entries.items():
+            if not isinstance(source_meta, dict):
+                continue
+            target_meta = target_entries.get(object_id)
+            if not isinstance(target_meta, dict):
+                target_entries[object_id] = dict(source_meta)
+                updated = True
+                continue
+            for field in fields:
+                if field in source_meta and field in force_fields:
+                    value = source_meta.get(field)
+                    if target_meta.get(field) != value:
+                        target_meta[field] = value
+                        updated = True
+                    continue
+                value = source_meta.get(field)
+                if value is None or value == "":
+                    continue
+                if target_meta.get(field) != value:
+                    target_meta[field] = value
+                    updated = True
+        for object_id in list(target_entries.keys()):
+            if object_id not in source_entries:
+                continue
+        if updated:
+            target_data[catalog_name] = target_entries
+            try:
+                target_path.write_text(json.dumps(target_data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+            except OSError:
+                return False
+        return updated
 
     def _cleanup_invalid_image_only_entries(self) -> None:
         catalog_rules = {
@@ -2210,13 +2361,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @staticmethod
     def _catalog_display_name(name: str) -> str:
-        if name in {"NGC", "IC", "Caldwell"}:
+        if name in {"IC"}:
             return f"{name} (In progress)"
         return name
 
     @staticmethod
     def _catalog_title_text(title: str, suffix: str) -> str:
-        if title in {"NGC", "IC", "Caldwell"}:
+        if title in {"IC"}:
             return f"{title}{suffix} (In progress)"
         return f"{title}{suffix}"
 
@@ -2395,7 +2546,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_label.setText("Loading catalog…")
         task = CatalogLoadTask(config)
         task.signals.loaded.connect(self._on_catalog_loaded)
-        self._thread_pool.start(task)
+        self._catalog_pool.start(task)
 
     def _on_catalog_loaded(self, items: List[CatalogItem]) -> None:
         self.items = items
@@ -3462,12 +3613,6 @@ class AboutDialog(QtWidgets.QDialog):
         links.setOpenExternalLinks(True)
         links.setObjectName("aboutLinks")
 
-        config_path = ""
-        if parent is not None and hasattr(parent, "config_path"):
-            config_path = str(parent.config_path)
-        config_label = QtWidgets.QLabel(f"Config file: {config_path}" if config_path else "Config file: unknown")
-        config_label.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
-
         sponsor_box = QtWidgets.QGroupBox("Sponsors")
         sponsor_layout = QtWidgets.QVBoxLayout(sponsor_box)
         self.supporters_status = QtWidgets.QLabel("Loading supporters…")
@@ -3489,8 +3634,6 @@ class AboutDialog(QtWidgets.QDialog):
         left_layout.addWidget(about)
         left_layout.addSpacing(10)
         left_layout.addWidget(links)
-        left_layout.addSpacing(6)
-        left_layout.addWidget(config_label)
         left_layout.addSpacing(10)
         left_layout.addWidget(sponsor_box)
         left_layout.addStretch(1)
