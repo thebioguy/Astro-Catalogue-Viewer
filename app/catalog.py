@@ -7,7 +7,7 @@ import json
 import math
 import os
 import sys
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Set
 from urllib.parse import quote
 import re
 
@@ -44,6 +44,230 @@ DEFAULT_CONFIG = {
     "archive_image_dir": "",
     "use_wiki_thumbnails": False,
     "auto_check_updates": True,
+}
+
+
+MESSIER_TO_NGC = {
+    "M1": ["NGC1952"],
+    "M2": ["NGC7089"],
+    "M3": ["NGC5272"],
+    "M4": ["NGC6121"],
+    "M5": ["NGC5904"],
+    "M6": ["NGC6405"],
+    "M7": ["NGC6475"],
+    "M8": ["NGC6523"],
+    "M9": ["NGC6333"],
+    "M10": ["NGC6254"],
+    "M11": ["NGC6705"],
+    "M12": ["NGC6218"],
+    "M13": ["NGC6205"],
+    "M14": ["NGC6402"],
+    "M15": ["NGC7078"],
+    "M16": ["NGC6611"],
+    "M17": ["NGC6618"],
+    "M18": ["NGC6613"],
+    "M19": ["NGC6273"],
+    "M20": ["NGC6514"],
+    "M21": ["NGC6531"],
+    "M22": ["NGC6656"],
+    "M23": ["NGC6494"],
+    "M24": ["NGC6603"],
+    "M25": ["IC4725"],
+    "M26": ["NGC6694"],
+    "M27": ["NGC6853"],
+    "M28": ["NGC6626"],
+    "M29": ["NGC6913"],
+    "M30": ["NGC7099"],
+    "M31": ["NGC224"],
+    "M32": ["NGC221"],
+    "M33": ["NGC598"],
+    "M34": ["NGC1039"],
+    "M35": ["NGC2168"],
+    "M36": ["NGC1960"],
+    "M37": ["NGC2099"],
+    "M38": ["NGC1912"],
+    "M39": ["NGC7092"],
+    "M41": ["NGC2287"],
+    "M42": ["NGC1976"],
+    "M43": ["NGC1982"],
+    "M44": ["NGC2632"],
+    "M46": ["NGC2437"],
+    "M47": ["NGC2422"],
+    "M48": ["NGC2548"],
+    "M49": ["NGC4472"],
+    "M50": ["NGC2323"],
+    "M51": ["NGC5194"],
+    "M52": ["NGC7654"],
+    "M53": ["NGC5024"],
+    "M54": ["NGC6715"],
+    "M55": ["NGC6809"],
+    "M56": ["NGC6779"],
+    "M57": ["NGC6720"],
+    "M58": ["NGC4579"],
+    "M59": ["NGC4621"],
+    "M60": ["NGC4649"],
+    "M61": ["NGC4303"],
+    "M62": ["NGC6266"],
+    "M63": ["NGC5055"],
+    "M64": ["NGC4826"],
+    "M65": ["NGC3623"],
+    "M66": ["NGC3627"],
+    "M67": ["NGC2682"],
+    "M68": ["NGC4590"],
+    "M69": ["NGC6637"],
+    "M70": ["NGC6681"],
+    "M71": ["NGC6838"],
+    "M72": ["NGC6981"],
+    "M73": ["NGC6994"],
+    "M74": ["NGC628"],
+    "M75": ["NGC6864"],
+    "M76": ["NGC650"],
+    "M77": ["NGC1068"],
+    "M78": ["NGC2068"],
+    "M79": ["NGC1904"],
+    "M80": ["NGC6093"],
+    "M81": ["NGC3031"],
+    "M82": ["NGC3034"],
+    "M83": ["NGC5236"],
+    "M84": ["NGC4374"],
+    "M85": ["NGC4382"],
+    "M86": ["NGC4406"],
+    "M87": ["NGC4486"],
+    "M88": ["NGC4501"],
+    "M89": ["NGC4552"],
+    "M90": ["NGC4569"],
+    "M91": ["NGC4548"],
+    "M92": ["NGC6341"],
+    "M93": ["NGC2447"],
+    "M94": ["NGC4736"],
+    "M95": ["NGC3351"],
+    "M96": ["NGC3368"],
+    "M97": ["NGC3587"],
+    "M98": ["NGC4192"],
+    "M99": ["NGC4254"],
+    "M100": ["NGC4321"],
+    "M101": ["NGC5457"],
+    "M102": ["NGC5866"],
+    "M103": ["NGC581"],
+    "M104": ["NGC4594"],
+    "M105": ["NGC3379"],
+    "M106": ["NGC4258"],
+    "M107": ["NGC6171"],
+    "M108": ["NGC3556"],
+    "M109": ["NGC3992"],
+    "M110": ["NGC205"],
+}
+
+
+NGC_TO_MESSIER = {
+    "NGC205": ["M110"],
+    "NGC221": ["M32"],
+    "NGC224": ["M31"],
+    "NGC581": ["M103"],
+    "NGC598": ["M33"],
+    "NGC628": ["M74"],
+    "NGC650": ["M76"],
+    "NGC1039": ["M34"],
+    "NGC1068": ["M77"],
+    "NGC1904": ["M79"],
+    "NGC1912": ["M38"],
+    "NGC1952": ["M1"],
+    "NGC1960": ["M36"],
+    "NGC1976": ["M42"],
+    "NGC1982": ["M43"],
+    "NGC2068": ["M78"],
+    "NGC2099": ["M37"],
+    "NGC2168": ["M35"],
+    "NGC2287": ["M41"],
+    "NGC2323": ["M50"],
+    "NGC2422": ["M47"],
+    "NGC2437": ["M46"],
+    "NGC2447": ["M93"],
+    "NGC2548": ["M48"],
+    "NGC2632": ["M44"],
+    "NGC2682": ["M67"],
+    "NGC3031": ["M81"],
+    "NGC3034": ["M82"],
+    "NGC3351": ["M95"],
+    "NGC3368": ["M96"],
+    "NGC3379": ["M105"],
+    "NGC3556": ["M108"],
+    "NGC3587": ["M97"],
+    "NGC3623": ["M65"],
+    "NGC3627": ["M66"],
+    "NGC3992": ["M109"],
+    "NGC4192": ["M98"],
+    "NGC4254": ["M99"],
+    "NGC4258": ["M106"],
+    "NGC4303": ["M61"],
+    "NGC4321": ["M100"],
+    "NGC4374": ["M84"],
+    "NGC4382": ["M85"],
+    "NGC4406": ["M86"],
+    "NGC4472": ["M49"],
+    "NGC4486": ["M87"],
+    "NGC4501": ["M88"],
+    "NGC4548": ["M91"],
+    "NGC4552": ["M89"],
+    "NGC4569": ["M90"],
+    "NGC4579": ["M58"],
+    "NGC4590": ["M68"],
+    "NGC4594": ["M104"],
+    "NGC4621": ["M59"],
+    "NGC4649": ["M60"],
+    "NGC4736": ["M94"],
+    "NGC4826": ["M64"],
+    "NGC5024": ["M53"],
+    "NGC5055": ["M63"],
+    "NGC5194": ["M51"],
+    "NGC5236": ["M83"],
+    "NGC5272": ["M3"],
+    "NGC5457": ["M101"],
+    "NGC5866": ["M102"],
+    "NGC5904": ["M5"],
+    "NGC6093": ["M80"],
+    "NGC6121": ["M4"],
+    "NGC6171": ["M107"],
+    "NGC6205": ["M13"],
+    "NGC6218": ["M12"],
+    "NGC6254": ["M10"],
+    "NGC6266": ["M62"],
+    "NGC6273": ["M19"],
+    "NGC6333": ["M9"],
+    "NGC6341": ["M92"],
+    "NGC6402": ["M14"],
+    "NGC6405": ["M6"],
+    "NGC6475": ["M7"],
+    "NGC6494": ["M23"],
+    "NGC6514": ["M20"],
+    "NGC6523": ["M8"],
+    "NGC6531": ["M21"],
+    "NGC6603": ["M24"],
+    "NGC6611": ["M16"],
+    "NGC6613": ["M18"],
+    "NGC6618": ["M17"],
+    "NGC6626": ["M28"],
+    "NGC6637": ["M69"],
+    "NGC6656": ["M22"],
+    "NGC6681": ["M70"],
+    "NGC6694": ["M26"],
+    "NGC6705": ["M11"],
+    "NGC6715": ["M54"],
+    "NGC6720": ["M57"],
+    "NGC6779": ["M56"],
+    "NGC6809": ["M55"],
+    "NGC6838": ["M71"],
+    "NGC6853": ["M27"],
+    "NGC6864": ["M75"],
+    "NGC6913": ["M29"],
+    "NGC6981": ["M72"],
+    "NGC6994": ["M73"],
+    "NGC7078": ["M15"],
+    "NGC7089": ["M2"],
+    "NGC7092": ["M39"],
+    "NGC7099": ["M30"],
+    "NGC7654": ["M52"],
+    "IC4725": ["M25"],
 }
 
 
@@ -93,6 +317,27 @@ def load_config(config_path: Path) -> Dict:
     return _merge_default_config({})
 
 
+def _collect_catalog_image_dirs(config: Dict) -> Dict[str, List[Path]]:
+    catalog_dirs: Dict[str, List[Path]] = {}
+    for catalog_cfg in config.get("catalogs", []):
+        name = catalog_cfg.get("name") or ""
+        paths = [_resolve_path(path) for path in catalog_cfg.get("image_dirs", []) if path]
+        catalog_dirs[name] = paths
+    return catalog_dirs
+
+
+def _unique_paths(paths: Iterable[Path]) -> List[Path]:
+    unique: List[Path] = []
+    seen: Set[str] = set()
+    for path in paths:
+        key = os.path.normcase(os.path.abspath(str(path)))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(path)
+    return unique
+
+
 def resolve_metadata_path(config: Dict, catalog_name: str) -> Optional[Path]:
     for catalog_cfg in config.get("catalogs", []):
         if catalog_cfg.get("name") == catalog_name:
@@ -122,7 +367,7 @@ def _build_image_index(image_dirs: Iterable[Path], extensions: Iterable[str]) ->
                 if suffix not in exts:
                     continue
                 stem = Path(filename).stem.upper()
-                matches = _extract_object_ids(stem)
+                matches = _expand_catalog_aliases(_extract_object_ids(stem))
                 if not matches:
                     continue
                 image_path = Path(root) / filename
@@ -136,6 +381,27 @@ def _build_image_index(image_dirs: Iterable[Path], extensions: Iterable[str]) ->
     for object_id, paths in index.items():
         index[object_id] = sorted(paths, key=lambda p: p.name.lower())
     return index
+
+
+def _expand_catalog_aliases(object_ids: Iterable[str]) -> List[str]:
+    expanded: List[str] = []
+    seen: Set[str] = set()
+    for object_id in object_ids:
+        if not object_id:
+            continue
+        normalized = object_id.upper()
+        if normalized not in seen:
+            seen.add(normalized)
+            expanded.append(normalized)
+        for alias in MESSIER_TO_NGC.get(normalized, []):
+            if alias not in seen:
+                seen.add(alias)
+                expanded.append(alias)
+        for alias in NGC_TO_MESSIER.get(normalized, []):
+            if alias not in seen:
+                seen.add(alias)
+                expanded.append(alias)
+    return expanded
 
 
 def _load_catalog_metadata(metadata_path: Path) -> Dict[str, Dict]:
@@ -155,14 +421,20 @@ def load_catalog_items(config: Dict) -> List[CatalogItem]:
     longitude = observer.get("longitude") or 0.0
     master_dir = config.get("master_image_dir") or ""
     master_path = _resolve_path(master_dir) if master_dir else None
+    catalog_dirs = _collect_catalog_image_dirs(config)
 
     for catalog_cfg in config.get("catalogs", []):
         catalog_name = catalog_cfg.get("name", "Unknown")
         catalog_prefix = _catalog_prefix(catalog_name)
         metadata_path = _resolve_path(catalog_cfg.get("metadata_file", ""))
-        image_dirs = [_resolve_path(path) for path in catalog_cfg.get("image_dirs", [])]
+        image_dirs = list(catalog_dirs.get(catalog_name, []))
+        if catalog_name == "Messier":
+            image_dirs += catalog_dirs.get("NGC", [])
+        elif catalog_name == "NGC":
+            image_dirs += catalog_dirs.get("Messier", [])
         if master_path:
             image_dirs.append(master_path)
+        image_dirs = _unique_paths(image_dirs)
         image_index = _build_image_index(image_dirs, extensions)
 
         if not metadata_path.exists():

@@ -24,7 +24,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "2.0-beta"
+APP_VERSION = "2.1-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -767,7 +767,7 @@ class CatalogItemDelegate(QtWidgets.QStyledItemDelegate):
         margin = 4
         item: CatalogItem = index.data(QtCore.Qt.ItemDataRole.UserRole)
         if item:
-            if len(item.image_paths) > 1:
+            if len(item.image_paths) > 0:
                 count_rect = QtCore.QRect(
                     icon_rect.left() + margin,
                     icon_rect.top() + margin,
