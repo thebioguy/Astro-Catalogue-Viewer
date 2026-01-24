@@ -20,3 +20,5 @@ Thank you for keeping this project moving.
 
 ## Supporters
 - roelb
+- steve1664astro
+- LazyAstro
