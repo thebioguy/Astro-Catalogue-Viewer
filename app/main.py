@@ -24,7 +24,7 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "2.1-beta"
+APP_VERSION = "2.2-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
@@ -3884,6 +3884,7 @@ class SupportersFetchTask(QtCore.QRunnable):
         if isinstance(payload, dict):
             payload = payload.get("supporters", payload.get("supporter", []))
         if isinstance(payload, list):
+            stargazers: List[str] = []
             supporters: List[str] = []
             for entry in payload:
                 if isinstance(entry, str):
@@ -3898,8 +3899,12 @@ class SupportersFetchTask(QtCore.QRunnable):
                     line = f"{name} — {tier}" if tier else name
                     if url:
                         line = f'{line} — <a href="{url}">YouTube</a>'
-                    supporters.append(line)
-            return supporters
+                    tier_key = tier.casefold()
+                    if tier_key in {"stargazer", "stargazers"}:
+                        stargazers.append(line)
+                    else:
+                        supporters.append(line)
+            return stargazers + supporters
         return []
 
 
