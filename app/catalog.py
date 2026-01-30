@@ -729,6 +729,11 @@ def _solar_aliases(name: str) -> List[str]:
     return sorted(set(variants) | set(extras))
 
 def _alias_matches(stem: str, alias: str) -> bool:
+    if not alias:
+        return False
+    if re.fullmatch(r"[a-z]+(?: [a-z]+)*", alias):
+        pattern = rf"(?<![a-z0-9]){re.escape(alias)}(?![a-z0-9])"
+        return re.search(pattern, stem) is not None
     if len(alias) <= 2:
         pattern = rf"(?<![a-z0-9]){re.escape(alias)}(?![a-z0-9])"
         return re.search(pattern, stem) is not None
