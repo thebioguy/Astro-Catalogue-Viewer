@@ -80,6 +80,10 @@
     {
       "name": "Someone",
       "tier": "Stargazer"
+    },
+    {
+      "name": "Anthony Jerig",
+      "tier": "supporter"
     }
   ]
 }
