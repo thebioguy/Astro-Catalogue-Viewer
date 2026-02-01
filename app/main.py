@@ -24,10 +24,42 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "2.2-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
+VERSION_FILE = "data/version.json"
+VERSION_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/version.json"
+
+
+def _extract_version(payload: object) -> Optional[str]:
+    if isinstance(payload, dict):
+        for key in ("version", "app_version", "tag"):
+            value = payload.get(key)
+            if value is None:
+                continue
+            text = str(value).strip()
+            if text:
+                return text
+        return None
+    if isinstance(payload, str):
+        text = payload.strip()
+        return text or None
+    return None
+
+
+def _load_version_from_file(path: Path) -> Optional[str]:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    return _extract_version(payload)
+
+
+def _load_bundled_version() -> str:
+    return _load_version_from_file(PROJECT_ROOT / VERSION_FILE) or "Unknown"
+
+
+APP_VERSION = _load_bundled_version()
 SHUTDOWN_EVENT = threading.Event()
 
 
@@ -63,6 +95,11 @@ class UpdateSignals(QtCore.QObject):
 
 class SupportersSignals(QtCore.QObject):
     loaded = QtCore.Signal(list)
+    failed = QtCore.Signal(str)
+
+
+class VersionSignals(QtCore.QObject):
+    loaded = QtCore.Signal(str)
     failed = QtCore.Signal(str)
 
 
@@ -1579,6 +1616,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.config_path = config_path
         self.config = load_config(self.config_path)
+        self._app_version = self._load_cached_version()
         self._ensure_user_metadata_files()
         if not self.config.get("cleanup_invalid_image_only_entries_done", False):
             self._cleanup_invalid_image_only_entries()
@@ -1632,12 +1670,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self._latest_version: Optional[str] = None
         self._update_url: Optional[str] = None
         self._update_tasks: List[UpdateCheckTask] = []
+        self._version_task: Optional[VersionFetchTask] = None
         self._closing = False
         self._compact_toolbar = False
         self._syncing_compact = False
         self._toolbar_full_width = 0
 
         self._build_ui()
+        self._start_version_fetch()
         self._apply_dark_theme()
         self._apply_saved_window_state()
         self._update_toolbar_compact_mode()
@@ -1649,6 +1689,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def _cache_dir(self) -> Path:
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.CacheLocation)
         return Path(location)
+
+    def _load_cached_version(self) -> str:
+        cached = str(self.config.get("app_version_override") or "").strip()
+        return cached or APP_VERSION
 
     def _ensure_user_metadata_files(self) -> None:
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.AppConfigLocation)
@@ -2676,7 +2720,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._about_dialog.raise_()
             self._about_dialog.activateWindow()
             return
-        dialog = AboutDialog(self.config, self)
+        dialog = AboutDialog(self.config, self._app_version, self)
         dialog.check_updates_requested.connect(self._check_updates_user)
         dialog.auto_check_toggled.connect(self._set_auto_check_updates)
         dialog.set_update_status(self._update_status, self._latest_version, self._update_url)
@@ -2691,6 +2735,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.config["auto_check_updates"] = bool(enabled)
         save_config(self.config_path, self.config)
 
+    def _start_version_fetch(self) -> None:
+        if self._version_task is not None:
+            return
+        task = VersionFetchTask(VERSION_URL)
+        task.signals.loaded.connect(self._apply_remote_version)
+        task.signals.failed.connect(self._version_fetch_failed)
+        self._version_task = task
+        self._thread_pool.start(task)
+
+    def _apply_remote_version(self, version: str) -> None:
+        self._version_task = None
+        if not version or version == self._app_version:
+            return
+        self._app_version = version
+        self.config["app_version_override"] = version
+        save_config(self.config_path, self.config)
+        global APP_VERSION
+        APP_VERSION = version
+        if self._about_dialog:
+            self._about_dialog.set_app_version(version)
+
+    def _version_fetch_failed(self, _message: str) -> None:
+        self._version_task = None
+
     def _check_updates_silent(self) -> None:
         self._start_update_check(silent=True)
 
@@ -2698,7 +2766,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._start_update_check(silent=False)
 
     def _start_update_check(self, silent: bool) -> None:
-        task = UpdateCheckTask(APP_VERSION)
+        task = UpdateCheckTask(self._app_version)
         self._update_tasks.append(task)
         task.signals.available.connect(lambda tag, url: self._on_update_available(tag, url, silent))
         task.signals.up_to_date.connect(lambda tag: self._on_update_uptodate(tag, silent))
@@ -3587,16 +3655,17 @@ class AboutDialog(QtWidgets.QDialog):
     check_updates_requested = QtCore.Signal()
     auto_check_toggled = QtCore.Signal(bool)
 
-    def __init__(self, config: Dict, parent: Optional[QtWidgets.QWidget] = None) -> None:
+    def __init__(self, config: Dict, app_version: str, parent: Optional[QtWidgets.QWidget] = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("About")
         self.setMinimumWidth(760)
         self._config = config
+        self._app_version = app_version
 
         title = QtWidgets.QLabel("Astro Catalogue Viewer")
         title.setObjectName("aboutTitle")
-        version = QtWidgets.QLabel(f"Version {APP_VERSION}")
-        version.setObjectName("aboutVersion")
+        self.version_label = QtWidgets.QLabel(f"Version {app_version}")
+        self.version_label.setObjectName("aboutVersion")
 
         about = QtWidgets.QLabel(
             "Astro Catalogue Viewer helps you organize deep-sky catalogs with your own imagery, "
@@ -3629,7 +3698,7 @@ class AboutDialog(QtWidgets.QDialog):
         left_layout = QtWidgets.QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.addWidget(title)
-        left_layout.addWidget(version)
+        left_layout.addWidget(self.version_label)
         left_layout.addSpacing(8)
         left_layout.addWidget(about)
         left_layout.addSpacing(10)
@@ -3695,8 +3764,14 @@ class AboutDialog(QtWidgets.QDialog):
             self.update_status.setText(status)
             self.update_status.setOpenExternalLinks(False)
 
+    def set_app_version(self, version: str) -> None:
+        if not version:
+            return
+        self._app_version = version
+        self.version_label.setText(f"Version {version}")
+
     def _start_supporters_fetch(self) -> None:
-        task = SupportersFetchTask(SUPPORTERS_URL)
+        task = SupportersFetchTask(SUPPORTERS_URL, user_agent=f"{APP_NAME}/{self._app_version}")
         task.signals.loaded.connect(self._apply_supporters)
         task.signals.failed.connect(self._supporters_failed)
         self._supporters_task = task
@@ -3813,9 +3888,10 @@ class UpdateCheckTask(QtCore.QRunnable):
 
 
 class SupportersFetchTask(QtCore.QRunnable):
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, user_agent: Optional[str] = None) -> None:
         super().__init__()
         self.url = url
+        self.user_agent = user_agent or f"{APP_NAME}/{APP_VERSION}"
         self.signals = SupportersSignals()
 
     def run(self) -> None:
@@ -3860,7 +3936,7 @@ class SupportersFetchTask(QtCore.QRunnable):
                     "--retry-delay",
                     "1",
                     "-H",
-                    f"User-Agent: {APP_NAME}/{APP_VERSION}",
+                    f"User-Agent: {self.user_agent}",
                     url,
                 ],
                 check=False,
@@ -3906,6 +3982,77 @@ class SupportersFetchTask(QtCore.QRunnable):
                         supporters.append(line)
             return stargazers + supporters
         return []
+
+
+class VersionFetchTask(QtCore.QRunnable):
+    def __init__(self, url: str) -> None:
+        super().__init__()
+        self.url = url
+        self.signals = VersionSignals()
+
+    def run(self) -> None:
+        if SHUTDOWN_EVENT.is_set():
+            return
+        try:
+            payload = self._fetch_payload()
+            version = _extract_version(payload)
+            if version:
+                self._emit_loaded(version)
+            else:
+                self._emit_failed("Unable to load version.")
+        except Exception:
+            self._emit_failed("Unable to load version.")
+
+    def _emit_loaded(self, version: str) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.loaded.emit(version)
+        except RuntimeError:
+            return
+
+    def _emit_failed(self, message: str) -> None:
+        if SHUTDOWN_EVENT.is_set() or not isValid(self.signals):
+            return
+        try:
+            self.signals.failed.emit(message)
+        except RuntimeError:
+            return
+
+    def _fetch_payload(self) -> Dict:
+        creationflags = 0
+        if sys.platform.startswith("win"):
+            creationflags = subprocess.CREATE_NO_WINDOW
+        for url in self._candidate_urls():
+            result = subprocess.run(
+                [
+                    "curl",
+                    "-sL",
+                    "--max-time",
+                    "6",
+                    "--retry",
+                    "2",
+                    "--retry-delay",
+                    "1",
+                    "-H",
+                    f"User-Agent: {APP_NAME}/{APP_VERSION}",
+                    url,
+                ],
+                check=False,
+                capture_output=True,
+                creationflags=creationflags,
+            )
+            if result.returncode != 0:
+                continue
+            payload = json.loads(result.stdout or "{}")
+            if payload:
+                return payload
+        return {}
+
+    def _candidate_urls(self) -> List[str]:
+        if "/main/" in self.url:
+            return [self.url, self.url.replace("/main/", "/master/")]
+        return [self.url]
 
 
 def main() -> None:
