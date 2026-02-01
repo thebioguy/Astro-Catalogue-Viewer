@@ -24,11 +24,12 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
+APP_VERSION = "2.4-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
-VERSION_FILE = "data/version.json"
-VERSION_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/version.json"
+DATA_VERSION_FILE = "data/version.json"
+DATA_VERSION_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/version.json"
 
 
 def _extract_version(payload: object) -> Optional[str]:
@@ -55,11 +56,11 @@ def _load_version_from_file(path: Path) -> Optional[str]:
     return _extract_version(payload)
 
 
-def _load_bundled_version() -> str:
-    return _load_version_from_file(PROJECT_ROOT / VERSION_FILE) or "Unknown"
+def _load_bundled_data_version() -> str:
+    return _load_version_from_file(PROJECT_ROOT / DATA_VERSION_FILE) or "Unknown"
 
 
-APP_VERSION = _load_bundled_version()
+DEFAULT_DATA_VERSION = _load_bundled_data_version()
 SHUTDOWN_EVENT = threading.Event()
 
 
@@ -98,7 +99,7 @@ class SupportersSignals(QtCore.QObject):
     failed = QtCore.Signal(str)
 
 
-class VersionSignals(QtCore.QObject):
+class DataVersionSignals(QtCore.QObject):
     loaded = QtCore.Signal(str)
     failed = QtCore.Signal(str)
 
@@ -1616,7 +1617,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.config_path = config_path
         self.config = load_config(self.config_path)
-        self._app_version = self._load_cached_version()
+        self._data_version = self._load_cached_data_version()
         self._ensure_user_metadata_files()
         if not self.config.get("cleanup_invalid_image_only_entries_done", False):
             self._cleanup_invalid_image_only_entries()
@@ -1670,14 +1671,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self._latest_version: Optional[str] = None
         self._update_url: Optional[str] = None
         self._update_tasks: List[UpdateCheckTask] = []
-        self._version_task: Optional[VersionFetchTask] = None
+        self._data_version_task: Optional[DataVersionFetchTask] = None
         self._closing = False
         self._compact_toolbar = False
         self._syncing_compact = False
         self._toolbar_full_width = 0
 
         self._build_ui()
-        self._start_version_fetch()
+        self._start_data_version_fetch()
         self._apply_dark_theme()
         self._apply_saved_window_state()
         self._update_toolbar_compact_mode()
@@ -1690,9 +1691,16 @@ class MainWindow(QtWidgets.QMainWindow):
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.CacheLocation)
         return Path(location)
 
-    def _load_cached_version(self) -> str:
-        cached = str(self.config.get("app_version_override") or "").strip()
-        return cached or APP_VERSION
+    def _load_cached_data_version(self) -> str:
+        cached = str(self.config.get("data_version_override") or "").strip()
+        if not cached:
+            legacy = str(self.config.get("app_version_override") or "").strip()
+            if legacy:
+                self.config["data_version_override"] = legacy
+                self.config.pop("app_version_override", None)
+                save_config(self.config_path, self.config)
+                cached = legacy
+        return cached or DEFAULT_DATA_VERSION
 
     def _ensure_user_metadata_files(self) -> None:
         location = QtCore.QStandardPaths.writableLocation(QtCore.QStandardPaths.AppConfigLocation)
@@ -2720,7 +2728,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._about_dialog.raise_()
             self._about_dialog.activateWindow()
             return
-        dialog = AboutDialog(self.config, self._app_version, self)
+        dialog = AboutDialog(self.config, APP_VERSION, self._data_version, self)
         dialog.check_updates_requested.connect(self._check_updates_user)
         dialog.auto_check_toggled.connect(self._set_auto_check_updates)
         dialog.set_update_status(self._update_status, self._latest_version, self._update_url)
@@ -2735,29 +2743,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.config["auto_check_updates"] = bool(enabled)
         save_config(self.config_path, self.config)
 
-    def _start_version_fetch(self) -> None:
-        if self._version_task is not None:
+    def _start_data_version_fetch(self) -> None:
+        if self._data_version_task is not None:
             return
-        task = VersionFetchTask(VERSION_URL)
-        task.signals.loaded.connect(self._apply_remote_version)
-        task.signals.failed.connect(self._version_fetch_failed)
-        self._version_task = task
+        task = DataVersionFetchTask(DATA_VERSION_URL)
+        task.signals.loaded.connect(self._apply_remote_data_version)
+        task.signals.failed.connect(self._data_version_fetch_failed)
+        self._data_version_task = task
         self._thread_pool.start(task)
 
-    def _apply_remote_version(self, version: str) -> None:
-        self._version_task = None
-        if not version or version == self._app_version:
+    def _apply_remote_data_version(self, version: str) -> None:
+        self._data_version_task = None
+        if not version or version == self._data_version:
             return
-        self._app_version = version
-        self.config["app_version_override"] = version
+        self._data_version = version
+        self.config["data_version_override"] = version
         save_config(self.config_path, self.config)
-        global APP_VERSION
-        APP_VERSION = version
         if self._about_dialog:
-            self._about_dialog.set_app_version(version)
+            self._about_dialog.set_data_version(version)
 
-    def _version_fetch_failed(self, _message: str) -> None:
-        self._version_task = None
+    def _data_version_fetch_failed(self, _message: str) -> None:
+        self._data_version_task = None
 
     def _check_updates_silent(self) -> None:
         self._start_update_check(silent=True)
@@ -2766,7 +2772,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._start_update_check(silent=False)
 
     def _start_update_check(self, silent: bool) -> None:
-        task = UpdateCheckTask(self._app_version)
+        task = UpdateCheckTask(APP_VERSION)
         self._update_tasks.append(task)
         task.signals.available.connect(lambda tag, url: self._on_update_available(tag, url, silent))
         task.signals.up_to_date.connect(lambda tag: self._on_update_uptodate(tag, silent))
@@ -3655,17 +3661,26 @@ class AboutDialog(QtWidgets.QDialog):
     check_updates_requested = QtCore.Signal()
     auto_check_toggled = QtCore.Signal(bool)
 
-    def __init__(self, config: Dict, app_version: str, parent: Optional[QtWidgets.QWidget] = None) -> None:
+    def __init__(
+        self,
+        config: Dict,
+        app_version: str,
+        data_version: str,
+        parent: Optional[QtWidgets.QWidget] = None,
+    ) -> None:
         super().__init__(parent)
         self.setWindowTitle("About")
         self.setMinimumWidth(760)
         self._config = config
         self._app_version = app_version
+        self._data_version = data_version
 
         title = QtWidgets.QLabel("Astro Catalogue Viewer")
         title.setObjectName("aboutTitle")
-        self.version_label = QtWidgets.QLabel(f"Version {app_version}")
-        self.version_label.setObjectName("aboutVersion")
+        self.app_version_label = QtWidgets.QLabel(f"App Version: {app_version}")
+        self.app_version_label.setObjectName("aboutVersion")
+        self.data_version_label = QtWidgets.QLabel(f"Data Version: {data_version}")
+        self.data_version_label.setObjectName("aboutDataVersion")
 
         about = QtWidgets.QLabel(
             "Astro Catalogue Viewer helps you organize deep-sky catalogs with your own imagery, "
@@ -3698,7 +3713,8 @@ class AboutDialog(QtWidgets.QDialog):
         left_layout = QtWidgets.QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.addWidget(title)
-        left_layout.addWidget(self.version_label)
+        left_layout.addWidget(self.app_version_label)
+        left_layout.addWidget(self.data_version_label)
         left_layout.addSpacing(8)
         left_layout.addWidget(about)
         left_layout.addSpacing(10)
@@ -3764,11 +3780,11 @@ class AboutDialog(QtWidgets.QDialog):
             self.update_status.setText(status)
             self.update_status.setOpenExternalLinks(False)
 
-    def set_app_version(self, version: str) -> None:
+    def set_data_version(self, version: str) -> None:
         if not version:
             return
-        self._app_version = version
-        self.version_label.setText(f"Version {version}")
+        self._data_version = version
+        self.data_version_label.setText(f"Data Version: {version}")
 
     def _start_supporters_fetch(self) -> None:
         task = SupportersFetchTask(SUPPORTERS_URL, user_agent=f"{APP_NAME}/{self._app_version}")
@@ -3984,11 +4000,11 @@ class SupportersFetchTask(QtCore.QRunnable):
         return []
 
 
-class VersionFetchTask(QtCore.QRunnable):
+class DataVersionFetchTask(QtCore.QRunnable):
     def __init__(self, url: str) -> None:
         super().__init__()
         self.url = url
-        self.signals = VersionSignals()
+        self.signals = DataVersionSignals()
 
     def run(self) -> None:
         if SHUTDOWN_EVENT.is_set():
