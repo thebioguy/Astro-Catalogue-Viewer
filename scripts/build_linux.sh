@@ -4,6 +4,7 @@ set -euo pipefail
 ZIP_NAME="AstroCatalogueViewer-Linux.zip"
 
 python3 -m pip install --upgrade pyinstaller
+python3 -m pip install --upgrade -r requirements.txt
 
 python3 -m PyInstaller --clean --noconfirm spec/AstroCatalogueViewer-linux.spec
 
