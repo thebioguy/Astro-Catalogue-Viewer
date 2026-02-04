@@ -86,11 +86,15 @@ class ThumbnailCache:
 
     def create_thumbnail(self, image_path: Path) -> Optional[QtGui.QImage]:
         reader = QtGui.QImageReader(str(image_path))
-        if not reader.canRead():
-            return None
-        reader.setAutoTransform(True)
-        image = reader.read()
-        if image.isNull():
+        image: Optional[QtGui.QImage] = None
+        if reader.canRead():
+            reader.setAutoTransform(True)
+            image = reader.read()
+            if image.isNull():
+                image = None
+        if image is None:
+            image = _load_image_with_pillow(image_path)
+        if image is None:
             return None
         if "saturn" in image_path.stem.lower():
             image = self._center_square_crop(image)
@@ -140,3 +144,22 @@ class ThumbnailCache:
                     entry.unlink()
             except OSError:
                 continue
+
+
+def _load_image_with_pillow(image_path: Path) -> Optional[QtGui.QImage]:
+    try:
+        import warnings
+        from PIL import Image
+    except Exception:
+        return None
+    try:
+        Image.MAX_IMAGE_PIXELS = None
+        warnings.simplefilter("ignore", Image.DecompressionBombWarning)
+        with Image.open(str(image_path)) as img:
+            img = img.convert("RGB")
+            width, height = img.size
+            data = img.tobytes()
+            image = QtGui.QImage(data, width, height, width * 3, QtGui.QImage.Format.Format_RGB888)
+            return image.copy()
+    except Exception:
+        return None

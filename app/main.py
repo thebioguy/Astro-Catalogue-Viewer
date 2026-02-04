@@ -24,12 +24,12 @@ from image_cache import ThumbnailCache
 
 
 APP_NAME = "Astro Catalogue Viewer"
-APP_VERSION = "2.4-beta"
 ORG_NAME = "AstroCatalogueViewer"
 UPDATE_REPO = "thebioguy/Astro-Catalogue-Viewer"
 SUPPORTERS_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/supporters.json"
-DATA_VERSION_FILE = "data/version.json"
-DATA_VERSION_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/version.json"
+APP_VERSION_FILE = "data/version.json"
+DATA_VERSION_FILE = "data/data_version.json"
+DATA_VERSION_URL = f"https://raw.githubusercontent.com/{UPDATE_REPO}/main/data/data_version.json"
 
 
 def _extract_version(payload: object) -> Optional[str]:
@@ -56,10 +56,15 @@ def _load_version_from_file(path: Path) -> Optional[str]:
     return _extract_version(payload)
 
 
+def _load_bundled_app_version() -> str:
+    return _load_version_from_file(PROJECT_ROOT / APP_VERSION_FILE) or "Unknown"
+
+
 def _load_bundled_data_version() -> str:
     return _load_version_from_file(PROJECT_ROOT / DATA_VERSION_FILE) or "Unknown"
 
 
+APP_VERSION = _load_bundled_app_version()
 DEFAULT_DATA_VERSION = _load_bundled_data_version()
 SHUTDOWN_EVENT = threading.Event()
 
@@ -84,7 +89,7 @@ class RemoteThumbnailSignals(QtCore.QObject):
 
 class ImageLoadSignals(QtCore.QObject):
     loaded = QtCore.Signal(int, str, QtGui.QImage)
-    failed = QtCore.Signal(int, str)
+    failed = QtCore.Signal(int, str, str)
 
 
 class UpdateSignals(QtCore.QObject):
@@ -335,12 +340,12 @@ class ImageLoadTask(QtCore.QRunnable):
     def run(self) -> None:
         if SHUTDOWN_EVENT.is_set():
             return
-        image = _load_display_image(self.image_path)
+        image, error = _load_display_image(self.image_path)
         if image is None or image.isNull():
             if not isValid(self.signals):
                 return
             try:
-                self.signals.failed.emit(self.request_id, str(self.image_path))
+                self.signals.failed.emit(self.request_id, str(self.image_path), error or "Unable to load image.")
             except RuntimeError:
                 return
             return
@@ -1084,26 +1089,120 @@ def _tone_map_rgba64(image: QtGui.QImage) -> QtGui.QImage:
     return out_image.copy()
 
 
-def _load_tiff_with_tifffile(path: Path) -> Optional[QtGui.QImage]:
+def _load_tiff_with_tifffile(path: Path) -> Tuple[Optional[QtGui.QImage], Optional[str]]:
     try:
         import numpy as np
         import tifffile
     except Exception:
-        return None
+        return None, "TIFF support not available (missing tifffile)."
 
     try:
-        data = tifffile.imread(str(path))
+        with tifffile.TiffFile(str(path)) as tif:
+            series = tif.series[0] if tif.series else None
+            if series is not None:
+                data = series.asarray()
+                axes = getattr(series, "axes", None)
+            elif tif.pages:
+                page = tif.pages[0]
+                data = page.asarray()
+                axes = getattr(page, "axes", None)
+            else:
+                data = None
+                axes = None
     except Exception:
-        return None
+        return None, "Unable to decode TIFF. Install imagecodecs for compressed TIFFs."
+
+    if data is None:
+        return None, "Unable to decode TIFF."
+    data = np.asarray(data)
+    if data.dtype.kind == "c":
+        data = np.abs(data)
+    data = _normalize_tiff_array(data, axes)
+    if data is None:
+        return None, "Unsupported TIFF layout."
+    if data.ndim == 2:
+        return _tone_map_numpy_to_qimage(data, "L"), None
+    if data.ndim == 3 and data.shape[2] in (3, 4):
+        mode = "RGB" if data.shape[2] == 3 else "RGBA"
+        return _tone_map_numpy_to_qimage(data, mode), None
+    return None, "Unsupported TIFF layout."
+
+
+def _normalize_tiff_array(data, axes: Optional[str] = None) -> Optional["np.ndarray"]:
+    import numpy as np
 
     if data is None:
         return None
-    if data.ndim == 2:
-        return _tone_map_numpy_to_qimage(data, "L")
-    if data.ndim == 3 and data.shape[2] in (3, 4):
-        mode = "RGB" if data.shape[2] == 3 else "RGBA"
-        return _tone_map_numpy_to_qimage(data, mode)
-    return None
+    array_data = np.asarray(data)
+    if array_data.size == 0:
+        return None
+    if axes and len(axes) == array_data.ndim:
+        axes = axes.upper()
+        sample_axes = [idx for idx, axis in enumerate(axes) if axis in ("S", "C")]
+        if sample_axes:
+            channel_axis = sample_axes[0]
+            array_data = np.moveaxis(array_data, channel_axis, -1)
+            axes = axes.replace(axes[channel_axis], "")
+        # Drop non-image axes (e.g., Z/T) by taking the first frame.
+        while array_data.ndim > 3:
+            array_data = array_data[0]
+        if array_data.ndim == 3 and array_data.shape[2] > 4:
+            array_data = array_data[:, :, :3]
+        if array_data.ndim == 2:
+            return array_data
+        if array_data.ndim == 3 and array_data.shape[2] in (1, 2):
+            return array_data[:, :, 0]
+        return array_data
+
+    array_data = np.squeeze(array_data)
+    if array_data.ndim == 2:
+        return array_data
+
+    channel_axis = _detect_channel_axis(array_data)
+    if channel_axis is not None:
+        array_data = np.moveaxis(array_data, channel_axis, -1)
+        while array_data.ndim > 3:
+            array_data = array_data[0]
+        if array_data.ndim == 3:
+            channels = array_data.shape[2]
+            if channels == 1:
+                return array_data[:, :, 0]
+            if channels == 2:
+                return array_data[:, :, 0]
+            if channels > 4:
+                array_data = array_data[:, :, :3]
+        return array_data
+
+    while array_data.ndim > 2:
+        array_data = array_data[0]
+    return array_data
+
+
+def _detect_channel_axis(array_data) -> Optional[int]:
+    if array_data.ndim < 3:
+        return None
+    shape = array_data.shape
+    candidates = []
+    for axis, size in enumerate(shape):
+        if size in (3, 4):
+            candidates.append(axis)
+    if not candidates:
+        for axis, size in enumerate(shape):
+            if size in (1, 2):
+                candidates.append(axis)
+    if not candidates and array_data.ndim == 3:
+        for axis, size in enumerate(shape):
+            if size <= 8:
+                other_dims = [shape[i] for i in range(array_data.ndim) if i != axis]
+                if all(dim > 16 for dim in other_dims):
+                    candidates.append(axis)
+    if not candidates:
+        return None
+    if candidates[-1] == array_data.ndim - 1:
+        return candidates[-1]
+    if candidates[0] == 0:
+        return candidates[0]
+    return candidates[0]
 
 
 def _tone_map_numpy_to_qimage(data, mode: str) -> Optional[QtGui.QImage]:
@@ -1141,7 +1240,7 @@ def _tone_map_numpy_to_qimage(data, mode: str) -> Optional[QtGui.QImage]:
     return None
 
 
-def _load_display_image(path: Path) -> Optional[QtGui.QImage]:
+def _load_display_image(path: Path) -> Tuple[Optional[QtGui.QImage], Optional[str]]:
     reader = QtGui.QImageReader(str(path))
     if reader.canRead():
         reader.setAutoTransform(True)
@@ -1154,12 +1253,41 @@ def _load_display_image(path: Path) -> Optional[QtGui.QImage]:
                 QtGui.QImage.Format.Format_RGBA64_Premultiplied,
             ):
                 image = _tone_map_high_bit_image(image)
-            return image
-    tif_image = _load_tiff_with_tifffile(path)
+            return image, None
+    error = reader.errorString() if reader.error() != QtGui.QImageReader.ImageReaderError.UnknownError else None
+    tif_image, tif_error = _load_tiff_with_tifffile(path)
     if tif_image is not None:
-        return tif_image
+        return tif_image, None
+    if tif_error:
+        error = tif_error
+    pil_image, pil_error = _load_tiff_with_pillow(path)
+    if pil_image is not None:
+        return pil_image, None
+    if pil_error:
+        error = pil_error
     fallback = QtGui.QImage(str(path))
-    return fallback if not fallback.isNull() else None
+    if not fallback.isNull():
+        return fallback, None
+    return None, error or "Unable to load image."
+
+
+def _load_tiff_with_pillow(path: Path) -> Tuple[Optional[QtGui.QImage], Optional[str]]:
+    try:
+        import warnings
+        from PIL import Image
+    except Exception:
+        return None, None
+    try:
+        Image.MAX_IMAGE_PIXELS = None
+        warnings.simplefilter("ignore", Image.DecompressionBombWarning)
+        with Image.open(str(path)) as img:
+            img = img.convert("RGB")
+            width, height = img.size
+            data = img.tobytes()
+            image = QtGui.QImage(data, width, height, width * 3, QtGui.QImage.Format.Format_RGB888)
+            return image.copy(), None
+    except Exception:
+        return None, "Pillow could not decode this TIFF."
 
 
 class LightboxDialog(QtWidgets.QDialog):
@@ -1472,11 +1600,11 @@ class DetailPanel(QtWidgets.QWidget):
         self.thumb_button.setEnabled(True)
         self.archive_button.setEnabled(True)
 
-    def _on_image_failed(self, request_id: int, path_value: str) -> None:
+    def _on_image_failed(self, request_id: int, path_value: str, message: str) -> None:
         if request_id != self._image_load_id:
             return
         self.image_view.set_pixmap(None)
-        self.image_info.setText("Unable to load image (unsupported TIFF bit depth)")
+        self.image_info.setText(message or "Unable to load image.")
         self.thumb_button.setEnabled(False)
         self.archive_button.setEnabled(False)
 
