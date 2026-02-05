@@ -1,6 +1,6 @@
 # Astro Catalogue Viewer
 
-Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky catalog images (Messier, NGC, IC, Caldwell, and more). It gives you a fast image grid, filters, rich object metadata, and notes so you can track progress and plan what to capture next.
+Astro Catalogue Viewer is a desktop app for organizing and browsing deep-sky catalog images (Messier, NGC, Caldwell, Solar system, and more). It gives you a fast image grid, filters, rich object metadata, and notes so you can track progress and plan what to capture next.
 
 Website: https://astro-catalogue-viewer.com/
 
@@ -13,12 +13,20 @@ Status: beta
 - Wikipedia thumbnails for missing images (toggleable, cached)
 - Wikipedia previews labeled as not captured
 - Full-screen lightbox on double-click (Exit/Esc/Return)
-- Catalog-aware image matching by filename (e.g., M31, NGC7000, IC5070, C14)
+- Catalog-aware image matching by filename (e.g., M31, NGC7000, C14)
+- Messier ↔ NGC alias matching (M31/NGC224) so images appear in both catalogs
 - Master image folder support (if all images live in one place)
 - Optional catalog-specific image folders
 - Offline-safe location picker (browser-based map)
 
-## New in 1.7.x
+## New in 3.0 (since 1.7.x)
+- NGC/Caldwell metadata refresh with richer descriptions, distances, RA/Dec, and discoverer info
+- Curated Wikipedia thumbnails in the NGC data plus smarter filtering to avoid map/diagram images
+- Improved TIFF/high-bit image handling (tone mapping, `imagecodecs` support, Pillow fallback)
+- Metadata updates now merge into user metadata to preserve notes; About shows both app + data versions
+- Default catalog list is Messier, NGC, Caldwell, and Solar system (IC removed from the default list)
+
+## Previously in 1.7.x
 - Solar system catalog with wiki thumbnails
 - Duplicate scan for exact matches (SHA-256) with report link and optional archive move
 - Master image auto-sorting into catalog folders during duplicate scans
