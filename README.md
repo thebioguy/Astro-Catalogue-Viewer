@@ -22,7 +22,7 @@ Status: beta
 ## New in 3.0 (since 1.7.x)
 - NGC/Caldwell metadata refresh with richer descriptions, distances, RA/Dec, and discoverer info
 - Curated Wikipedia thumbnails in the NGC data plus smarter filtering to avoid map/diagram images
-- Improved TIFF/high-bit image handling (tone mapping, `imagecodecs` support, Pillow fallback)
+- Improved TIFF/high-bit image handling (tone mapping, imagecodecs support, Pillow fallback)
 - Metadata updates now merge into user metadata to preserve notes; About shows both app + data versions
 - Default catalog list is Messier, NGC, Caldwell, and Solar system (IC removed from the default list)
 
