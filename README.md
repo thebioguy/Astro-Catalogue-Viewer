@@ -145,8 +145,6 @@ If this helps your astrophotography workflow, consider supporting ongoing develo
 - https://buymeacoffee.com/PaulSpinelli
 - https://www.paypal.com/donate/?hosted_button_id=9GDUBHS78MH52
 
-Sponsor pitch text lives in `SPONSORS.md`.
-
 Feedback, suggestions, and bug reports are welcome via GitHub issues.
 
 ## License
